@@ -23,3 +23,55 @@ This library is `@angular/material`, it's one of the most famous in the angular 
 Note: I recommend to use material however it's not mandatory, if you prefer you can get rid of it.
 
 Good luck!
+
+## Back
+
+### Tech stack
+
+- Java 21
+- Spring Boot 4.1.1
+- MySQL 8.4 (Docker Compose)
+- Maven Wrapper (`./mvnw`)
+
+### Prerequisites
+
+- JDK 21 installed
+- Docker Desktop running
+
+### Backend quick start
+
+1. Go to the backend folder:
+
+```bash
+cd back
+```
+
+2. Create your local environment file:
+
+```bash
+cp .env.example .env
+```
+
+3. Update `.env` values:
+
+- `DB_HOST=localhost`
+- `DB_PORT=3306`
+- `DB_NAME=...`
+- `DB_USER=...`
+- `DB_PASSWORD=...`
+- `DB_ROOT_PASSWORD=...`
+- `JWT_SECRET=...`
+
+4. Start the backend:
+
+```bash
+./mvnw clean spring-boot:run
+```
+
+### Run tests
+
+```bash
+./mvnw clean test
+```
+
+Tests use Testcontainers (`mysql:8.4`) and do not require a manually running local MySQL.
