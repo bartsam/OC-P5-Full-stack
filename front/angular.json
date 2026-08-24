@@ -21,9 +21,7 @@
               "base": "dist/front"
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": ["src/favicon.png", "src/assets"],
@@ -61,6 +59,12 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "testing": {
+              "aot": false,
+              "optimization": false,
+              "extractLicenses": false,
+              "polyfills": ["src/polyfills.ts"]
             }
           },
           "defaultConfiguration": "production"
@@ -84,19 +88,14 @@
           }
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "inlineStyleLanguage": "scss",
-            "assets": ["src/favicon.png", "src/assets"],
-            "styles": [
-              "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
-              "src/styles/styles.scss"
-            ],
-            "scripts": []
+            "reporters": ["default"],
+            "coverageReporters": ["html", "text-summary"],
+            "setupFiles": ["src/test.ts"],
+            "buildTarget": ":build:testing",
+            "runner": "vitest"
           }
         }
       }
