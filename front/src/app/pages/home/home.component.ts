@@ -7,11 +7,11 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    console.log('à vous de jouer !');
+  }
 
   start() {
-    alert('Commencez par lire le README et à vous de jouer !');
+    alert('Commencez par lire le README');
   }
 }
