@@ -1,0 +1,5 @@
+app:
+  jwt:
+    secret: my-super-secret-key-for-testing-purposes-only
+  cors:
+    allowed-origins: http://localhost:4200

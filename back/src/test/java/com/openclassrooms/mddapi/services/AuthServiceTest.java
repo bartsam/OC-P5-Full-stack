@@ -18,11 +18,16 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.openclassrooms.mddapi.dto.AuthResponse;
 import com.openclassrooms.mddapi.dto.RegisterRequest;
 import com.openclassrooms.mddapi.exceptions.UserAlreadyExistsException;
-import com.openclassrooms.mddapi.models.User;
+import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,38 +41,62 @@ public class AuthServiceTest {
   @Mock
   private PasswordEncoder passwordEncoder;
 
+  @Mock
+  private AuthenticationManager authenticationManager;
+
+  @Mock
+  private JwtService jwtService;
+
   @InjectMocks
   private AuthService authService;
 
   @Captor
-  private ArgumentCaptor<User> userCaptor;
+  private ArgumentCaptor<UserEntity> userCaptor;
+
+  @Captor
+  private ArgumentCaptor<Authentication> authenticationCaptor;
 
   @Nested
   @DisplayName("register")
   class RegisterTests {
     @Test
     @DisplayName("should register user when request is valid")
-    void shouldRegisterUserWhenRequestIsValid() {
+    void shouldRegisterUserWhenRequestValid() {
       // GIVEN
       RegisterRequest request = new RegisterRequest(
           "john.doe@example.com",
           "jeanbiche",
           "Password123!");
 
+      Authentication authentication = new UsernamePasswordAuthenticationToken(
+          "john.doe@example.com", "Password123!");
+
       when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(false);
       when(userRepository.existsByUsername("jeanbiche")).thenReturn(false);
       when(passwordEncoder.encode("Password123!")).thenReturn("encodedPassword123!");
+      when(authenticationManager.authenticate(any()))
+          .thenReturn(authentication);
+      when(jwtService.generateToken(any(Authentication.class)))
+          .thenReturn("fake.jwt.token");
 
       // WHEN
-      authService.register(request);
+      AuthResponse response = authService.register(request);
 
       // THEN
       verify(userRepository).existsByEmail("john.doe@example.com");
       verify(userRepository).existsByUsername("jeanbiche");
-      verify(userRepository).save(userCaptor.capture());
       verify(passwordEncoder).encode("Password123!");
 
-      User savedUser = userCaptor.getValue();
+      verify(userRepository).save(userCaptor.capture());
+      verify(authenticationManager).authenticate(authenticationCaptor.capture());
+      verify(jwtService).generateToken(authentication);
+
+      Authentication authenticationRequest = authenticationCaptor.getValue();
+      assertThat(authenticationRequest.getName()).isEqualTo("john.doe@example.com");
+      assertThat(authenticationRequest.getCredentials()).isEqualTo("Password123!");
+      assertThat(response.token()).isEqualTo("fake.jwt.token");
+
+      UserEntity savedUser = userCaptor.getValue();
       assertThat(savedUser.getEmail()).isEqualTo("john.doe@example.com");
       assertThat(savedUser.getUsername()).isEqualTo("jeanbiche");
       assertThat(savedUser.getPassword()).isEqualTo("encodedPassword123!");
@@ -91,29 +120,57 @@ public class AuthServiceTest {
           .hasMessage("Email is already in use");
 
       verify(passwordEncoder, never()).encode(anyString());
-      verify(userRepository, never()).save(any(User.class));
+      verify(userRepository, never()).save(any(UserEntity.class));
+      verify(authenticationManager, never()).authenticate(any());
+      verify(jwtService, never()).generateToken(any());
     }
-  }
 
-  @Test
-  @DisplayName("should throw exception when username already exists")
-  void shouldThrowExceptionWhenUsernameAlreadyExists() {
-    // GIVEN
-    RegisterRequest request = new RegisterRequest(
-        "john.doe@example.com",
-        "jeanbiche",
-        "Password123!");
+    @Test
+    @DisplayName("should not generate token when authentication fails")
+    void shouldNotGenerateTokenWhenAuthenticationFails() {
+      // GIVEN
+      RegisterRequest request = new RegisterRequest(
+          "john.doe@example.com",
+          "jeanbiche",
+          "Password123!");
 
-    when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(false);
-    when(userRepository.existsByUsername("jeanbiche")).thenReturn(true);
+      when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(false);
+      when(userRepository.existsByUsername("jeanbiche")).thenReturn(false);
+      when(passwordEncoder.encode("Password123!")).thenReturn("encodedPassword123!");
+      when(authenticationManager.authenticate(any()))
+          .thenThrow(new BadCredentialsException("Bad credentials"));
 
-    // THEN
-    assertThatThrownBy(() -> authService.register(request))
-        .isInstanceOf(UserAlreadyExistsException.class)
-        .hasMessage("Username is already in use");
+      // THEN
+      assertThatThrownBy(() -> authService.register(request))
+          .isInstanceOf(BadCredentialsException.class);
 
-    verify(passwordEncoder, never()).encode(anyString());
-    verify(userRepository, never()).save(any(User.class));
+      verify(userRepository).save(any(UserEntity.class));
+      verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+      verify(jwtService, never()).generateToken(any());
+    }
+
+    @Test
+    @DisplayName("should throw exception when username already exists")
+    void shouldThrowExceptionWhenUsernameAlreadyExists() {
+      // GIVEN
+      RegisterRequest request = new RegisterRequest(
+          "john.doe@example.com",
+          "jeanbiche",
+          "Password123!");
+
+      when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(false);
+      when(userRepository.existsByUsername("jeanbiche")).thenReturn(true);
+
+      // THEN
+      assertThatThrownBy(() -> authService.register(request))
+          .isInstanceOf(UserAlreadyExistsException.class)
+          .hasMessage("Username is already in use");
+
+      verify(passwordEncoder, never()).encode(anyString());
+      verify(userRepository, never()).save(any(UserEntity.class));
+      verify(authenticationManager, never()).authenticate(any());
+      verify(jwtService, never()).generateToken(any());
+    }
   }
 
 }

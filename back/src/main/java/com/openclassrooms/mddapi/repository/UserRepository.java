@@ -5,15 +5,15 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.openclassrooms.mddapi.models.User;
+import com.openclassrooms.mddapi.models.UserEntity;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-  Optional<User> findByEmail(String email);
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
+  Optional<UserEntity> findByEmail(String email);
 
-  Optional<User> findByUsername(String username);
+  Optional<UserEntity> findByUsername(String username);
 
-  Optional<User> findByEmailOrUsername(String email, String username);
+  Optional<UserEntity> findByEmailOrUsername(String email, String username);
 
   boolean existsByEmail(String email);
 

@@ -7,10 +7,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.openclassrooms.mddapi.dto.MessageResponse;
+import com.openclassrooms.mddapi.dto.AuthResponse;
 import com.openclassrooms.mddapi.dto.RegisterRequest;
 import com.openclassrooms.mddapi.services.AuthService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.Valid;
 
 @RestController
@@ -24,12 +28,18 @@ public class AuthController {
     this.authService = authService;
   }
 
+  @Operation(summary = "Register new user", description = "Creates new user and authenticates it immediately. Returns a JWT token for authenticated calls")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "User created and JWT token returned"),
+      @ApiResponse(responseCode = "400", description = "Invalid data (incorrect format, missing fields, etc.)"),
+      @ApiResponse(responseCode = "409", description = "User already exists (duplicate email or username)")
+  })
+  @SecurityRequirements
   @PostMapping("/register")
-  public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
-    authService.register(request);
+  public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
 
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(new MessageResponse("User registered successfully"));
+    AuthResponse authResponse = authService.register(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
   }
 
 }
