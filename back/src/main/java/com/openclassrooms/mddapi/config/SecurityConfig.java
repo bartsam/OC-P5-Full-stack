@@ -10,19 +10,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.openclassrooms.mddapi.exceptions.JwtAuthenticationException;
+import com.openclassrooms.mddapi.exceptions.JwtAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
   private final CorsConfig corsConfig;
-  private final JwtAuthenticationException jwtAuthenticationException;
+  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
   public SecurityConfig(
-      CorsConfig corsConfig, JwtAuthenticationException jwtAuthenticationException) {
+      CorsConfig corsConfig, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
     this.corsConfig = corsConfig;
-    this.jwtAuthenticationException = jwtAuthenticationException;
+    this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
   }
 
   /**
@@ -39,7 +39,7 @@ public class SecurityConfig {
    * on all protected routes.
    */
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http
         .csrf(csrf -> csrf.disable())
         .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
@@ -51,7 +51,7 @@ public class SecurityConfig {
             .anyRequest().authenticated())
         .oauth2ResourceServer(oauth2 -> oauth2
             .jwt(Customizer.withDefaults())
-            .authenticationEntryPoint(jwtAuthenticationException))
+            .authenticationEntryPoint(jwtAuthenticationEntryPoint))
         .build();
   }
 

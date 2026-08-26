@@ -18,11 +18,11 @@ import tools.jackson.databind.ObjectMapper;
  * Handles unauthenticated API requests by returning a custom 401 Unauthorized
  */
 @Component
-public class JwtAuthenticationException implements AuthenticationEntryPoint {
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
   private final ObjectMapper objectMapper;
 
-  public JwtAuthenticationException(ObjectMapper objectMapper) {
+  public JwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 
