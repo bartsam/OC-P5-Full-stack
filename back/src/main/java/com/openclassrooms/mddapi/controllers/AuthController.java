@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.mddapi.dto.AuthResponse;
+import com.openclassrooms.mddapi.dto.LoginRequest;
 import com.openclassrooms.mddapi.dto.RegisterRequest;
 import com.openclassrooms.mddapi.services.AuthService;
 
@@ -40,6 +41,20 @@ public class AuthController {
 
     AuthResponse authResponse = authService.register(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
+  }
+
+  @Operation(summary = "Authenticate user", description = "Authenticates user with email/username and password. Returns a JWT token for authenticated calls.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Authentication successful, JWT token returned"),
+      @ApiResponse(responseCode = "400", description = "Invalid credentials (incorrect format, missing fields)"),
+      @ApiResponse(responseCode = "401", description = "Invalid email/username or password")
+  })
+  @SecurityRequirements
+  @PostMapping("/login")
+  public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+
+    AuthResponse response = authService.login(request);
+    return ResponseEntity.ok(response);
   }
 
 }

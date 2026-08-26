@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.openclassrooms.mddapi.dto.AuthResponse;
+import com.openclassrooms.mddapi.dto.LoginRequest;
 import com.openclassrooms.mddapi.dto.RegisterRequest;
 import com.openclassrooms.mddapi.exceptions.UserAlreadyExistsException;
 import com.openclassrooms.mddapi.models.UserEntity;
@@ -51,5 +52,15 @@ public class AuthService {
 
     String token = jwtService.generateToken(authentication);
     return new AuthResponse(token);
+  }
+
+  public AuthResponse login(LoginRequest request) {
+
+    Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(request.getIdentifier(), request.getPassword()));
+
+    String token = jwtService.generateToken(authentication);
+    return new AuthResponse(token);
+
   }
 }

@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Registration details for a new user")
-
 public class RegisterRequest {
 
   @Schema(description = "Unique email address used to sign in", example = "john.doe@example.com")
@@ -24,7 +23,7 @@ public class RegisterRequest {
 
   @Schema(description = "Unique username used to sign in", example = "jeanbiche")
   @NotBlank(message = "Username is required")
-  @Size(max = 20)
+  @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
   private String username;
 
   @Schema(description = "Password for the new account", example = "Password123!", accessMode = Schema.AccessMode.WRITE_ONLY)
