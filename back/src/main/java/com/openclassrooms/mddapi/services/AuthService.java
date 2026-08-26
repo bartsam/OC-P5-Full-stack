@@ -33,22 +33,22 @@ public class AuthService {
   }
 
   public AuthResponse register(RegisterRequest request) {
-    if (userRepository.existsByEmail(request.getEmail())) {
+    if (userRepository.existsByEmail(request.email())) {
       throw new UserAlreadyExistsException("Email is already in use");
     }
-    if (userRepository.existsByUsername(request.getUsername())) {
+    if (userRepository.existsByUsername(request.username())) {
       throw new UserAlreadyExistsException("Username is already in use");
     }
 
     UserEntity user = new UserEntity(
-        request.getEmail(),
-        request.getUsername(),
-        passwordEncoder.encode(request.getPassword()));
+        request.email(),
+        request.username(),
+        passwordEncoder.encode(request.password()));
 
     userRepository.save(user);
 
     Authentication authentication = authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
     String token = jwtService.generateToken(authentication);
     return new AuthResponse(token);
@@ -57,7 +57,7 @@ public class AuthService {
   public AuthResponse login(LoginRequest request) {
 
     Authentication authentication = authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(request.getIdentifier(), request.getPassword()));
+        new UsernamePasswordAuthenticationToken(request.identifier(), request.password()));
 
     String token = jwtService.generateToken(authentication);
     return new AuthResponse(token);
