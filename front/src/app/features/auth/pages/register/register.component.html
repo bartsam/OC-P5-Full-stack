@@ -78,21 +78,19 @@
       }
     </mat-form-field>
 
-    <mat-card-actions>
-      <button
-        mat-raised-button
-        color="primary"
-        type="submit"
-        class="form__submit"
-        [disabled]="form.invalid"
-        data-testid="submit-button"
-      >
-        S'inscrire
-      </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      class="form__submit"
+      [disabled]="form.invalid"
+      data-testid="submit-button"
+    >
+      S'inscrire
+    </button>
 
-      @if (onError && errorMessage) {
-        <span class="error" data-testid="error-message">{{ errorMessage }}</span>
-      }
-    </mat-card-actions>
+    @if (onError && errorMessage) {
+      <span class="error" data-testid="error-message">{{ errorMessage }}</span>
+    }
   </form>
 </div>

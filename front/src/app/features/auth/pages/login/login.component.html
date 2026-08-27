@@ -1,1 +1,81 @@
-<p>login works!</p>
+<a matIconButton routerLink="/" data-testid="back-button"><mat-icon>arrow_back</mat-icon></a>
+<div class="wrapper">
+  <h1>Se connecter</h1>
+  <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline" floatLabel="always" class="form__field">
+      <mat-label>E-mail ou nom d’utilisateur</mat-label>
+      <input matInput formControlName="identifier" data-testid="identifier-input" />
+      @if (form.controls.identifier.invalid && form.controls.identifier.touched) {
+        <mat-error class="form__message">
+          @if (form.controls.identifier.errors?.['required']) {
+            <span>Un email ou un nom d'utilisateur est obligatoire</span>
+          }
+          @if (form.controls.identifier.errors?.['minlength']) {
+            <span>L'email ou le nom d'utilisateur doit comporter au moins 3 caractères</span>
+          }
+          @if (form.controls.identifier.errors?.['maxlength']) {
+            <span>L'email ou le nom d'utilisateur ne doit pas dépasser 50 caractères.</span>
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field
+      appearance="outline"
+      floatLabel="always"
+      class="form__field"
+      [color]="
+        form.controls.password.invalid && form.controls.password.touched ? 'warn' : 'primary'
+      "
+    >
+      <mat-label>Mot de passe</mat-label>
+      <input
+        matInput
+        [type]="isPasswordVisible ? 'text' : 'password'"
+        formControlName="password"
+        data-testid="password-input"
+      />
+      @if (form.controls.password.value.length > 1) {
+        <button
+          matIconButton
+          matSuffix
+          type="button"
+          (click)="isPasswordVisible = !isPasswordVisible"
+          [attr.aria-label]="isPasswordVisible ? 'Hide password' : 'Show password'"
+          [attr.aria-pressed]="isPasswordVisible"
+          data-testid="password-button"
+        >
+          <mat-icon>{{ isPasswordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      }
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <mat-error class="form__message">
+          @if (form.controls.password.errors?.['required']) {
+            <span>Un mot de passe est requis</span>
+          }
+          @if (form.controls.password.errors?.['pattern']) {
+            <span
+              >Le mot de passe doit contenir 8 caractères dont une majuscule, une minuscule, un
+              chiffre et un caractère spécial</span
+            >
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      class="form__submit"
+      [disabled]="form.invalid"
+      data-testid="submit-button"
+    >
+      S'inscrire
+    </button>
+
+    @if (onError && errorMessage) {
+      <span class="error" data-testid="error-message">{{ errorMessage }}</span>
+    }
+  </form>
+</div>
