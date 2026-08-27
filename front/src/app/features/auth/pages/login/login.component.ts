@@ -48,7 +48,7 @@ export class LoginComponent {
       .login(loginRequest)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigate(['/home']),
+        next: () => this.router.navigate(['/']),
         error: (e: HttpErrorResponse) => {
           this.onError = true;
           this.errorMessage = e.message ?? 'An internal error has occurred';

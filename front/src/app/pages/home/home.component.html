@@ -1,5 +1,12 @@
-<div class="center">
-  <img src="/assets/logo_p6.png" alt="logo" />
-  <h1>Welcome to MDD</h1>
-  <button mat-raised-button color="primary" (click)="start()">Commencer</button>
+<div class="home">
+  @if (authService.isLoggedIn()) {
+    <h1>Vous êtes connecté·e</h1>
+    <p>Contenu réservé aux utilisateurs connectés (fil d’articles, etc.).</p>
+  } @else {
+    <img src="/assets/logo_p6.png" alt="MDD logo" />
+    <div class="home__actions">
+      <a matButton="outlined" routerLink="/login" class="mdd__button--large"> Se connecter </a>
+      <a matButton="outlined" routerLink="/register" class="button--large"> S’inscrire </a>
+    </div>
+  }
 </div>

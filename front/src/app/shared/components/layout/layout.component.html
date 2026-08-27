@@ -1,0 +1,27 @@
+@if (!hideHeader()) {
+  <header class="header">
+    <div class="header__wrapper">
+      <img src="/assets/logo_p6.png" alt="logo" class="logo" />
+      @if (authService.isLoggedIn()) {
+        <nav>
+          <button matButton="text" color="primary" (click)="authService.logout()">
+            Se déconnecter
+          </button>
+          <a
+            matButton="text"
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >Articles</a
+          >
+          <a matButton="text" routerLink="/topics" routerLinkActive="active">Thèmes</a>
+          <a matIconButton routerLink="/profile"><mat-icon>account_circle</mat-icon></a>
+        </nav>
+      }
+    </div>
+  </header>
+}
+
+<main class="wrapper">
+  <ng-content></ng-content>
+</main>
