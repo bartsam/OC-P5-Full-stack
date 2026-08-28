@@ -3,8 +3,16 @@ import { LoginComponent } from './features/auth/pages/login/login.component';
 import { RegisterComponent } from './features/auth/pages/register/register.component';
 import { HomeComponent } from './pages/home/home.component';
 
+import { authGuard } from './core/auth/auth.guard';
+import { ProfileComponent } from './features/profile/pages/profile/profile.component';
+
 export const routes: Routes = [
+  { path: '', component: HomeComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
-  { path: '', component: HomeComponent },
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [authGuard],
+  },
 ];
