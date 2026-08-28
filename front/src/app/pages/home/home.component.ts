@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../features/auth/auth.service';
+import { AuthService } from '../../features/auth/services/auth.service';
 
 @Component({
   selector: 'app-home',

@@ -4,7 +4,12 @@
       <img src="/assets/logo_p6.png" alt="logo" class="logo" />
       @if (authService.isLoggedIn()) {
         <nav>
-          <button matButton="text" color="primary" (click)="authService.logout()">
+          <button
+            matButton="text"
+            color="primary"
+            (click)="authService.logout()"
+            data-testid="logout-button"
+          >
             Se déconnecter
           </button>
           <a
