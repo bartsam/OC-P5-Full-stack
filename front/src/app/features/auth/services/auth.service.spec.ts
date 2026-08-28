@@ -1,10 +1,10 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { environment } from '../../../environments/environment';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { environment } from '../../../../environments/environment';
+import { AuthResponse, LoginRequest, RegisterRequest } from '../models';
 import { AuthService } from './auth.service';
-import { AuthResponse, LoginRequest, RegisterRequest } from './models';
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
@@ -12,7 +12,7 @@ describe('AuthService', () => {
   const authApiUrl = `${environment.apiUrl}/auth`;
   const mockToken = 'fake.jwt.token';
 
-  beforeEach(() => {
+  const setup = () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [AuthService, provideHttpClient(), provideHttpClientTesting()],
@@ -20,12 +20,16 @@ describe('AuthService', () => {
 
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
+  };
 
+  beforeEach(() => {
     localStorage.clear();
+    setup();
   });
 
   afterEach(() => {
     httpMock.verify();
+    vi.unstubAllGlobals();
   });
 
   it('should be created', () => {
@@ -128,6 +132,20 @@ describe('AuthService', () => {
       service.logout();
 
       expect(localStorage.getItem('auth_token')).toBeNull();
+      expect(service.isLoggedIn()).toBe(false);
+    });
+  });
+
+  describe('localStorage', () => {
+    it('should restore the authentication state from localStorage', () => {
+      localStorage.setItem('auth_token', mockToken);
+      setup();
+      expect(service.isLoggedIn()).toBe(true);
+    });
+
+    it('should initialise as logged out when localStorage is unavailable', () => {
+      vi.stubGlobal('localStorage', undefined);
+      setup();
       expect(service.isLoggedIn()).toBe(false);
     });
   });

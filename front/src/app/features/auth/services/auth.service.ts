@@ -2,8 +2,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginRequest, RegisterRequest } from './models';
+import { environment } from '../../../../environments/environment';
+import { AuthResponse, LoginRequest, RegisterRequest } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

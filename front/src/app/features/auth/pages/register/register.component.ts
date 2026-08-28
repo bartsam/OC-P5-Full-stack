@@ -4,8 +4,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MaterialComponents } from '../../../../shared/material';
-import { AuthService } from '../../auth.service';
 import { RegisterForm, RegisterRequest } from '../../models';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
