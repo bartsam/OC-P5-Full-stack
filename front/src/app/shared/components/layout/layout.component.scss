@@ -33,8 +33,15 @@
   }
 }
 
-.wrapper {
+.main {
   max-width: 825px;
   margin: 0 auto;
   padding: 48px;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }

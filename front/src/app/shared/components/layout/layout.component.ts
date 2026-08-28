@@ -16,16 +16,17 @@ export class LayoutComponent {
   protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  isHomePage = toSignal(
+  readonly currentUrl = toSignal(
     this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-      map(e => e.urlAfterRedirects === '/'),
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map(event => event.urlAfterRedirects),
     ),
-    { initialValue: this.router.url === '/' },
+    { initialValue: this.router.url },
   );
 
+  readonly isHomePage = computed(() => this.currentUrl() === '/');
   readonly isLoggedIn = this.authService.isLoggedIn;
-
+  readonly showBackButton = computed(() => ['/login', '/register'].includes(this.currentUrl()));
   readonly hideHeader = computed(() => this.isHomePage() && !this.authService.isLoggedIn());
 
   logout(): void {

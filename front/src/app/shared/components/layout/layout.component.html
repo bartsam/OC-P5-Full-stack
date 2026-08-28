@@ -4,7 +4,7 @@
       <img src="/assets/logo_p6.png" alt="logo" class="logo" />
       @if (isLoggedIn()) {
         <nav>
-          <button matButton="text" color="primary" (click)="logout()" data-testid="logout-button">
+          <button matButton="text" color="warn" (click)="logout()" data-testid="logout-button">
             Se déconnecter
           </button>
           <a
@@ -12,16 +12,40 @@
             routerLink="/"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
+            #rlaHome="routerLinkActive"
+            [color]="rlaHome.isActive ? 'primary' : undefined"
             >Articles</a
           >
-          <a matButton="text" routerLink="/topics" routerLinkActive="active">Thèmes</a>
-          <a matIconButton routerLink="/profile"><mat-icon>account_circle</mat-icon></a>
+          <a
+            matButton="text"
+            routerLink="/topics"
+            routerLinkActive="active"
+            #rlaTopics="routerLinkActive"
+            [color]="rlaTopics.isActive ? 'primary' : undefined"
+            >Thèmes</a
+          >
+          <a
+            matIconButton
+            routerLink="/profile"
+            routerLinkActive
+            #rlaProfile="routerLinkActive"
+            [color]="rlaProfile.isActive ? 'primary' : undefined"
+          >
+            <mat-icon>account_circle</mat-icon>
+          </a>
         </nav>
       }
     </div>
   </header>
 }
 
-<main class="wrapper">
-  <ng-content></ng-content>
+<main class="main">
+  @if (showBackButton()) {
+    <a matIconButton routerLink="/" data-testid="back-button" aria-label="Retour à l'accueil">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+  }
+  <div class="wrapper">
+    <ng-content></ng-content>
+  </div>
 </main>
