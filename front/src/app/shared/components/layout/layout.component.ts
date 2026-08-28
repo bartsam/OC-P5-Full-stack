@@ -24,5 +24,12 @@ export class LayoutComponent {
     { initialValue: this.router.url === '/' },
   );
 
+  readonly isLoggedIn = this.authService.isLoggedIn;
+
   readonly hideHeader = computed(() => this.isHomePage() && !this.authService.isLoggedIn());
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/']);
+  }
 }

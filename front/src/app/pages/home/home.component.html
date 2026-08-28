@@ -1,5 +1,5 @@
 <div class="home">
-  @if (authService.isLoggedIn()) {
+  @if (isLoggedIn()) {
     <div class="home__feed" data-testid="feed">
       <h1>Vous êtes connecté·e</h1>
       <p>Contenu réservé aux utilisateurs connectés (fil d’articles, etc.).</p>

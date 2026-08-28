@@ -12,4 +12,5 @@ import { AuthService } from '../../features/auth/services/auth.service';
 })
 export class HomeComponent {
   protected readonly authService = inject(AuthService);
+  readonly isLoggedIn = this.authService.isLoggedIn;
 }

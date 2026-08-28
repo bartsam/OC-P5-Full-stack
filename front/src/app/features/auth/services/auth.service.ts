@@ -10,7 +10,7 @@ export class AuthService {
   private readonly httpClient = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
-  private readonly token = signal<string | null>(
+  readonly token = signal<string | null>(
     typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null,
   );
 
