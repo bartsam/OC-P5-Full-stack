@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '../../services/auth.service';
 import { LoginComponent } from './login.component';
 
-describe('LoginComponent Unit tests', () => {
+describe('LoginComponent unit tests', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let mockAuthService: { login: ReturnType<typeof vi.fn> };
