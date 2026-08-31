@@ -104,12 +104,12 @@ public class UserServiceTest {
   }
 
   @Nested
-  @DisplayName("updateProfile")
-  class UpdateProfileTests {
+  @DisplayName("updateUser")
+  class updateUserTests {
 
     @Test
     @DisplayName("should update email, username and password when data is valid")
-    void updateProfile_shouldUpdateUser_whenDataValid() {
+    void updateUser_shouldUpdateUser_whenDataValid() {
       // GIVEN
       String identifier = "john.doe@example.com";
       UserEntity existingUser = new UserEntity(
@@ -145,7 +145,7 @@ public class UserServiceTest {
           .thenReturn(updatedUser);
 
       // WHEN
-      UserEntity result = userService.updateProfile(identifier, request);
+      UserEntity result = userService.updateUser(identifier, request);
 
       // THEN
       assertThat(result).isNotNull();
@@ -161,7 +161,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("should throw UserNotFoundException when user does not exist")
-    void updateProfile_shouldThrowUserNotFoundException_whenUserNotFound() {
+    void updateUser_shouldThrowUserNotFoundException_whenUserNotFound() {
       // GIVEN
       String identifier = "unknown@example.com";
       UpdateUserRequest request = new UpdateUserRequest(
@@ -176,14 +176,14 @@ public class UserServiceTest {
           .thenReturn(Optional.empty());
 
       // THEN
-      assertThatThrownBy(() -> userService.updateProfile(identifier, request))
+      assertThatThrownBy(() -> userService.updateUser(identifier, request))
           .isInstanceOf(UserNotFoundException.class)
           .hasMessage("User not found");
     }
 
     @Test
     @DisplayName("should throw UserAlreadyExistsException when email is already in use")
-    void updateProfile_shouldThrowUserAlreadyExistsException_whenEmailExists() {
+    void updateUser_shouldThrowUserAlreadyExistsException_whenEmailExists() {
       // GIVEN
       String identifier = "john.doe@example.com";
       UserEntity existingUser = new UserEntity(
@@ -204,14 +204,14 @@ public class UserServiceTest {
           .thenReturn(true);
 
       // THEN
-      assertThatThrownBy(() -> userService.updateProfile(identifier, request))
+      assertThatThrownBy(() -> userService.updateUser(identifier, request))
           .isInstanceOf(UserAlreadyExistsException.class)
           .hasMessage("Email is already in use");
     }
 
     @Test
     @DisplayName("should throw UserAlreadyExistsException when username is already in use")
-    void updateProfile_shouldThrowUserAlreadyExistsException_whenUsernameExists() {
+    void updateUser_shouldThrowUserAlreadyExistsException_whenUsernameExists() {
       // GIVEN
       String identifier = "john.doe@example.com";
       UserEntity existingUser = new UserEntity(
@@ -235,7 +235,7 @@ public class UserServiceTest {
           .thenReturn(true);
 
       // WHEN + THEN
-      assertThatThrownBy(() -> userService.updateProfile(identifier, request))
+      assertThatThrownBy(() -> userService.updateUser(identifier, request))
           .isInstanceOf(UserAlreadyExistsException.class)
           .hasMessage("Username is already in use");
     }

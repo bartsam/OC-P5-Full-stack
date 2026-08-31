@@ -28,7 +28,7 @@ public class UserService {
 
   }
 
-  public UserEntity updateProfile(String identifier, UpdateUserRequest request) {
+  public UserEntity updateUser(String identifier, UpdateUserRequest request) {
     UserEntity user = findByEmailOrUsername(identifier);
 
     if (userRepository.existsByEmailAndIdNot(request.email(), user.getId())) {

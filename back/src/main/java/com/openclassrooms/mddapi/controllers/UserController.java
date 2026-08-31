@@ -56,10 +56,10 @@ public class UserController {
   })
   @SecurityRequirement(name = "bearerAuth")
   @PutMapping("/profile")
-  public ResponseEntity<UserResponse> updateProfile(
+  public ResponseEntity<UserResponse> updateUser(
       Authentication authentication,
       @Valid @RequestBody UpdateUserRequest request) {
-    UserEntity user = userService.updateProfile(authentication.getName(), request);
+    UserEntity user = userService.updateUser(authentication.getName(), request);
     return ResponseEntity.ok(userMapper.toDto(user));
   }
 }

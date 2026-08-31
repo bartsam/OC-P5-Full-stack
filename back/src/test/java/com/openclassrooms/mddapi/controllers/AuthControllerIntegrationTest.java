@@ -35,7 +35,7 @@ import tools.jackson.databind.json.JsonMapper;
 @Testcontainers
 @ActiveProfiles("test")
 @Tag("integration")
-@DisplayName("AuthController integration")
+@DisplayName("AuthController integration tests")
 class AuthControllerIntegrationTest {
 
   @Container
