@@ -1,14 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MaterialComponents } from '../../../../shared/material';
 import { LoginForm, LoginRequest } from '../../models';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  imports: [RouterLink, MaterialComponents, ReactiveFormsModule],
+  imports: [MaterialComponents, ReactiveFormsModule],
   selector: 'app-login',
   styleUrl: './login.component.scss',
   templateUrl: './login.component.html',
@@ -19,9 +19,8 @@ export class LoginComponent {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
-  public onError = false;
-  public errorMessage: string | null = null;
-  public isPasswordVisible = false;
+  readonly errorMessage = signal<string | null>(null);
+  readonly isPasswordVisible = signal(false);
 
   public form: FormGroup<LoginForm> = this.formBuilder.nonNullable.group({
     identifier: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
@@ -34,10 +33,11 @@ export class LoginComponent {
     ],
   });
 
-  submit(): void {
-    this.onError = false;
-    this.errorMessage = null;
+  togglePasswordVisibility(): void {
+    this.isPasswordVisible.update(visible => !visible);
+  }
 
+  submit(): void {
     if (this.form.invalid) {
       return;
     }
@@ -50,8 +50,7 @@ export class LoginComponent {
       .subscribe({
         next: () => this.router.navigate(['/']),
         error: (e: HttpErrorResponse) => {
-          this.onError = true;
-          this.errorMessage = e.message ?? 'An internal error has occurred';
+          this.errorMessage.set(e.message ?? 'An internal error has occurred');
         },
       });
   }

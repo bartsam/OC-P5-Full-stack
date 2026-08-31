@@ -34,8 +34,7 @@ describe('LoginComponent unit tests', () => {
     expect(component.form.valid).toBeFalsy();
     expect(component.form.controls.identifier.valid).toBeFalsy();
     expect(component.form.controls.password.valid).toBeFalsy();
-    expect(component.onError).toBeFalsy();
-    expect(component.errorMessage).toBeNull();
+    expect(component.errorMessage()).toBeNull();
   });
 
   describe('Identifier field', () => {
@@ -82,7 +81,7 @@ describe('LoginComponent unit tests', () => {
     });
 
     it('should toggle the password visibility', () => {
-      expect(component.isPasswordVisible).toBeFalsy();
+      expect(component.isPasswordVisible()).toBeFalsy();
 
       component.form.controls.password.setValue('Password123!');
       fixture.detectChanges();
@@ -93,7 +92,7 @@ describe('LoginComponent unit tests', () => {
       button.click();
       fixture.detectChanges();
 
-      expect(component.isPasswordVisible).toBeTruthy();
+      expect(component.isPasswordVisible()).toBeTruthy();
 
       const input = fixture.nativeElement.querySelector('[data-testid="password-input"]');
       expect(input.getAttribute('type')).toBe('text');
@@ -140,8 +139,7 @@ describe('LoginComponent unit tests', () => {
         password: 'Password123!',
       });
       expect(navigateSpy).toHaveBeenCalledWith(['/']);
-      expect(component.onError).toBeFalsy();
-      expect(component.errorMessage).toBeNull();
+      expect(component.errorMessage()).toBeNull();
     });
 
     it('should display an error message in the event of an HTTP failure', () => {
@@ -160,8 +158,7 @@ describe('LoginComponent unit tests', () => {
       component.submit();
       fixture.detectChanges();
 
-      expect(component.onError).toBeTruthy();
-      expect(component.errorMessage).toBe('Bad credentials');
+      expect(component.errorMessage()).toBe('Bad credentials');
 
       const errorEl = fixture.nativeElement.querySelector('[data-testid="error-message"]');
       expect(errorEl).toBeTruthy();

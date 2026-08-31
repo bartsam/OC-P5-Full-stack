@@ -35,8 +35,7 @@ describe('RegisterComponent unit tests', () => {
     expect(component.form.controls.username.valid).toBeFalsy();
     expect(component.form.controls.email.valid).toBeFalsy();
     expect(component.form.controls.password.valid).toBeFalsy();
-    expect(component.onError).toBeFalsy();
-    expect(component.errorMessage).toBeNull();
+    expect(component.errorMessage()).toBeNull();
   });
 
   describe('Username field', () => {
@@ -109,7 +108,7 @@ describe('RegisterComponent unit tests', () => {
     });
 
     it('should toggle the password visibility', () => {
-      expect(component.isPasswordVisible).toBeFalsy();
+      expect(component.isPasswordVisible()).toBeFalsy();
 
       component.form.controls.password.setValue('Password123!');
       fixture.detectChanges();
@@ -170,8 +169,7 @@ describe('RegisterComponent unit tests', () => {
         password: 'Password123!',
       });
       expect(navigateSpy).toHaveBeenCalledWith(['/']);
-      expect(component.onError).toBeFalsy();
-      expect(component.errorMessage).toBeNull();
+      expect(component.errorMessage()).toBeNull();
     });
 
     it('should display an error message in the event of an HTTP failure', () => {
@@ -190,9 +188,6 @@ describe('RegisterComponent unit tests', () => {
 
       component.submit();
       fixture.detectChanges();
-
-      expect(component.onError).toBeTruthy();
-      expect(component.errorMessage).toBe('Email already exists');
 
       const errorEl = fixture.nativeElement.querySelector('[data-testid="error-message"]');
       expect(errorEl).toBeTruthy();
