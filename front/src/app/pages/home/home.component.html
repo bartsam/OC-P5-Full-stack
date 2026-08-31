@@ -1,5 +1,28 @@
-<div class="center">
-  <img src="/assets/logo_p6.png" alt="logo" />
-  <h1>Welcome to MDD</h1>
-  <button mat-raised-button color="primary" (click)="start()">Commencer</button>
+<div class="home">
+  @if (isLoggedIn()) {
+    <div class="home__feed" data-testid="feed">
+      <h1>Vous êtes connecté·e</h1>
+      <p>Contenu réservé aux utilisateurs connectés (fil d’articles, etc.).</p>
+    </div>
+  } @else {
+    <img src="/assets/logo_p6.png" alt="MDD logo" />
+    <div class="home__actions" data-testid="landing">
+      <a
+        matButton="outlined"
+        routerLink="/login"
+        class="mdd__button--large"
+        data-testid="landing-link"
+      >
+        Se connecter
+      </a>
+      <a
+        matButton="outlined"
+        routerLink="/register"
+        class="button--large"
+        data-testid="landing-link"
+      >
+        S’inscrire
+      </a>
+    </div>
+  }
 </div>

@@ -1,17 +1,16 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../features/auth/services/auth.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
+  imports: [RouterLink, MatButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent implements OnInit {
-  ngOnInit(): void {
-    console.log('à vous de jouer !');
-  }
-
-  start() {
-    alert('Commencez par lire le README');
-  }
+export class HomeComponent {
+  protected readonly authService = inject(AuthService);
+  readonly isLoggedIn = this.authService.isLoggedIn;
 }

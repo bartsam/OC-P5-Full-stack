@@ -1,8 +1,11 @@
-mdd:
-  app:
-    jwtExpirationMs: 86400000
-    jwtSecret: ${JWT_SECRET}
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: mdd-api
   datasource:
