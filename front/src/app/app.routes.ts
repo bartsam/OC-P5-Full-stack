@@ -4,7 +4,7 @@ import { RegisterComponent } from './features/auth/pages/register/register.compo
 import { HomeComponent } from './pages/home/home.component';
 
 import { authGuard } from './core/auth/auth.guard';
-import { ProfileComponent } from './features/profile/pages/profile/profile.component';
+import { ProfileComponent } from './features/user/pages/profile/profile.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },

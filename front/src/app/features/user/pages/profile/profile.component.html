@@ -2,9 +2,11 @@
   <h1>Profil utilisateur</h1>
   @if (isLoading()) {
     <p>Chargement du profil...</p>
-  } @else if (errorMessage()) {
-    <p>{{ errorMessage() }}</p>
-  } @else if (profile(); as user) {
+  } @else if (errorGetMessage()) {
+    <mat-error>
+      <span data-testid="error-get-message">{{ errorGetMessage() }}</span>
+    </mat-error>
+  } @else if (user()) {
     <form class="form" [formGroup]="form" (ngSubmit)="submit()">
       <mat-form-field appearance="outline" floatLabel="always" class="form__field">
         <mat-label>Nom d'utilisateur</mat-label>
@@ -94,9 +96,13 @@
         Sauvegarder
       </button>
 
-      @if (onError() && errorMessage()) {
-        <span class="error" data-testid="error-message">{{ errorMessage() }}</span>
+      @if (errorPutMessage()) {
+        <mat-error>
+          <span data-testid="error-put-message">{{ errorPutMessage() }}</span>
+        </mat-error>
       }
     </form>
+    <p>Créé le : {{ user()?.createdAt | date: 'dd/MM/yyyy' }}</p>
+    <p>Modifié le : {{ user()?.updatedAt | date: 'dd/MM/yyyy' }}</p>
   }
 </div>
