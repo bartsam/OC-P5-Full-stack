@@ -25,7 +25,6 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.openclassrooms.mddapi.dto.UpdateUserRequest;
 import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.security.JwtService;

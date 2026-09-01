@@ -3,7 +3,6 @@ package com.openclassrooms.mddapi.services;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.openclassrooms.mddapi.dto.UpdateUserRequest;
 import com.openclassrooms.mddapi.exceptions.UserAlreadyExistsException;
 import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.repository.UserRepository;
@@ -16,6 +15,12 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final UserRepository userRepository;
 
+  /**
+   * Constructs the UserService with required dependencies.
+   *
+   * @param userRepository  the repository for managing UserEntity persistence
+   * @param passwordEncoder the encoder used for hashing passwords
+   */
   public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;

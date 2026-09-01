@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.openclassrooms.mddapi.dto.UpdateUserRequest;
 import com.openclassrooms.mddapi.dto.UserResponse;
 import com.openclassrooms.mddapi.mappers.UserMapper;
 import com.openclassrooms.mddapi.models.UserEntity;

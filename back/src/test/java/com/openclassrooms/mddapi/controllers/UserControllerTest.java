@@ -23,7 +23,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import com.openclassrooms.mddapi.dto.UpdateUserRequest;
 import com.openclassrooms.mddapi.dto.UserResponse;
 import com.openclassrooms.mddapi.exceptions.UserAlreadyExistsException;
 import com.openclassrooms.mddapi.mappers.UserMapper;
@@ -62,7 +61,8 @@ public class UserControllerTest {
       UserEntity user = new UserEntity("john.doe@example.com", "jeanbiche", "encodedPassword123!");
       user.setId(1L);
       UserResponse response = new UserResponse(
-          1L, "john.doe@example.com", "jeanbiche", LocalDateTime.now(), LocalDateTime.now());
+          1L, "john.doe@example.com", "jeanbiche", LocalDateTime.now(),
+          LocalDateTime.now());
 
       Authentication authentication = new UsernamePasswordAuthenticationToken("1", null, List.of());
 
@@ -110,11 +110,13 @@ public class UserControllerTest {
       UpdateUserRequest request = new UpdateUserRequest(
           "new.email@example.com", "newUsername", "NewPassword123!");
 
-      UserEntity updatedUser = new UserEntity("new.email@example.com", "newUsername", "encodedPassword");
+      UserEntity updatedUser = new UserEntity("new.email@example.com", "newUsername",
+          "encodedPassword");
       updatedUser.setId(1L);
 
       UserResponse response = new UserResponse(
-          1L, "new.email@example.com", "newUsername", LocalDateTime.now(), LocalDateTime.now());
+          1L, "new.email@example.com", "newUsername", LocalDateTime.now(),
+          LocalDateTime.now());
 
       Authentication authentication = new UsernamePasswordAuthenticationToken("1", null, List.of());
 

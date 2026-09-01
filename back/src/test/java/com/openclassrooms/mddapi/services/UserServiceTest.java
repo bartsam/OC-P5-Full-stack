@@ -22,7 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.openclassrooms.mddapi.dto.UpdateUserRequest;
 import com.openclassrooms.mddapi.exceptions.UserAlreadyExistsException;
 import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.repository.UserRepository;
@@ -101,7 +100,8 @@ public class UserServiceTest {
       when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(false);
       when(userRepository.existsByUsernameAndIdNot(request.username(), 1L)).thenReturn(false);
       when(passwordEncoder.encode(request.password())).thenReturn("newEncodedPassword");
-      when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(userRepository.save(any(UserEntity.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // WHEN
       UserEntity result = userService.updateUser(1L, request);
@@ -192,7 +192,8 @@ public class UserServiceTest {
       when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(false);
       when(userRepository.existsByUsernameAndIdNot(request.username(), 1L)).thenReturn(false);
       when(passwordEncoder.encode(request.password())).thenReturn("newEncodedPassword");
-      when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+      when(userRepository.save(any(UserEntity.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
 
       // WHEN
       UserEntity result = userService.updateUser(1L, request);
