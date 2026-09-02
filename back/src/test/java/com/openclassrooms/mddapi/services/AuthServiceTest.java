@@ -3,7 +3,6 @@ package com.openclassrooms.mddapi.services;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,174 +29,178 @@ import com.openclassrooms.mddapi.dto.RegisterRequest;
 import com.openclassrooms.mddapi.exceptions.UserAlreadyExistsException;
 import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.repository.UserRepository;
+import com.openclassrooms.mddapi.security.JwtService;
 
 @ExtendWith(MockitoExtension.class)
 @Tag("unit")
 @DisplayName("AuthService")
 public class AuthServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+  @Mock
+  private UserRepository userRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+  @Mock
+  private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private AuthenticationManager authenticationManager;
+  @Mock
+  private AuthenticationManager authenticationManager;
 
-    @Mock
-    private JwtService jwtService;
+  @Mock
+  private JwtService jwtService;
 
-    @InjectMocks
-    private AuthService authService;
+  @InjectMocks
+  private AuthService authService;
 
-    @Captor
-    private ArgumentCaptor<UserEntity> userCaptor;
+  @Captor
+  private ArgumentCaptor<UserEntity> userCaptor;
 
-    @Captor
-    private ArgumentCaptor<Authentication> authenticationCaptor;
+  @Captor
+  private ArgumentCaptor<Authentication> authenticationCaptor;
 
-    @Nested
-    @DisplayName("register")
-    class RegisterTests {
-        @Test
-        @DisplayName("should create user and return token when request is valid")
-        void register_shouldCreaterUserAndReturnToken_whenRequestValid() {
-            // GIVEN
-            RegisterRequest request = new RegisterRequest(
-                    "john.doe@example.com",
-                    "jeanbiche",
-                    "Password123!");
+  @Nested
+  @Tag("register")
+  @DisplayName("Register")
+  class RegisterTests {
+    @Test
+    @DisplayName("should create the user and generate a token based on the user ID")
+    void register_shouldCreateUserAndReturnToken_whenRequestValid() {
+      // GIVEN
+      RegisterRequest request = new RegisterRequest(
+          "john.doe@example.com",
+          "jeanbiche",
+          "Password123!");
 
-            when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(false);
-            when(userRepository.existsByUsername("jeanbiche")).thenReturn(false);
-            when(passwordEncoder.encode("Password123!")).thenReturn("encodedPassword123!");
+      when(userRepository.existsByEmail(request.email())).thenReturn(false);
+      when(userRepository.existsByUsername(request.username())).thenReturn(false);
+      when(passwordEncoder.encode(request.password())).thenReturn("encodedPassword123!");
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    "john.doe@example.com", "Password123!");
-            when(authenticationManager.authenticate(any()))
-                    .thenReturn(authentication);
-            when(jwtService.generateToken(any(Authentication.class)))
-                    .thenReturn("fake.jwt.token");
+      UserEntity savedUser = new UserEntity(request.email(), request.username(), "encodedPassword123!");
+      savedUser.setId(1L);
+      when(userRepository.save(any(UserEntity.class))).thenReturn(savedUser);
 
-            // WHEN
-            AuthResponse response = authService.register(request);
+      when(jwtService.generateToken(1L)).thenReturn("fake.jwt.token");
 
-            // THEN
-            verify(userRepository).existsByEmail("john.doe@example.com");
-            verify(userRepository).existsByUsername("jeanbiche");
-            verify(passwordEncoder).encode("Password123!");
-            verify(userRepository).save(userCaptor.capture());
+      // WHEN
+      AuthResponse response = authService.register(request);
 
-            UserEntity savedUser = userCaptor.getValue();
-            assertThat(savedUser.getEmail()).isEqualTo("john.doe@example.com");
-            assertThat(savedUser.getUsername()).isEqualTo("jeanbiche");
-            assertThat(savedUser.getPassword()).isEqualTo("encodedPassword123!");
+      // THEN
+      assertThat(response.token()).isEqualTo("fake.jwt.token");
 
-            verify(authenticationManager).authenticate(authenticationCaptor.capture());
-            verify(jwtService).generateToken(authentication);
+      verify(userRepository).save(userCaptor.capture());
+      UserEntity newUser = userCaptor.getValue();
+      assertThat(newUser.getPassword()).isEqualTo("encodedPassword123!");
 
-            Authentication authenticationRequest = authenticationCaptor.getValue();
-            assertThat(authenticationRequest.getName()).isEqualTo("john.doe@example.com");
-            assertThat(authenticationRequest.getCredentials()).isEqualTo("Password123!");
-            assertThat(response.token()).isEqualTo("fake.jwt.token");
-        }
-
-        @Test
-        @DisplayName("should throw exception when email already exists")
-        void register_shouldThrowException_whenEmailAlreadyExists() {
-            // GIVEN
-            RegisterRequest request = new RegisterRequest(
-                    "john.doe@example.com",
-                    "jeanbiche",
-                    "Password123!");
-
-            when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(true);
-
-            // THEN
-            assertThatThrownBy(() -> authService.register(request))
-                    .isInstanceOf(UserAlreadyExistsException.class)
-                    .hasMessage("Email is already in use");
-
-            verify(passwordEncoder, never()).encode(anyString());
-            verify(userRepository, never()).save(any(UserEntity.class));
-            verify(authenticationManager, never()).authenticate(any());
-            verify(jwtService, never()).generateToken(any());
-        }
-
-        @Test
-        @DisplayName("should throw exception when username already exists")
-        void register_shouldThrowException_whenUsernameAlreadyExists() {
-            // GIVEN
-            RegisterRequest request = new RegisterRequest(
-                    "john.doe@example.com",
-                    "jeanbiche",
-                    "Password123!");
-
-            when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(false);
-            when(userRepository.existsByUsername("jeanbiche")).thenReturn(true);
-
-            // THEN
-            assertThatThrownBy(() -> authService.register(request))
-                    .isInstanceOf(UserAlreadyExistsException.class)
-                    .hasMessage("Username is already in use");
-
-            verify(passwordEncoder, never()).encode(anyString());
-            verify(userRepository, never()).save(any(UserEntity.class));
-            verify(authenticationManager, never()).authenticate(any());
-            verify(jwtService, never()).generateToken(any());
-        }
+      verify(jwtService).generateToken(1L);
     }
 
-    @Nested
-    @DisplayName("login")
-    class LoginTests {
-        @Test
-        @DisplayName("should authenticate user when credentials are valid")
-        void login_shouldAuthenticateUser_whenCredentialsValid() {
-            // GIVEN
-            LoginRequest request = new LoginRequest(
-                    "john.doe@example.com",
-                    "Password123!");
+    @Test
+    @DisplayName("should throw UserAlreadyExistsException when email already exists")
+    void register_shouldThrowException_whenEmailAlreadyExists() {
+      // GIVEN
+      RegisterRequest request = new RegisterRequest(
+          "john.doe@example.com",
+          "jeanbiche",
+          "Password123!");
+      when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    "john.doe@example.com", "Password123!");
-
-            when(authenticationManager.authenticate(any()))
-                    .thenReturn(authentication);
-            when(jwtService.generateToken(any(Authentication.class)))
-                    .thenReturn("fake.jwt.token");
-
-            // WHEN
-            AuthResponse response = authService.login(request);
-
-            // THEN
-            verify(authenticationManager).authenticate(authenticationCaptor.capture());
-            Authentication authenticationRequest = authenticationCaptor.getValue();
-            assertThat(authenticationRequest.getName()).isEqualTo("john.doe@example.com");
-            assertThat(authenticationRequest.getCredentials()).isEqualTo("Password123!");
-
-            verify(jwtService).generateToken(authentication);
-            assertThat(response.token()).isEqualTo("fake.jwt.token");
-        }
-
-        @Test
-        @DisplayName("should throw exception when credentials are invalid")
-        void login_shouldThrowException_whenCredentialsInvalid() {
-            // GIVEN
-            LoginRequest request = new LoginRequest(
-                    "john.doe@example.com",
-                    "Password123!");
-
-            when(authenticationManager.authenticate(any()))
-                    .thenThrow(new BadCredentialsException("Bad credentials"));
-
-            // THEN
-            assertThatThrownBy(() -> authService.login(request))
-                    .isInstanceOf(BadCredentialsException.class);
-
-            verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-            verify(jwtService, never()).generateToken(any());
-        }
+      // THEN
+      assertThatThrownBy(() -> authService.register(request))
+          .isInstanceOf(UserAlreadyExistsException.class)
+          .hasMessage("Email is already in use");
+      verify(userRepository, never()).save(any());
+      verify(jwtService, never()).generateToken(any(Long.class));
     }
+
+    @Test
+    @DisplayName("should throw UserAlreadyExistsException when username already exists")
+    void register_shouldThrowException_whenUsernameAlreadyExists() {
+      // GIVEN
+      RegisterRequest request = new RegisterRequest(
+          "john.doe@example.com",
+          "jeanbiche",
+          "Password123!");
+      when(userRepository.existsByEmail(request.email())).thenReturn(false);
+      when(userRepository.existsByUsername(request.username())).thenReturn(true);
+
+      // THEN
+      assertThatThrownBy(() -> authService.register(request))
+          .isInstanceOf(UserAlreadyExistsException.class)
+          .hasMessage("Username is already in use");
+
+      verify(userRepository, never()).save(any());
+    }
+  }
+
+  @Nested
+  @Tag("login")
+  @DisplayName("Login")
+  class LoginTests {
+    @Test
+    @DisplayName("should authenticate user and return token when credentials are valid")
+    void login_shouldAuthenticateUser_whenCredentialsValid() {
+      // GIVEN
+      LoginRequest request = new LoginRequest(
+          "john.doe@example.com",
+          "Password123!");
+      Authentication authResult = new UsernamePasswordAuthenticationToken(
+          "john.doe@example.com", "Password123!");
+
+      when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+          .thenReturn(authResult);
+      when(jwtService.generateToken(authResult)).thenReturn("fake.jwt.token");
+
+      // WHEN
+      AuthResponse response = authService.login(request);
+
+      // THEN
+      assertThat(response.token()).isEqualTo("fake.jwt.token");
+
+      verify(jwtService).generateToken(authResult);
+    }
+
+    @Test
+    @DisplayName("should throw BadCredentialsException when credentials are invalid")
+    void login_shouldThrowException_whenCredentialsInvalid() {
+      // GIVEN
+      LoginRequest request = new LoginRequest(
+          "john.doe@example.com",
+          "wrongPassword123!");
+
+      when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+          .thenThrow(new BadCredentialsException("Bad credentials"));
+
+      // THEN
+      assertThatThrownBy(() -> authService.login(request))
+          .isInstanceOf(BadCredentialsException.class);
+
+      verify(jwtService, never()).generateToken(any(Authentication.class));
+    }
+
+    @Test
+    @DisplayName("should pass exact credentials to authentication manager")
+    void login_shouldPassExactCredentialsToAuthenticationManager() {
+      // GIVEN
+      LoginRequest request = new LoginRequest(
+          "john.doe@example.com",
+          "Password123!");
+
+      Authentication authResult = new UsernamePasswordAuthenticationToken(
+          "john.doe@example.com",
+          "Password123!");
+
+      when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+          .thenReturn(authResult);
+      when(jwtService.generateToken(authResult)).thenReturn("jwt-token");
+
+      // WHEN
+      authService.login(request);
+
+      // THEN
+      verify(authenticationManager).authenticate(authenticationCaptor.capture());
+      Authentication authRequest = authenticationCaptor.getValue();
+
+      assertThat(authRequest.getPrincipal()).isEqualTo(request.identifier());
+      assertThat(authRequest.getCredentials()).isEqualTo(request.password());
+    }
+  }
 }

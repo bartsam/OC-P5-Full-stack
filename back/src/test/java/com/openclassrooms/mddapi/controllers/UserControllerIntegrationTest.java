@@ -17,7 +17,6 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,7 +28,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import com.openclassrooms.mddapi.dto.UpdateUserRequest;
 import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.repository.UserRepository;
-import com.openclassrooms.mddapi.services.JwtService;
+import com.openclassrooms.mddapi.security.JwtService;
 
 import tools.jackson.databind.json.JsonMapper;
 
@@ -38,7 +37,7 @@ import tools.jackson.databind.json.JsonMapper;
 @Testcontainers
 @ActiveProfiles("test")
 @Tag("integration")
-@DisplayName("UserController integration tests")
+@DisplayName("UserController")
 public class UserControllerIntegrationTest {
 
   @Container
@@ -60,181 +59,175 @@ public class UserControllerIntegrationTest {
   @Autowired
   private JwtService jwtService;
 
+  private UserEntity existingUser;
+  private String validToken;
+
   @BeforeEach
-  void cleanDatabaseBeforeTest() {
+  void setUp() {
     userRepository.deleteAll();
+
+    existingUser = userRepository.save(new UserEntity(
+        "john.doe@example.com", "jeanbiche", passwordEncoder.encode("Password123!")));
+
+    validToken = jwtService.generateToken(existingUser.getId());
   }
 
   @Nested
   @Tag("getUser")
-  @DisplayName("Get User")
-  class getUserTests {
+  @DisplayName("GET /api/profile")
+  class GetProfileTests {
+
     @Test
-    @DisplayName("GET /api/profile should return user when exists")
-    void getUser_shouldReturnUser_whenExists() throws Exception {
-      // GIVEN
-      UserEntity user = new UserEntity("john.doe@example.com",
-          "jeanbiche", passwordEncoder.encode("Password123!"));
-      userRepository.save(user);
-
-      String token = jwtService.generateToken(
-          new UsernamePasswordAuthenticationToken("john.doe@example.com", "Password123!"));
-
+    @DisplayName("should return 200 and the profile when JWT is valid")
+    void getUser_shouldReturn200AndProfile_whenTokenValid() throws Exception {
       // WHEN
-      ResultActions response = mockMvc.perform(get("/api/profile")
-          .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$.username").value("jeanbiche"));
+      ResultActions result = mockMvc.perform(get("/api/profile")
+          .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
       // THEN
-      response.andExpect(status().isOk()).andExpect(jsonPath("$.username").value("jeanbiche"));
+      result.andExpect(status().isOk())
+          .andExpect(jsonPath("$.id").value(existingUser.getId()))
+          .andExpect(jsonPath("$.email").value("john.doe@example.com"))
+          .andExpect(jsonPath("$.username").value("jeanbiche"));
     }
 
     @Test
-    @DisplayName("GET /api/profile should return 401 when not authenticated")
-    void getUser_shouldReturnUnauthorized_whenNotAuthenticated() throws Exception {
-      mockMvc.perform(get("/api/profile"))
+    @DisplayName("should return 401 when no Authorization header is provided")
+    void getUser_shouldReturn401_whenNoTokenProvided() throws Exception {
+      // WHEN
+      ResultActions result = mockMvc.perform(get("/api/profile"));
+
+      // THEN
+      result
           .andExpect(status().isUnauthorized())
           .andExpect(jsonPath("$.message").exists());
     }
 
     @Test
-    @DisplayName("GET /api/profile should return 404 when user does not exist")
-    void getUser_shouldReturnNotFound_whenDoesNotExist() throws Exception {
-      String token = jwtService.generateToken(
-          new UsernamePasswordAuthenticationToken("unknown@example.com", "Password123!"));
+    @DisplayName("should return 401 when JWT is malformed")
+    void getUser_shouldReturn401_whenTokenMalformed() throws Exception {
+      // WHEN
+      ResultActions result = mockMvc.perform(get("/api/profile")
+          .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-valid-jwt"));
 
-      mockMvc.perform(get("/api/profile")
-          .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
-          .andExpect(status().isNotFound());
+      // THEN
+      result
+          .andExpect(status().isUnauthorized())
+          .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    @DisplayName("should return 404 when user from token no longer exists")
+    void getUser_shouldReturn404_whenUserDeleted() throws Exception {
+      // GIVEN
+      String tokenForDeletedUser = jwtService.generateToken(existingUser.getId());
+      userRepository.deleteAll();
+
+      // WHEN
+      ResultActions result = mockMvc.perform(get("/api/profile")
+          .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenForDeletedUser));
+
+      // THEN
+      result.andExpect(status().isNotFound());
     }
   }
 
   @Nested
   @Tag("updateUser")
-  @DisplayName("Update User")
-  class updateUserTests {
+  @DisplayName("PUT /api/profile")
+  class UpdateUserTests {
 
     @Test
-    @DisplayName("PUT /api/profile should update the authenticated user")
-    void updateUser_shouldReturnUpdatedUser_whenRequestIsValid() throws Exception {
-
+    @DisplayName("should update profile and persist changes in database")
+    void updateUser_shouldUpdateAndPersist_whenRequestValid() throws Exception {
       // GIVEN
-      UserEntity user = new UserEntity(
-          "john.doe@example.com", "jeanbiche", passwordEncoder.encode("Password123!"));
-      userRepository.save(user);
-
       UpdateUserRequest request = new UpdateUserRequest(
-          "new.john@example.com", "newjeanbiche", "NewPassword123!");
-
-      String token = jwtService.generateToken(
-          new UsernamePasswordAuthenticationToken("john.doe@example.com", "Password123!"));
+          "updated.email@example.com", "updatedUsername", "UpdatedPassword123!");
 
       // WHEN
-      ResultActions response = mockMvc.perform(put("/api/profile")
-          .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+      ResultActions result = mockMvc.perform(put("/api/profile")
+          .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      response.andExpect(status().isOk())
+      result.andExpect(status().isOk())
           .andExpect(jsonPath("$.email").value(request.email()))
           .andExpect(jsonPath("$.username").value(request.username()));
 
-      UserEntity updatedUser = userRepository.findByEmail(request.email()).orElseThrow();
+      UserEntity updatedUser = userRepository.findById(existingUser.getId()).orElseThrow();
+      assertThat(updatedUser.getUsername()).isEqualTo(request.username());
       assertThat(updatedUser.getUsername()).isEqualTo(request.username());
       assertThat(passwordEncoder.matches(request.password(), updatedUser.getPassword())).isTrue();
     }
 
     @Test
-    @DisplayName("PUT /api/profile should return 401 when no token is provided")
-    void updateUser_shouldReturnUnauthorized_whenNotAuthenticated() throws Exception {
-
+    @DisplayName("should return 401 when no Authorization header is provided")
+    void updateUser_shouldReturn401_whenNoTokenProvided() throws Exception {
       // GIVEN
       UpdateUserRequest request = new UpdateUserRequest(
-          "new.john@example.com", "newjeanbiche", "NewPassword123!");
-
+          "updated.john@example.com", "updatedUsername", "UpdatedPassword123!");
       // WHEN
-      ResultActions response = mockMvc.perform(put("/api/profile")
+      ResultActions result = mockMvc.perform(put("/api/profile")
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      response.andExpect(status().isUnauthorized());
+      result.andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("PUT /api/profile should return 404 when the token subject has no user")
-    void updateUser_shouldReturnNotFound_whenUserDoesNotExist() throws Exception {
+    @DisplayName("should return 400 when payload is invalid")
+    void updateUser_shouldReturn400_whenPayloadInvalid() throws Exception {
       // GIVEN
       UpdateUserRequest request = new UpdateUserRequest(
-          "new.john@example.com", "newjeanbiche", "NewPassword123!");
-
-      String token = jwtService.generateToken(
-          new UsernamePasswordAuthenticationToken("john.doe@example.com", "Password123!"));
+          "invalide-email", "un", "weakPassword");
 
       // WHEN
-      ResultActions response = mockMvc.perform(put("/api/profile")
-          .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+      ResultActions result = mockMvc.perform(put("/api/profile")
+          .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      response.andExpect(status().isNotFound());
+      result.andExpect(status().isBadRequest());
     }
 
     @Test
-    @DisplayName("PUT /api/profile should return 400 when profile data is invalid")
-    void updateUser_shouldReturnBadRequest_whenRequestIsInvalid() throws Exception {
+    @DisplayName("should return 409 when email is already used by another user")
+    void updateUser_shouldReturn409_whenEmailAlreadyUsedByAnotherUser() throws Exception {
       // GIVEN
-      UserEntity user = new UserEntity(
-          "john.doe@example.com", "jeanbiche", passwordEncoder.encode("Password123!"));
-      userRepository.save(user);
+      userRepository.save(new UserEntity(
+          "taken.email@example.com", "otherUser", passwordEncoder.encode("Password123!")));
 
       UpdateUserRequest request = new UpdateUserRequest(
-          "invalid-email", "newjeanbiche", "NewPassword123!");
-
-      String token = jwtService.generateToken(
-          new UsernamePasswordAuthenticationToken("john.doe@example.com", "Password123!"));
+          "taken.email@example.com", "jeanbiche", "Password123!");
 
       // WHEN
-      ResultActions response = mockMvc.perform(put("/api/profile")
-          .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+      ResultActions result = mockMvc.perform(put("/api/profile")
+          .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      response.andExpect(status().isBadRequest());
+      result.andExpect(status().isConflict());
     }
 
     @Test
-    @DisplayName("PUT /api/profile should return 409 when email belongs to another user")
-    void updateUser_shouldReturnConflict_whenEmailAlreadyExists() throws Exception {
+    @DisplayName("should allow update when email and username are unchanged")
+    void updateUser_shouldReturn200_whenEmailAndUsernameUnchanged() throws Exception {
       // GIVEN
-      UserEntity userA = new UserEntity(
-          "john.doe@example.com", "jeanbiche", passwordEncoder.encode("Password123!"));
-      UserEntity userB = new UserEntity(
-          "jane.doe@example.com", "janebiche", passwordEncoder.encode("Password123!"));
-
-      userRepository.save(userA);
-      userRepository.save(userB);
-
       UpdateUserRequest request = new UpdateUserRequest(
-          "jane.doe@example.com", "newjeanbiche", "NewPassword123!");
-
-      String token = jwtService.generateToken(
-          new UsernamePasswordAuthenticationToken("john.doe@example.com", "Password123!"));
+          "john.doe@example.com", "jeanbiche", "newPassword123!");
 
       // WHEN
-      ResultActions response = mockMvc.perform(put("/api/profile")
-          .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+      ResultActions result = mockMvc.perform(put("/api/profile")
+          .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      response.andExpect(status().isConflict());
+      result.andExpect(status().isOk());
     }
-
   }
-
 }

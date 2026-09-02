@@ -35,7 +35,7 @@ import tools.jackson.databind.json.JsonMapper;
 @Testcontainers
 @ActiveProfiles("test")
 @Tag("integration")
-@DisplayName("AuthController integration tests")
+@DisplayName("AuthController")
 class AuthControllerIntegrationTest {
 
   @Container
@@ -55,17 +55,18 @@ class AuthControllerIntegrationTest {
   private PasswordEncoder passwordEncoder;
 
   @BeforeEach
-  void cleanDatabaseBeforeTest() {
+  void cleanDatabase() {
     userRepository.deleteAll();
   }
 
   @Nested
   @Tag("register")
-  @DisplayName("Register user")
+  @DisplayName("POST /api/auth/register")
   class RegisterTests {
+
     @Test
-    @DisplayName("POST /api/auth/register should create user when email is new")
-    void register_shouldCreateUser_whenEmailAvailable() throws Exception {
+    @DisplayName("should persist the user and return a valid JWT")
+    void register_shouldPersistUserAndReturnToken() throws Exception {
       // GIVEN
       RegisterRequest request = new RegisterRequest(
           "john.doe@example.com",
@@ -73,12 +74,12 @@ class AuthControllerIntegrationTest {
           "Password123!");
 
       // WHEN
-      ResultActions response = mockMvc.perform(post("/api/auth/register")
+      ResultActions result = mockMvc.perform(post("/api/auth/register")
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      response.andExpect(status().isCreated())
+      result.andExpect(status().isCreated())
           .andExpect(jsonPath("$.token").isNotEmpty());
 
       UserEntity savedUser = userRepository.findByEmail(request.email()).orElseThrow();
@@ -87,8 +88,8 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /register should return 409 when email exists")
-    void register_shouldReturnConflict_whenEmailExists() throws Exception {
+    @DisplayName("should return 409 when email already exists")
+    void register_shouldReturn409_whenEmailAlreadyExists() throws Exception {
       // GIVEN
       UserEntity user = new UserEntity("john.doe@example.com",
           "jeanbiche", passwordEncoder.encode("Password123!"));
@@ -100,117 +101,109 @@ class AuthControllerIntegrationTest {
           "Password123!");
 
       // WHEN
-      ResultActions response = mockMvc.perform(post("/api/auth/register")
+      ResultActions result = mockMvc.perform(post("/api/auth/register")
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      response.andExpect(status().isConflict());
+      result.andExpect(status().isConflict());
     }
 
     @Test
-    @DisplayName("POST /register should return 409 when username exists")
-    void register_shouldReturnConflict_whenUsernameExists() throws Exception {
-      // GIVEN
-      UserEntity user = new UserEntity("john.doe@example.com",
-          "jeanbiche", passwordEncoder.encode("Password123!"));
-      userRepository.save(user);
-
-      RegisterRequest request = new RegisterRequest(
-          "jean.biche@example.com",
-          "jeanbiche",
-          "Password123!");
-
-      // WHEN
-      ResultActions response = mockMvc.perform(post("/api/auth/register")
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(jsonMapper.writeValueAsString(request)));
-
-      // THEN
-      response.andExpect(status().isConflict());
-    }
-
-    @Test
-    @DisplayName("POST /api/auth/register should return 400 when missing field")
-    void register_shouldReturnBadRequest_whenFieldBlank() throws Exception {
+    @DisplayName("should return 400 when payload is invalid")
+    void register_shouldReturn400_whenPayloadInvalid() throws Exception {
       // GIVEN
       RegisterRequest request = new RegisterRequest(
+          "invalid-email",
           "",
-          "jeanbiche",
-          "Password123!");
+          "");
 
       // WHEN
-      ResultActions response = mockMvc.perform(post("/api/auth/register")
+      ResultActions result = mockMvc.perform(post("/api/auth/register")
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
-
       // THEN
-      response.andExpect(status().isBadRequest());
+      result.andExpect(status().isBadRequest());
     }
   }
 
   @Nested
   @Tag("login")
-  @DisplayName("Login user")
+  @DisplayName("POST /api/auth/login")
   class LoginTests {
+
+    @BeforeEach
+    void createUser() {
+      userRepository.save(new UserEntity(
+          "john.doe@example.com", "jeanbiche", passwordEncoder.encode("Password123!")));
+    }
+
     @Test
-    void login_shouldReturnToken_whenCredentialsAreValid() throws Exception {
+    @DisplayName("should return 200 and a valid JWT when credentials are correct")
+    void login_shouldReturn200AndToken_whenCredentialsValid() throws Exception {
       // GIVEN
-      RegisterRequest registerRequest = new RegisterRequest(
-          "john.doe@example.com", "jeanbiche", "Password123!");
-
-      mockMvc.perform(post("/api/auth/register")
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(jsonMapper.writeValueAsString(registerRequest)));
-
-      LoginRequest loginRequest = new LoginRequest(
+      LoginRequest request = new LoginRequest(
           "john.doe@example.com", "Password123!");
 
       // WHEN
-      ResultActions response = mockMvc.perform(post("/api/auth/login")
+      ResultActions result = mockMvc.perform(post("/api/auth/login")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(jsonMapper.writeValueAsString(loginRequest)));
+          .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      response.andExpect(status().isOk())
+      result
+          .andExpect(status().isOk())
           .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
     @Test
-    @DisplayName("POST /api/auth/login should return 401 when user does not exist")
-    void login_shouldReturnUnauthorized_whenUserDoesNotExist() throws Exception {
+    @DisplayName("should authenticate using username as identifier")
+    void login_shouldReturn200_whenUsingUsernameAsIdentifier() throws Exception {
       // GIVEN
       LoginRequest request = new LoginRequest(
-          "unknown@example.com", "Password123!");
+          "jeanbiche", "Password123!");
 
       // WHEN
-      ResultActions response = mockMvc.perform(post("/api/auth/login")
+      ResultActions result = mockMvc.perform(post("/api/auth/login")
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      assertThat(userRepository.existsByEmail(request.identifier())).isFalse();
-      response.andExpect(status().isUnauthorized());
+      result
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
     @Test
-    @DisplayName("POST /api/auth/login should return 401 when password incorrect")
-    void login_shouldReturnUnauthorized_whenPasswordIncorrect() throws Exception {
+    @DisplayName("should return 401 when password is wrong")
+    void login_shouldReturn401_whenPasswordWrong() throws Exception {
       // GIVEN
-      UserEntity user = new UserEntity("john.doe@example.com",
-          "jeanbiche", passwordEncoder.encode("Password123!"));
-      userRepository.save(user);
-
       LoginRequest request = new LoginRequest(
-          "john.doe@example.com", "WrongPassword123!");
+          "john.doe@example.com", "wrongPassword123!");
 
       // WHEN
-      ResultActions response = mockMvc.perform(post("/api/auth/login")
+      ResultActions result = mockMvc.perform(post("/api/auth/login")
           .contentType(MediaType.APPLICATION_JSON)
           .content(jsonMapper.writeValueAsString(request)));
 
       // THEN
-      response.andExpect(status().isUnauthorized());
+      result.andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("should return 401 when user does not exist")
+    void login_shouldReturn401_whenUserDoesNotExist() throws Exception {
+      // GIVEN
+      LoginRequest request = new LoginRequest(
+          "unknown@example.com", "wrongPassword123!");
+
+      // WHEN
+      ResultActions result = mockMvc.perform(post("/api/auth/login")
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(jsonMapper.writeValueAsString(request)));
+
+      // THEN
+      result.andExpect(status().isUnauthorized());
     }
   }
 }

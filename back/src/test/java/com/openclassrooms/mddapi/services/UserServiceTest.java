@@ -3,6 +3,8 @@ package com.openclassrooms.mddapi.services;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +15,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,9 +24,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.openclassrooms.mddapi.dto.UpdateUserRequest;
 import com.openclassrooms.mddapi.exceptions.UserAlreadyExistsException;
-import com.openclassrooms.mddapi.exceptions.UserNotFoundException;
 import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.repository.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 @Tag("unit")
@@ -38,206 +43,163 @@ public class UserServiceTest {
   @InjectMocks
   private UserService userService;
 
+  @Captor
+  private ArgumentCaptor<UserEntity> userCaptor;
+
   @Nested
-  @DisplayName("findByEmailOrUsername")
-  class FindByEmailOrUsernameTests {
+  @Tag("findById")
+  @DisplayName("Find by id")
+  class FindByIdTests {
 
     @Test
-    @DisplayName("should return user when found by email")
-    void findByEmailOrUsername_shouldReturnUser_whenFoundByEmail() {
+    @DisplayName("should return the user when id exists")
+    void findById_shouldReturnUser_whenIdExists() {
       // GIVEN
       UserEntity user = new UserEntity(
-          "john.doe@example.com",
-          "jeanbiche",
-          "Password123!");
-
-      when(userRepository.findByEmail("john.doe@example.com"))
-          .thenReturn(Optional.of(user));
+          "john.doe@example.com", "jeanbiche", "encodedPassword123!");
+      user.setId(1L);
+      when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
       // WHEN
-      UserEntity result = userService.findByEmailOrUsername("john.doe@example.com");
+      UserEntity result = userService.findById(1L);
 
       // THEN
-      assertThat(result).isNotNull();
+      assertThat(result.getId()).isEqualTo(1L);
       assertThat(result.getEmail()).isEqualTo("john.doe@example.com");
-      assertThat(result.getUsername()).isEqualTo("jeanbiche");
     }
 
     @Test
-    @DisplayName("should return user when found by username")
-    void findByEmailOrUsername_shouldReturnUser_whenFoundByUsername() {
+    @DisplayName("should throw EntityNotFoundException when id does not exist")
+    void findById_shouldThrowException_whenIdDoesNotExist() {
       // GIVEN
-      UserEntity user = new UserEntity(
-          "john.doe@example.com",
-          "jeanbiche",
-          "Password123!");
-
-      when(userRepository.findByEmail("jeanbiche"))
-          .thenReturn(Optional.empty());
-
-      when(userRepository.findByUsername("jeanbiche"))
-          .thenReturn(Optional.of(user));
-
-      // WHEN
-      UserEntity result = userService.findByEmailOrUsername("jeanbiche");
+      when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
       // THEN
-      assertThat(result).isNotNull();
-      assertThat(result.getEmail()).isEqualTo("john.doe@example.com");
-      assertThat(result.getUsername()).isEqualTo("jeanbiche");
-    }
-
-    @Test
-    @DisplayName("should throw exception when user not found")
-    void findByEmailOrUsername_shouldThrowException_whenNotFound() {
-      // GIVEN
-      when(userRepository.findByEmail("unknown"))
-          .thenReturn(Optional.empty());
-      when(userRepository.findByUsername("unknown"))
-          .thenReturn(Optional.empty());
-
-      // WHEN + THEN
-      assertThatThrownBy(() -> userService.findByEmailOrUsername("unknown"))
-          .isInstanceOf(UserNotFoundException.class)
-          .hasMessage("User not found");
+      assertThatThrownBy(() -> userService.findById(99L))
+          .isInstanceOf(EntityNotFoundException.class)
+          .hasMessage("User not found with id: 99");
     }
   }
 
   @Nested
-  @DisplayName("updateUser")
-  class updateUserTests {
+  @Tag("updateUser")
+  @DisplayName("Update user")
+  class UpdateUserTests {
 
     @Test
-    @DisplayName("should update email, username and password when data is valid")
-    void updateUser_shouldUpdateUser_whenDataValid() {
+    @DisplayName("should update email, username and encoded password when request is valid")
+    void updateUser_shouldUpdateUser_whenRequestValid() {
       // GIVEN
-      String identifier = "john.doe@example.com";
       UserEntity existingUser = new UserEntity(
-          "john.doe@example.com",
-          "jeanbiche",
-          "Password123!");
+          "old.email@example.com", "oldUsername", "oldEncodedPassword");
       existingUser.setId(1L);
 
       UpdateUserRequest request = new UpdateUserRequest(
-          "new.john@example.com",
-          "newjeanbiche",
-          "NewPassword123!");
+          "new.email@example.com", "newUsername", "NewPassword123!");
 
-      UserEntity updatedUser = new UserEntity(
-          "new.john@example.com",
-          "newjeanbiche",
-          "EncodedNewPassword123!");
-      updatedUser.setId(1L);
-
-      when(userRepository.findByEmail(identifier))
-          .thenReturn(Optional.of(existingUser));
-
-      when(userRepository.existsByEmailAndIdNot("new.john@example.com", 1L))
-          .thenReturn(false);
-
-      when(userRepository.existsByUsernameAndIdNot("newjeanbiche", 1L))
-          .thenReturn(false);
-
-      when(passwordEncoder.encode("NewPassword123!"))
-          .thenReturn("EncodedNewPassword123!");
-
-      when(userRepository.save(any(UserEntity.class)))
-          .thenReturn(updatedUser);
+      when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+      when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(false);
+      when(userRepository.existsByUsernameAndIdNot(request.username(), 1L)).thenReturn(false);
+      when(passwordEncoder.encode(request.password())).thenReturn("newEncodedPassword");
+      when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
       // WHEN
-      UserEntity result = userService.updateUser(identifier, request);
+      UserEntity result = userService.updateUser(1L, request);
 
       // THEN
-      assertThat(result).isNotNull();
-      assertThat(result.getEmail()).isEqualTo("new.john@example.com");
-      assertThat(result.getUsername()).isEqualTo("newjeanbiche");
+      assertThat(result.getEmail()).isEqualTo("new.email@example.com");
+      assertThat(result.getUsername()).isEqualTo("newUsername");
+      assertThat(result.getPassword()).isEqualTo("newEncodedPassword");
 
-      verify(userRepository).findByEmail(identifier);
-      verify(userRepository).existsByEmailAndIdNot("new.john@example.com", 1L);
-      verify(userRepository).existsByUsernameAndIdNot("newjeanbiche", 1L);
-      verify(passwordEncoder).encode("NewPassword123!");
-      verify(userRepository).save(any(UserEntity.class));
+      verify(userRepository).save(userCaptor.capture());
+      UserEntity savedUser = userCaptor.getValue();
+      assertThat(savedUser.getId()).isEqualTo(1L);
     }
 
     @Test
-    @DisplayName("should throw UserNotFoundException when user does not exist")
-    void updateUser_shouldThrowUserNotFoundException_whenUserNotFound() {
+    @DisplayName("should throw EntityNotFoundException when user to update does not exist")
+    void updateUser_shouldThrowException_whenUserDoesNotExist() {
       // GIVEN
-      String identifier = "unknown@example.com";
       UpdateUserRequest request = new UpdateUserRequest(
-          "new.john@example.com",
-          "newjeanbiche",
-          "NewPassword123!");
-
-      when(userRepository.findByEmail(identifier))
-          .thenReturn(Optional.empty());
-
-      when(userRepository.findByUsername(identifier))
-          .thenReturn(Optional.empty());
+          "new.email@example.com", "newUsername", "NewPassword123!");
+      when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
       // THEN
-      assertThatThrownBy(() -> userService.updateUser(identifier, request))
-          .isInstanceOf(UserNotFoundException.class)
-          .hasMessage("User not found");
+      assertThatThrownBy(() -> userService.updateUser(99L, request))
+          .isInstanceOf(EntityNotFoundException.class);
+
+      verify(userRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("should throw UserAlreadyExistsException when email is already in use")
-    void updateUser_shouldThrowUserAlreadyExistsException_whenEmailExists() {
+    @DisplayName("should throw UserAlreadyExistsException when email is used by another user")
+    void updateUser_shouldThrowException_whenEmailUsedByAnotherUser() {
       // GIVEN
-      String identifier = "john.doe@example.com";
       UserEntity existingUser = new UserEntity(
-          "john.doe@example.com",
-          "jeanbiche",
-          "Password123!");
+          "old.email@example.com", "oldUsername", "oldEncodedPassword");
       existingUser.setId(1L);
 
       UpdateUserRequest request = new UpdateUserRequest(
-          "duplicate@example.com",
-          "newjeanbiche",
-          "NewPassword123!");
+          "taken.email@example.com", "newUsername", "NewPassword123!");
 
-      when(userRepository.findByEmail(identifier))
-          .thenReturn(Optional.of(existingUser));
-
-      when(userRepository.existsByEmailAndIdNot("duplicate@example.com", 1L))
-          .thenReturn(true);
+      when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+      when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(true);
 
       // THEN
-      assertThatThrownBy(() -> userService.updateUser(identifier, request))
+      assertThatThrownBy(() -> userService.updateUser(1L, request))
           .isInstanceOf(UserAlreadyExistsException.class)
           .hasMessage("Email is already in use");
+
+      verify(userRepository, never()).save(any());
+      verify(userRepository, never()).existsByUsernameAndIdNot(any(), anyLong());
     }
 
     @Test
-    @DisplayName("should throw UserAlreadyExistsException when username is already in use")
-    void updateUser_shouldThrowUserAlreadyExistsException_whenUsernameExists() {
+    @DisplayName("should throw UserAlreadyExistsException when username is used by another user")
+    void updateUser_shouldThrowException_whenUsernameUsedByAnotherUser() {
       // GIVEN
-      String identifier = "john.doe@example.com";
       UserEntity existingUser = new UserEntity(
-          "john.doe@example.com",
-          "jeanbiche",
-          "OldPassword123!");
+          "old.email@example.com", "oldUsername", "oldEncodedPassword");
       existingUser.setId(1L);
 
       UpdateUserRequest request = new UpdateUserRequest(
-          "new.john@example.com",
-          "duplicateUser",
-          "NewPassword123!");
+          "new.email@example.com", "takenUsername", "NewPassword123!");
 
-      when(userRepository.findByEmail(identifier))
-          .thenReturn(Optional.of(existingUser));
+      when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+      when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(false);
+      when(userRepository.existsByUsernameAndIdNot(request.username(), 1L)).thenReturn(true);
 
-      when(userRepository.existsByEmailAndIdNot("new.john@example.com", 1L))
-          .thenReturn(false);
-
-      when(userRepository.existsByUsernameAndIdNot("duplicateUser", 1L))
-          .thenReturn(true);
-
-      // WHEN + THEN
-      assertThatThrownBy(() -> userService.updateUser(identifier, request))
+      // THEN
+      assertThatThrownBy(() -> userService.updateUser(1L, request))
           .isInstanceOf(UserAlreadyExistsException.class)
           .hasMessage("Username is already in use");
+
+      verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("should allow update when email and username are unchanged")
+    void updateUser_shouldAllowUpdate_whenEmailAndUsernameUnchanged() {
+      // GIVEN
+      UserEntity existingUser = new UserEntity(
+          "john.doe@example.com", "jeanbiche", "oldEncodedPassword");
+      existingUser.setId(1L);
+
+      UpdateUserRequest request = new UpdateUserRequest(
+          "john.doe@example.com", "jeanbiche", "NewPassword123!");
+
+      when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+      when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(false);
+      when(userRepository.existsByUsernameAndIdNot(request.username(), 1L)).thenReturn(false);
+      when(passwordEncoder.encode(request.password())).thenReturn("newEncodedPassword");
+      when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+      // WHEN
+      UserEntity result = userService.updateUser(1L, request);
+
+      // THEN
+      assertThat(result.getEmail()).isEqualTo("john.doe@example.com");
+      assertThat(result.getUsername()).isEqualTo("jeanbiche");
     }
   }
 }
