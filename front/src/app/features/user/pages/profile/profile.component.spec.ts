@@ -4,6 +4,7 @@ import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MaterialComponents } from '../../../../shared/material';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
 import { ProfileComponent } from './profile.component';
@@ -15,6 +16,10 @@ describe('ProfileComponent', () => {
     getUser: ReturnType<typeof vi.fn>;
     updateUser: ReturnType<typeof vi.fn>;
   };
+  let mockNotificationService: {
+    success: ReturnType<typeof vi.fn>;
+    error: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
     mockUserService = {
@@ -22,9 +27,17 @@ describe('ProfileComponent', () => {
       updateUser: vi.fn(),
     };
 
+    mockNotificationService = {
+      success: vi.fn(),
+      error: vi.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, MaterialComponents, ProfileComponent],
-      providers: [{ provide: UserService, useValue: mockUserService }],
+      providers: [
+        { provide: UserService, useValue: mockUserService },
+        { provide: NotificationService, useValue: mockNotificationService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProfileComponent);
@@ -48,13 +61,13 @@ describe('ProfileComponent', () => {
       expect(mockUserService.getUser).toHaveBeenCalled();
       expect(component.user()).toEqual(mockUser);
       expect(component.isLoading()).toBe(false);
-      expect(component.errorGetMessage()).toBeNull();
+      expect(component.errorMessage()).toBeNull();
 
       expect(component.form.value.email).toBe('john.doe@example.com');
       expect(component.form.value.username).toBe('jeanbiche');
     });
 
-    it('should set errorGetMessage on getUser error', () => {
+    it('should set errorMessage on getUser error', () => {
       mockUserService.getUser.mockReturnValue(throwError(() => new Error('HTTP error')));
 
       component.ngOnInit();
@@ -62,7 +75,9 @@ describe('ProfileComponent', () => {
 
       expect(mockUserService.getUser).toHaveBeenCalled();
       expect(component.isLoading()).toBe(false);
-      expect(component.errorGetMessage()).toBe('Impossible de charger le profil.');
+      expect(component.errorMessage()).toEqual(
+        expect.stringMatching(/^Impossible de charger le profil/),
+      );
     });
   });
 
@@ -71,7 +86,7 @@ describe('ProfileComponent', () => {
       expect(component.form.valid).toBe(false);
     });
 
-    it('should call updateUser when form is valid', () => {
+    it('should update user, refresh signal and notify success when form is valid', () => {
       const updateRequest = {
         email: 'new.john@example.com',
         username: 'newjeanbiche',
@@ -85,10 +100,12 @@ describe('ProfileComponent', () => {
 
       expect(mockUserService.updateUser).toHaveBeenCalledWith(updateRequest);
       expect(component.isLoading()).toBe(false);
-      expect(component.errorPutMessage()).toBeNull();
+      expect(mockNotificationService.success).toHaveBeenCalledWith(
+        'Profil mis à jour avec succès.',
+      );
     });
 
-    it('should set errorPutMessage on updateUser error', () => {
+    it('should notify error on updateUser error', () => {
       const updateRequest = {
         email: 'new.john@example.com',
         username: 'newjeanbiche',
@@ -102,7 +119,9 @@ describe('ProfileComponent', () => {
 
       expect(mockUserService.updateUser).toHaveBeenCalledWith(updateRequest);
       expect(component.isLoading()).toBe(false);
-      expect(component.errorPutMessage()).toBe('Impossible de modifier le profil.');
+      expect(mockNotificationService.error).toHaveBeenCalledWith(
+        expect.stringMatching(/^Impossible de modifier le profil/),
+      );
     });
 
     it('should not call updateUser when form is invalid', () => {

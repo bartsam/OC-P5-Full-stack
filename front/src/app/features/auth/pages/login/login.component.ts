@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MaterialComponents } from '../../../../shared/material';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import { LoginForm, LoginRequest } from '../../models';
 import { AuthService } from '../../services/auth.service';
 
@@ -18,8 +19,8 @@ export class LoginComponent {
   private formBuilder = inject(FormBuilder);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private readonly notificationService = inject(NotificationService);
 
-  readonly errorMessage = signal<string | null>(null);
   readonly isPasswordVisible = signal(false);
 
   public form: FormGroup<LoginForm> = this.formBuilder.nonNullable.group({
@@ -49,9 +50,8 @@ export class LoginComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.router.navigate(['/']),
-        error: (e: HttpErrorResponse) => {
-          this.errorMessage.set(e.message ?? 'An internal error has occurred');
-        },
+        error: (e: HttpErrorResponse) =>
+          this.notificationService.error(`Impossible de se connecter : ${e.message}`),
       });
   }
 }

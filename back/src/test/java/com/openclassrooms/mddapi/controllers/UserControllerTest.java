@@ -2,12 +2,14 @@ package com.openclassrooms.mddapi.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,7 +17,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -25,11 +26,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import com.openclassrooms.mddapi.dto.UpdateUserRequest;
 import com.openclassrooms.mddapi.dto.UserResponse;
 import com.openclassrooms.mddapi.exceptions.UserAlreadyExistsException;
-import com.openclassrooms.mddapi.exceptions.UserNotFoundException;
 import com.openclassrooms.mddapi.mappers.UserMapper;
 import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.services.UserService;
 
+import jakarta.persistence.EntityNotFoundException;
 import tools.jackson.databind.json.JsonMapper;
 
 @WebMvcTest(UserController.class)
@@ -37,199 +38,162 @@ import tools.jackson.databind.json.JsonMapper;
 @DisplayName("UserController")
 public class UserControllerTest {
 
-        @Autowired
-        private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-        @MockitoBean
-        private UserService userService;
+  @MockitoBean
+  private UserService userService;
 
-        @MockitoBean
-        private UserMapper userMapper;
+  @MockitoBean
+  private UserMapper userMapper;
 
-        @Autowired
-        private JsonMapper jsonMapper;
+  @Autowired
+  private JsonMapper jsonMapper;
 
-        @Nested
-        @DisplayName("getUser")
-        class GetUserTests {
+  @Nested
+  @Tag("getUser")
+  @DisplayName("GET /api/profile")
+  class GetUserTests {
 
-                @Test
-                @DisplayName("should return username and email when token is valid")
-                void getUser_shouldReturnUser_whenTokenValid() throws Exception {
-                        // GIVEN
-                        UserEntity user = new UserEntity(
-                                        "john.doe@example.com",
-                                        "jeanbiche",
-                                        "Password123!");
+    @Test
+    @DisplayName("should return 200 and the user profile when authenticated")
+    void getUser_shouldReturn200AndProfile_whenAuthenticated() throws Exception {
+      // GIVEN
+      UserEntity user = new UserEntity("john.doe@example.com", "jeanbiche", "encodedPassword123!");
+      user.setId(1L);
+      UserResponse response = new UserResponse(
+          1L, "john.doe@example.com", "jeanbiche", LocalDateTime.now(), LocalDateTime.now());
 
-                        UserResponse userResponse = new UserResponse(
-                                        1L,
-                                        "john.doe@example.com",
-                                        "jeanbiche",
-                                        null,
-                                        null);
+      Authentication authentication = new UsernamePasswordAuthenticationToken("1", null, List.of());
 
-                        Authentication authentication = new UsernamePasswordAuthenticationToken("john.doe@example.com",
-                                        "Password123!");
+      when(userService.findById(1L)).thenReturn(user);
+      when(userMapper.toDto(user)).thenReturn(response);
 
-                        when(userService.findByEmailOrUsername("john.doe@example.com"))
-                                        .thenReturn(user);
+      // WHEN
+      ResultActions result = mockMvc.perform(get("/api/profile")
+          .principal(authentication));
 
-                        when(userMapper.toDto(user))
-                                        .thenReturn(userResponse);
+      // THEN
+      result.andExpect(status().isOk())
+          .andExpect(jsonPath("$.id").value(1))
+          .andExpect(jsonPath("$.email").value("john.doe@example.com"))
+          .andExpect(jsonPath("$.username").value("jeanbiche"));
+    }
 
-                        // WHEN
-                        ResultActions response = mockMvc.perform(get("/api/profile")
-                                        .principal(authentication));
+    @Test
+    @DisplayName("should return 404 when user id from token is not found")
+    void getUser_shouldReturn404_whenUserNotFound() throws Exception {
+      // GIVEN
+      when(userService.findById(99L))
+          .thenThrow(new EntityNotFoundException("User not found with id: 99"));
 
-                        // THEN
-                        response.andExpect(status().isOk())
-                                        .andExpect(jsonPath("$.username").value("jeanbiche"))
-                                        .andExpect(jsonPath("$.email").value("john.doe@example.com"));
+      Authentication authentication = new UsernamePasswordAuthenticationToken("99", null, List.of());
 
-                        verify(userService).findByEmailOrUsername("john.doe@example.com");
-                        verify(userMapper).toDto(user);
-                }
+      // WHEN
+      ResultActions result = mockMvc.perform(get("/api/profile")
+          .principal(authentication));
 
-                @Test
-                @DisplayName("should return 404 when user is not found")
-                void getUser_shouldReturn404_whenUserNotFound() throws Exception {
-                        // GIVEN
-                        Authentication authentication = new UsernamePasswordAuthenticationToken("unknown@example.com",
-                                        "Password123!");
+      // THEN
+      result.andExpect(status().isNotFound());
+    }
+  }
 
-                        when(userService.findByEmailOrUsername("unknown@example.com"))
-                                        .thenThrow(new UserNotFoundException("User not found"));
+  @Nested
+  @Tag("updateUser")
+  @DisplayName("PUT /api/profile")
+  class UpdateUserTests {
 
-                        // WHEN
-                        ResultActions response = mockMvc.perform(get("/api/profile")
-                                        .principal(authentication));
+    @Test
+    @DisplayName("should return 200 and updated profile when request is valid")
+    void updateUser_shouldReturn200AndUpdatedProfile_whenRequestValid() throws Exception {
+      // GIVEN
+      UpdateUserRequest request = new UpdateUserRequest(
+          "new.email@example.com", "newUsername", "NewPassword123!");
 
-                        // THEN
-                        response.andExpect(status().isNotFound());
-                }
-        }
+      UserEntity updatedUser = new UserEntity("new.email@example.com", "newUsername", "encodedPassword");
+      updatedUser.setId(1L);
 
-        @Nested
-        @DisplayName("updateUser")
-        class updateUserTests {
+      UserResponse response = new UserResponse(
+          1L, "new.email@example.com", "newUsername", LocalDateTime.now(), LocalDateTime.now());
 
-                @Test
-                @DisplayName("should return 200 when profile is updated successfully")
-                void updateUser_shouldReturn200_whenSuccess() throws Exception {
-                        // GIVEN
-                        String email = "john.doe@example.com";
-                        UpdateUserRequest request = new UpdateUserRequest(
-                                        "new.john@example.com",
-                                        "newjeanbiche",
-                                        "NewPassword123!");
+      Authentication authentication = new UsernamePasswordAuthenticationToken("1", null, List.of());
 
-                        UserEntity updatedUser = new UserEntity(
-                                        "new.john@example.com",
-                                        "newjeanbiche",
-                                        "EncodedNewPassword123!");
+      when(userService.updateUser(eq(1L), any(UpdateUserRequest.class))).thenReturn(updatedUser);
+      when(userMapper.toDto(updatedUser)).thenReturn(response);
 
-                        UserResponse userResponse = new UserResponse(
-                                        1L,
-                                        "new.john@example.com",
-                                        "newjeanbiche",
-                                        null,
-                                        null);
+      // WHEN
+      ResultActions result = mockMvc.perform(put("/api/profile")
+          .principal(authentication)
+          .contentType("application/json")
+          .content(jsonMapper.writeValueAsString(request)));
 
-                        Authentication authentication = new UsernamePasswordAuthenticationToken(email, "Password123!");
+      // THEN
+      result
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.email").value("new.email@example.com"))
+          .andExpect(jsonPath("$.username").value("newUsername"));
+    }
 
-                        when(userService.updateUser(eq(email), any(UpdateUserRequest.class)))
-                                        .thenReturn(updatedUser);
+    @Test
+    @DisplayName("should return 400 when payload is invalid")
+    void updateUser_shouldReturn400_whenPayloadInvalid() throws Exception {
+      // GIVEN
+      UpdateUserRequest invalidRequest = new UpdateUserRequest("not-an-email", "ab", "weak");
 
-                        when(userMapper.toDto(updatedUser))
-                                        .thenReturn(userResponse);
+      Authentication authentication = new UsernamePasswordAuthenticationToken("99", null, List.of());
 
-                        // WHEN
-                        ResultActions response = mockMvc.perform(put("/api/profile")
-                                        .principal(authentication)
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(jsonMapper.writeValueAsString(request)));
+      // WHEN
+      ResultActions result = mockMvc.perform(put("/api/profile")
+          .principal(authentication)
+          .contentType("application/json")
+          .content(jsonMapper.writeValueAsString(invalidRequest)));
 
-                        // THEN
-                        response.andExpect(status().isOk())
-                                        .andExpect(jsonPath("$.email").value("new.john@example.com"))
-                                        .andExpect(jsonPath("$.username").value("newjeanbiche"));
+      // THEN
+      result.andExpect(status().isBadRequest());
+    }
 
-                        verify(userService).updateUser(eq(email), any(UpdateUserRequest.class));
-                        verify(userMapper).toDto(updatedUser);
-                }
+    @Test
+    @DisplayName("should return 404 when user from token does not exist")
+    void updateUser_shouldReturn404_whenUserNotFound() throws Exception {
+      // GIVEN
+      UpdateUserRequest request = new UpdateUserRequest(
+          "new.email@example.com", "newUsername", "NewPassword123!");
 
-                @Test
-                @DisplayName("should return 404 when user is not found")
-                void updateUser_shouldReturn404_whenUserNotFound() throws Exception {
-                        // GIVEN
-                        String email = "john.doe@example.com";
-                        UpdateUserRequest request = new UpdateUserRequest(
-                                        "new.john@example.com",
-                                        "newjeanbiche",
-                                        "NewPassword123!");
+      Authentication authentication = new UsernamePasswordAuthenticationToken("99", null, List.of());
 
-                        Authentication authentication = new UsernamePasswordAuthenticationToken(email, "Password123!");
+      when(userService.updateUser(eq(99L), any(UpdateUserRequest.class)))
+          .thenThrow(new EntityNotFoundException("User not found with id: 99"));
 
-                        when(userService.updateUser(eq(email), any(UpdateUserRequest.class)))
-                                        .thenThrow(new UserNotFoundException("User not found"));
+      // WHEN
+      ResultActions result = mockMvc.perform(put("/api/profile")
+          .principal(authentication)
+          .contentType("application/json")
+          .content(jsonMapper.writeValueAsString(request)));
 
-                        // WHEN
-                        ResultActions response = mockMvc.perform(put("/api/profile")
-                                        .principal(authentication)
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(jsonMapper.writeValueAsString(request)));
+      // THEN
+      result.andExpect(status().isNotFound());
+    }
 
-                        // THEN
-                        response.andExpect(status().isNotFound());
-                }
+    @Test
+    @DisplayName("should return 409 when email or username is already used")
+    void updateUser_shouldReturn409_whenEmailOrUsernameAlreadyUsed() throws Exception {
+      // GIVEN
+      UpdateUserRequest request = new UpdateUserRequest(
+          "taken.email@example.com", "newUsername", "NewPassword123!");
 
-                @Test
-                @DisplayName("should return 409 when email or username is already in use")
-                void updateUser_shouldReturn409_whenConflict() throws Exception {
-                        // GIVEN
-                        String email = "john.doe@example.com";
-                        UpdateUserRequest request = new UpdateUserRequest(
-                                        "duplicate@example.com",
-                                        "duplicateUser",
-                                        "Password123!");
+      Authentication authentication = new UsernamePasswordAuthenticationToken("1", null, List.of());
 
-                        Authentication authentication = new UsernamePasswordAuthenticationToken(email, "Password123!");
+      when(userService.updateUser(eq(1L), any(UpdateUserRequest.class)))
+          .thenThrow(new UserAlreadyExistsException("Email is already in use"));
 
-                        when(userService.updateUser(eq(email), any(UpdateUserRequest.class)))
-                                        .thenThrow(new UserAlreadyExistsException(
-                                                        "Email or username is already in use"));
+      // WHEN
+      ResultActions result = mockMvc.perform(put("/api/profile")
+          .principal(authentication)
+          .contentType("application/json")
+          .content(jsonMapper.writeValueAsString(request)));
 
-                        // WHEN
-                        ResultActions response = mockMvc.perform(put("/api/profile")
-                                        .principal(authentication)
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(jsonMapper.writeValueAsString(request)));
-
-                        // THEN
-                        response.andExpect(status().isConflict());
-                }
-
-                @Test
-                @DisplayName("should return 400 when request body is invalid")
-                void updateUser_shouldReturn400_whenInvalidBody() throws Exception {
-                        // GIVEN
-                        String email = "john.doe@example.com";
-                        UpdateUserRequest invalidRequest = new UpdateUserRequest(
-                                        "invalid-email",
-                                        "ab",
-                                        "Password123!");
-
-                        Authentication authentication = new UsernamePasswordAuthenticationToken(email, "Password123!");
-
-                        // WHEN
-                        ResultActions response = mockMvc.perform(put("/api/profile")
-                                        .principal(authentication)
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(jsonMapper.writeValueAsString(invalidRequest)));
-
-                        // THEN
-                        response.andExpect(status().isBadRequest());
-                }
-        }
+      // THEN
+      result.andExpect(status().isConflict());
+    }
+  }
 }

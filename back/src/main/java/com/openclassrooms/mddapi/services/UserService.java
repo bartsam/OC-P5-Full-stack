@@ -5,9 +5,10 @@ import org.springframework.stereotype.Service;
 
 import com.openclassrooms.mddapi.dto.UpdateUserRequest;
 import com.openclassrooms.mddapi.exceptions.UserAlreadyExistsException;
-import com.openclassrooms.mddapi.exceptions.UserNotFoundException;
 import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.repository.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserService {
@@ -20,16 +21,29 @@ public class UserService {
     this.passwordEncoder = passwordEncoder;
   }
 
-  public UserEntity findByEmailOrUsername(String identifier) {
-
-    return userRepository.findByEmail(identifier)
-        .or(() -> userRepository.findByUsername(identifier))
-        .orElseThrow(() -> new UserNotFoundException("User not found"));
-
+  /**
+   * Finds a user by their stable database identifier.
+   *
+   * @param userId Current id of the user
+   * @return the matched UserEntity
+   * @throws EntityNotFoundException if no user is found
+   */
+  public UserEntity findById(Long userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
   }
 
-  public UserEntity updateUser(String identifier, UpdateUserRequest request) {
-    UserEntity user = findByEmailOrUsername(identifier);
+  /**
+   * Updates an existing user profile information (email, username, password).
+   *
+   * @param userId  Current id of the user to update
+   * @param request the payload with new email, username, and raw password
+   * @return the updated and saved UserEntity
+   * @throws EntityNotFoundException    if user to update is not found
+   * @throws UserAlreadyExistsException if email or username already used
+   */
+  public UserEntity updateUser(Long userId, UpdateUserRequest request) {
+    UserEntity user = findById(userId);
 
     if (userRepository.existsByEmailAndIdNot(request.email(), user.getId())) {
       throw new UserAlreadyExistsException("Email is already in use");

@@ -5,22 +5,31 @@ import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import { LoginComponent } from './login.component';
 
 describe('LoginComponent unit tests', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let mockAuthService: { login: ReturnType<typeof vi.fn> };
+  let mockNotificationService: { error: ReturnType<typeof vi.fn> };
   let router: Router;
 
   beforeEach(async () => {
     mockAuthService = {
       login: vi.fn(),
     };
+    mockNotificationService = {
+      error: vi.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent, ReactiveFormsModule],
-      providers: [provideRouter([]), { provide: AuthService, useValue: mockAuthService }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: NotificationService, useValue: mockNotificationService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
@@ -34,7 +43,6 @@ describe('LoginComponent unit tests', () => {
     expect(component.form.valid).toBeFalsy();
     expect(component.form.controls.identifier.valid).toBeFalsy();
     expect(component.form.controls.password.valid).toBeFalsy();
-    expect(component.errorMessage()).toBeNull();
   });
 
   describe('Identifier field', () => {
@@ -139,10 +147,9 @@ describe('LoginComponent unit tests', () => {
         password: 'Password123!',
       });
       expect(navigateSpy).toHaveBeenCalledWith(['/']);
-      expect(component.errorMessage()).toBeNull();
     });
 
-    it('should display an error message in the event of an HTTP failure', () => {
+    it('should show a notification in the event of an HTTP failure', () => {
       const mockError = new HttpErrorResponse({
         error: 'Bad credentials',
         status: 401,
@@ -156,13 +163,10 @@ describe('LoginComponent unit tests', () => {
       component.form.controls.password.setValue('Password123!');
 
       component.submit();
-      fixture.detectChanges();
 
-      expect(component.errorMessage()).toBe('Bad credentials');
-
-      const errorEl = fixture.nativeElement.querySelector('[data-testid="error-message"]');
-      expect(errorEl).toBeTruthy();
-      expect(errorEl.textContent).toContain('Bad credentials');
+      expect(mockNotificationService.error).toHaveBeenCalledWith(
+        'Impossible de se connecter : Bad credentials',
+      );
     });
   });
 });

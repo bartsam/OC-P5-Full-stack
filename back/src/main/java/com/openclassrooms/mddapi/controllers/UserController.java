@@ -27,12 +27,24 @@ public class UserController {
   private final UserService userService;
   private final UserMapper userMapper;
 
+  /**
+   * Constructs the UserController with required service and mapper dependencies.
+   *
+   * @param userService Service for user profile management
+   * @param userMapper  Mapper for converting UserEntity objects to DTOs
+   */
   public UserController(
       UserService userService, UserMapper userMapper) {
     this.userService = userService;
     this.userMapper = userMapper;
   }
 
+  /**
+   * Retrieves the profile information for the currently authenticated user
+   *
+   * @param authentication Spring Security authentication context with user ID
+   * @return a {@link ResponseEntity} of the user profile DTO
+   */
   @Operation(summary = "Get current user profile", description = "Returns the profile (username and email) of the authenticated user.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Profile returned successfully"),
@@ -42,11 +54,20 @@ public class UserController {
   @SecurityRequirement(name = "bearerAuth")
   @GetMapping("/profile")
   public ResponseEntity<UserResponse> getUser(Authentication authentication) {
-    UserEntity user = userService.findByEmailOrUsername(authentication.getName());
+
+    Long userId = Long.parseLong(authentication.getName());
+    UserEntity user = userService.findById(userId);
     return ResponseEntity.ok(userMapper.toDto(user));
   }
 
-  @Operation(summary = "Update current user profile", description = "Updates the email, username, and optionally the password of the authenticated user.")
+  /**
+   * Updates the profile details for the current authenticated user.
+   *
+   * @param authentication Spring Security authentication context with the user ID
+   * @param request        Payload with updated user profile details
+   * @return a {@link ResponseEntity} of the updated user profile DTO
+   */
+  @Operation(summary = "Update current user profile", description = "Updates the email, username, and the password of the authenticated user.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Profile updated successfully"),
       @ApiResponse(responseCode = "400", description = "Invalid profile data"),
@@ -59,7 +80,10 @@ public class UserController {
   public ResponseEntity<UserResponse> updateUser(
       Authentication authentication,
       @Valid @RequestBody UpdateUserRequest request) {
-    UserEntity user = userService.updateUser(authentication.getName(), request);
+
+    Long userId = Long.parseLong(authentication.getName());
+    UserEntity user = userService.updateUser(userId, request);
+
     return ResponseEntity.ok(userMapper.toDto(user));
   }
 }

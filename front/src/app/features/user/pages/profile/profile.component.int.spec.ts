@@ -47,7 +47,7 @@ describe('ProfileComponent integration', () => {
     fixture.detectChanges();
 
     expect(component.isLoading()).toBe(false);
-    expect(component.errorGetMessage()).toBeNull();
+    expect(component.errorMessage()).toBeNull();
 
     expect(component.form.value.email).toBe('john.doe@example.com');
     expect(component.form.value.username).toBe('jeanbiche');
@@ -71,20 +71,27 @@ describe('ProfileComponent integration', () => {
     fixture.detectChanges();
 
     expect(component.isLoading()).toBe(false);
-    expect(component.errorGetMessage()).toBe('Impossible de charger le profil.');
 
-    const errorElement = fixture.nativeElement.querySelector('[data-testid="error-get-message"]');
+    const errorElement = fixture.nativeElement.querySelector('[data-testid="error-message"]');
     expect(errorElement).toBeTruthy();
-    expect(errorElement.textContent).toContain('Impossible de charger le profil.');
+    expect(errorElement.textContent).toEqual(
+      expect.stringMatching(/^Impossible de charger le profil/),
+    );
   });
 
-  it('should call updateUser on submit and handle success', () => {
+  it('should call updateUser on submit and refresh the form on success', () => {
     const mockUser: User = {
       id: 1,
       email: 'john.doe@example.com',
       username: 'jeanbiche',
       createdAt: '2026-08-31T10:00:00Z',
       updatedAt: '2026-08-31T10:00:00Z',
+    };
+    const updatedUser: User = {
+      ...mockUser,
+      email: 'new.john@example.com',
+      username: 'newjeanbiche',
+      updatedAt: '2026-09-02T10:00:00Z',
     };
 
     fixture.detectChanges();
@@ -113,14 +120,14 @@ describe('ProfileComponent integration', () => {
       password: 'NewPassword123!',
     });
 
-    reqPut.flush({});
+    reqPut.flush(updatedUser);
     fixture.detectChanges();
 
     expect(component.isLoading()).toBe(false);
-    expect(component.errorPutMessage()).toBeNull();
+    expect(component.user()).toEqual(updatedUser);
   });
 
-  it('should display error message when updateUser fails', () => {
+  it('should keep loading state consistent when updateUser fails', () => {
     const mockUser: User = {
       id: 1,
       email: 'john.doe@example.com',
@@ -147,13 +154,10 @@ describe('ProfileComponent integration', () => {
     submitButton.click();
 
     const reqPut = httpMock.expectOne(apiUrl);
-    reqPut.flush({ message: 'Conflict' }, { status: 409, statusText: 'Conflict' });
+    reqPut.flush({ message: 'Email is already in use' }, { status: 409, statusText: 'Conflict' });
     fixture.detectChanges();
 
     expect(component.isLoading()).toBe(false);
-
-    const errorElement = fixture.nativeElement.querySelector('[data-testid="error-put-message"]');
-    expect(errorElement).toBeTruthy();
-    expect(errorElement.textContent).toContain('Impossible de modifier le profil.');
+    expect(component.user()).toEqual(mockUser);
   });
 });

@@ -2,9 +2,9 @@
   <h1>Profil utilisateur</h1>
   @if (isLoading()) {
     <p>Chargement du profil...</p>
-  } @else if (errorGetMessage()) {
+  } @else if (errorMessage()) {
     <mat-error>
-      <span data-testid="error-get-message">{{ errorGetMessage() }}</span>
+      <span data-testid="error-message">{{ errorMessage() }}</span>
     </mat-error>
   } @else if (user()) {
     <form class="form" [formGroup]="form" (ngSubmit)="submit()">
@@ -56,6 +56,7 @@
           formControlName="password"
           data-testid="password-input"
           autocomplete="new-password"
+          placeholder="Nouveau ou actuel"
         />
         @if (form.controls.password.value.length > 1) {
           <button
@@ -95,14 +96,6 @@
       >
         Sauvegarder
       </button>
-
-      @if (errorPutMessage()) {
-        <mat-error>
-          <span data-testid="error-put-message">{{ errorPutMessage() }}</span>
-        </mat-error>
-      }
     </form>
-    <p>Créé le : {{ user()?.createdAt | date: 'dd/MM/yyyy' }}</p>
-    <p>Modifié le : {{ user()?.updatedAt | date: 'dd/MM/yyyy' }}</p>
   }
 </div>
