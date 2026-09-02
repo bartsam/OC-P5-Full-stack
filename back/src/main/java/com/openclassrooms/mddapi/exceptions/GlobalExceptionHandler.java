@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.openclassrooms.mddapi.dto.MessageResponse;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -56,11 +58,11 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Requested user was not found: 404 NOT_FOUND
+   * Requested entity not found (e.g. user, topic, post etc): 404 NOT_FOUND
    */
-  @ExceptionHandler(UserNotFoundException.class)
-  public ResponseEntity<MessageResponse> handleUserNotFound(UserNotFoundException ex) {
-    logger.warn("User not found: {}", ex.getMessage());
+  @ExceptionHandler(EntityNotFoundException.class)
+  public ResponseEntity<MessageResponse> handleEntityNotFound(EntityNotFoundException ex) {
+    logger.warn("Entity not found: {}", ex.getMessage());
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(new MessageResponse(ex.getMessage()));
