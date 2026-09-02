@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import { AuthService } from '../../services/auth.service';
 import { RegisterComponent } from './register.component';
 
@@ -11,16 +12,24 @@ describe('RegisterComponent unit tests', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
   let mockAuthService: { register: ReturnType<typeof vi.fn> };
+  let mockNotificationService: { error: ReturnType<typeof vi.fn> };
   let router: Router;
 
   beforeEach(async () => {
     mockAuthService = {
       register: vi.fn(),
     };
+    mockNotificationService = {
+      error: vi.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [RegisterComponent, ReactiveFormsModule],
-      providers: [provideRouter([]), { provide: AuthService, useValue: mockAuthService }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: NotificationService, useValue: mockNotificationService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterComponent);
@@ -35,7 +44,6 @@ describe('RegisterComponent unit tests', () => {
     expect(component.form.controls.username.valid).toBeFalsy();
     expect(component.form.controls.email.valid).toBeFalsy();
     expect(component.form.controls.password.valid).toBeFalsy();
-    expect(component.errorMessage()).toBeNull();
   });
 
   describe('Username field', () => {
@@ -119,7 +127,7 @@ describe('RegisterComponent unit tests', () => {
       button.click();
       fixture.detectChanges();
 
-      expect(component.isPasswordVisible).toBeTruthy();
+      expect(component.isPasswordVisible()).toBeTruthy();
 
       const input = fixture.nativeElement.querySelector('[data-testid="password-input"]');
       expect(input.getAttribute('type')).toBe('text');
@@ -169,10 +177,9 @@ describe('RegisterComponent unit tests', () => {
         password: 'Password123!',
       });
       expect(navigateSpy).toHaveBeenCalledWith(['/']);
-      expect(component.errorMessage()).toBeNull();
     });
 
-    it('should display an error message in the event of an HTTP failure', () => {
+    it('should show a notification in the event of an HTTP failure', () => {
       const mockError = new HttpErrorResponse({
         error: 'Email already exists',
         status: 409,
@@ -187,11 +194,10 @@ describe('RegisterComponent unit tests', () => {
       component.form.controls.password.setValue('Password123!');
 
       component.submit();
-      fixture.detectChanges();
 
-      const errorEl = fixture.nativeElement.querySelector('[data-testid="error-message"]');
-      expect(errorEl).toBeTruthy();
-      expect(errorEl.textContent).toContain('Email already exists');
+      expect(mockNotificationService.error).toHaveBeenCalledWith(
+        "Impossible de s'enregistrer : Email already exists",
+      );
     });
   });
 });
