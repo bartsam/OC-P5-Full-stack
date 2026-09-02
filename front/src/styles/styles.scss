@@ -11,3 +11,28 @@ body {
 h1 {
   text-align: center;
 }
+
+/* styles.scss */
+.snackbar-success {
+  .mdc-snackbar__surface {
+    background-color: #2e7d32 !important;
+  }
+  .mdc-snackbar__label {
+    color: #ffffff !important;
+  }
+  .mat-mdc-button {
+    color: #ffffff !important;
+  }
+}
+
+.snackbar-error {
+  .mdc-snackbar__surface {
+    background-color: #d32f2f !important;
+  }
+  .mdc-snackbar__label {
+    color: #ffffff !important;
+  }
+  .mat-mdc-button {
+    color: #ffffff !important;
+  }
+}
