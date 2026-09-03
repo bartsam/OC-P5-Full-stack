@@ -34,35 +34,35 @@ import lombok.Setter;
 @Table(name = "users")
 public class UserEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NonNull
-  @Size(max = 50)
-  @Email
-  @Column(unique = true, nullable = false)
-  private String email;
+    @NonNull
+    @Size(max = 50)
+    @Email
+    @Column(unique = true, nullable = false)
+    private String email;
 
-  @NonNull
-  @Size(max = 20)
-  @Column(unique = true, nullable = false)
-  private String username;
+    @NonNull
+    @Size(max = 20)
+    @Column(unique = true, nullable = false)
+    private String username;
 
-  @NonNull
-  @Column(nullable = false)
-  private String password;
+    @NonNull
+    @Column(nullable = false)
+    private String password;
 
-  @CreationTimestamp
-  @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-  @UpdateTimestamp
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
-  @ManyToMany
-  @JoinTable(name = "subscriptions", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "topic_id"))
-  private List<TopicEntity> topics;
+    @ManyToMany
+    @JoinTable(name = "subscriptions", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "topic_id"))
+    private List<TopicEntity> topics;
 
 }

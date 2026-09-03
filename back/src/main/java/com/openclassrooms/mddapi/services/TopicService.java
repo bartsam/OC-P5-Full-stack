@@ -41,7 +41,6 @@ public class TopicService {
      * @return a list of TopicOptionResponse
      */
     public List<TopicOptionResponse> findAllOptions() {
-
         return topicRepository.findAll()
                 .stream()
                 .map(topicMapper::toOptionDTO)
@@ -60,7 +59,7 @@ public class TopicService {
 
         List<TopicEntity> allTopics = topicRepository.findAll();
 
-        UserEntity user = userRepository.findById(userId)
+        UserEntity user = userRepository.findWithTopicsById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
         return allTopics.stream()
@@ -81,7 +80,7 @@ public class TopicService {
      */
     @Transactional(readOnly = true)
     public List<TopicItemResponse> findAllSubscribedByUser(Long userId) {
-        UserEntity user = userRepository.findById(userId)
+        UserEntity user = userRepository.findWithTopicsById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
         return user.getTopics().stream()
@@ -98,7 +97,7 @@ public class TopicService {
      */
     @Transactional
     public void subscribe(Long userId, Long topicId) {
-        UserEntity user = userRepository.findById(userId)
+        UserEntity user = userRepository.findWithTopicsById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
         TopicEntity topic = topicRepository.findById(topicId)
                 .orElseThrow(() -> new EntityNotFoundException("Topic not found with id: " + topicId));
@@ -118,7 +117,7 @@ public class TopicService {
      */
     @Transactional
     public void unsubscribe(Long userId, Long topicId) {
-        UserEntity user = userRepository.findById(userId)
+        UserEntity user = userRepository.findWithTopicsById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
         TopicEntity topic = topicRepository.findById(topicId)
                 .orElseThrow(() -> new EntityNotFoundException("Topic not found with id: " + topicId));

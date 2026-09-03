@@ -27,21 +27,21 @@ import lombok.Setter;
 @Table(name = "topics")
 public class TopicEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @NonNull
-  @Size(max = 50)
-  @Column(unique = true, nullable = false, length = 50)
-  private String name;
+    @NonNull
+    @Size(max = 50)
+    @Column(unique = true, nullable = false, length = 50)
+    private String name;
 
-  @NonNull
-  @Size(max = 2500)
-  @Column(nullable = false)
-  private String description;
+    @NonNull
+    @Size(max = 2500)
+    @Column(nullable = false)
+    private String description;
 
-  @ManyToMany(mappedBy = "topics")
-  private List<UserEntity> subscribers;
+    @ManyToMany(mappedBy = "topics")
+    private List<UserEntity> subscribers;
 
 }

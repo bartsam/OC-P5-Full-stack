@@ -100,7 +100,7 @@ public class TopicServiceTest {
             user.setId(userId);
             user.setTopics(List.of(topic1));
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.of(user));
             when(topicRepository.findAll()).thenReturn(List.of(topic1, topic2));
 
             when(topicMapper.toItemDTO(topic1, true))
@@ -123,7 +123,7 @@ public class TopicServiceTest {
         void findAllForUser_shouldThrowException_whenUserNotFound() {
             // GIVEN
             Long userId = 99L;
-            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.empty());
 
             // THEN
             assertThatThrownBy(() -> topicService.findAllForUser(userId))
@@ -155,7 +155,7 @@ public class TopicServiceTest {
             user.setId(userId);
             user.setTopics(List.of(topic1));
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.of(user));
             when(topicMapper.toItemDTO(topic1, true))
                     .thenReturn(new TopicItemResponse(topic1Id, "Java", "Java ecosystem", true));
 
@@ -173,7 +173,7 @@ public class TopicServiceTest {
         void findAllSubscribedByUser_shouldThrowException_whenUserNotFound() {
             // GIVEN
             Long userId = 99L;
-            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.empty());
 
             // THEN
             assertThatThrownBy(() -> topicService.findAllSubscribedByUser(userId))
@@ -201,7 +201,7 @@ public class TopicServiceTest {
             user.setId(userId);
             user.setTopics(new ArrayList<TopicEntity>());
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.of(user));
             when(topicRepository.findById(topicId)).thenReturn(Optional.of(topic));
 
             // WHEN
@@ -225,7 +225,7 @@ public class TopicServiceTest {
             user.setId(userId);
             user.setTopics(new ArrayList<TopicEntity>(List.of(topic)));
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.of(user));
             when(topicRepository.findById(topicId)).thenReturn(Optional.of(topic));
 
             // WHEN
@@ -242,7 +242,7 @@ public class TopicServiceTest {
             Long userId = 1L;
             Long topicId = 2L;
 
-            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.empty());
 
             // THEN
             assertThatThrownBy(() -> topicService.subscribe(userId, topicId))
@@ -260,7 +260,7 @@ public class TopicServiceTest {
             UserEntity user = new UserEntity("john.doe@example.com", "jeanbiche", "Password123!");
             user.setId(userId);
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.of(user));
             when(topicRepository.findById(topicId)).thenReturn(Optional.empty());
 
             // THEN
@@ -288,7 +288,7 @@ public class TopicServiceTest {
             user.setId(userId);
             user.setTopics(new ArrayList<TopicEntity>(List.of(topic)));
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.of(user));
             when(topicRepository.findById(topicId)).thenReturn(Optional.of(topic));
 
             // WHEN
@@ -305,7 +305,7 @@ public class TopicServiceTest {
             Long userId = 1L;
             Long topicId = 2L;
 
-            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.empty());
 
             // THEN
             assertThatThrownBy(() -> topicService.unsubscribe(userId, topicId))
@@ -323,7 +323,7 @@ public class TopicServiceTest {
             UserEntity user = new UserEntity("john.doe@example.com", "jeanbiche", "Password123!");
             user.setId(userId);
 
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findWithTopicsById(userId)).thenReturn(Optional.of(user));
             when(topicRepository.findById(topicId)).thenReturn(Optional.empty());
 
             // THEN
