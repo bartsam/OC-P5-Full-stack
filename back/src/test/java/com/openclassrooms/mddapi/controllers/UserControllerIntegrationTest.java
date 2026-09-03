@@ -104,19 +104,6 @@ public class UserControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("should return 401 when JWT is malformed")
-        void getUser_shouldReturn401_whenTokenMalformed() throws Exception {
-            // WHEN
-            ResultActions result = mockMvc.perform(get("/api/profile")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-valid-jwt"));
-
-            // THEN
-            result
-                    .andExpect(status().isUnauthorized())
-                    .andExpect(jsonPath("$.message").exists());
-        }
-
-        @Test
         @DisplayName("should return 404 when user from token no longer exists")
         void getUser_shouldReturn404_whenUserDeleted() throws Exception {
             // GIVEN

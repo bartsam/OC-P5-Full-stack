@@ -51,7 +51,6 @@ public class TopicServiceTest {
         @Test
         @DisplayName("should return all topics formatted as options")
         void findAllOptions_shouldReturnAllTopicsOptions() {
-
             // GIVEN
             Long topic1Id = 1L;
             Long topic2Id = 2L;
@@ -86,7 +85,6 @@ public class TopicServiceTest {
         @Test
         @DisplayName("should return all topics with correct subscription status when user exists")
         void findAllForUser_shouldReturnAllTopicsWithSubscriptionStatus_whenUserExists() {
-
             // GIVEN
             Long userId = 1L;
             Long topic1Id = 2L;
@@ -123,12 +121,11 @@ public class TopicServiceTest {
         @Test
         @DisplayName("should throw EntityNotFoundException when user is not found")
         void findAllForUser_shouldThrowException_whenUserNotFound() {
-
             // GIVEN
             Long userId = 99L;
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            // WHEN / THEN
+            // THEN
             assertThatThrownBy(() -> topicService.findAllForUser(userId))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessage("User not found with id: " + userId);
@@ -266,7 +263,7 @@ public class TopicServiceTest {
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(topicRepository.findById(topicId)).thenReturn(Optional.empty());
 
-            // WHEN / THEN
+            // THEN
             assertThatThrownBy(() -> topicService.subscribe(userId, topicId))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessage("Topic not found with id: " + topicId);
@@ -310,7 +307,7 @@ public class TopicServiceTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            // WHEN / THEN
+            // THEN
             assertThatThrownBy(() -> topicService.unsubscribe(userId, topicId))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessage("User not found with id: " + userId);
@@ -329,7 +326,7 @@ public class TopicServiceTest {
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(topicRepository.findById(topicId)).thenReturn(Optional.empty());
 
-            // WHEN / THEN
+            // THEN
             assertThatThrownBy(() -> topicService.unsubscribe(userId, topicId))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessage("Topic not found with id: " + topicId);

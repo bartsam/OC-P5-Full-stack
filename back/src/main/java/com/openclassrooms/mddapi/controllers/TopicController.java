@@ -49,7 +49,7 @@ public class TopicController {
             @ApiResponse(responseCode = "404", description = "Authenticated user not found")
     })
     @SecurityRequirement(name = "bearerAuth")
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<TopicItemResponse>> getAllTopicsForUser(Authentication authentication) {
 
         Long userId = Long.parseLong(authentication.getName());
