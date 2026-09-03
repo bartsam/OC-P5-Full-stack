@@ -4,8 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MaterialComponents } from '../../../../shared/material';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { UserUpdateForm } from '../../models/update.model';
-import { User } from '../../models/user.model';
+import { User, UserUpdateForm } from '../../models';
 import { UserService } from '../../services/user.service';
 
 @Component({

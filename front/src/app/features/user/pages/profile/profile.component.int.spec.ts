@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { environment } from '../../../../../environments/environment';
-import { User } from '../../models/user.model';
+import { User } from '../../models';
 import { ProfileComponent } from './profile.component';
 
 describe('ProfileComponent integration', () => {

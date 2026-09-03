@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MaterialComponents } from '../../../../shared/material';
 import { NotificationService } from '../../../../shared/services/notification.service';
-import { User } from '../../models/user.model';
+import { User } from '../../models';
 import { UserService } from '../../services/user.service';
 import { ProfileComponent } from './profile.component';
 

@@ -3,8 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { fail } from 'assert';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { UserUpdateRequest } from '../models/update.model';
-import { User } from '../models/user.model';
+import { User, UserUpdateRequest } from '../models';
 import { UserService } from './user.service';
 
 describe('AuthService', () => {
