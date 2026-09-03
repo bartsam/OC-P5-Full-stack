@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { User, UserUpdateRequest } from '../models';
 import { UserService } from './user.service';
 
-describe('AuthService', () => {
+describe('UserService', () => {
   let service: UserService;
   let httpMock: HttpTestingController;
   let apiUrl: string;
