@@ -160,7 +160,7 @@ class TopicControllerIntegrationTest {
 
     @Nested
     @Tag("getSubscribedTopics")
-    @DisplayName("GET /api/topics/subscriptions")
+    @DisplayName("GET /api/topics/subscribed")
     class GetSubscribedTopicsTests {
 
         @Test
@@ -171,7 +171,7 @@ class TopicControllerIntegrationTest {
             userRepository.save(existingUser);
 
             // WHEN
-            ResultActions result = mockMvc.perform(get("/api/topics/subscriptions")
+            ResultActions result = mockMvc.perform(get("/api/topics/subscribed")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
             // THEN
@@ -185,7 +185,7 @@ class TopicControllerIntegrationTest {
         @DisplayName("should return 401 when no Authorization header is provided")
         void getSubscribedTopics_shouldReturn401_whenNoTokenProvided() throws Exception {
             // WHEN
-            ResultActions result = mockMvc.perform(get("/api/topics/subscriptions"));
+            ResultActions result = mockMvc.perform(get("/api/topics/subscribed"));
 
             // THEN
             result.andExpect(status().isUnauthorized());
@@ -199,7 +199,7 @@ class TopicControllerIntegrationTest {
             userRepository.deleteAll();
 
             // WHEN
-            ResultActions result = mockMvc.perform(get("/api/topics/subscriptions")
+            ResultActions result = mockMvc.perform(get("/api/topics/subscribed")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenForDeletedUser));
 
             // THEN
@@ -219,7 +219,7 @@ class TopicControllerIntegrationTest {
             ResultActions result = mockMvc.perform(post("/api/topics/{topicId}/subscribe", topicA.getId())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
-            ResultActions resultSubscriptions = mockMvc.perform(get("/api/topics/subscriptions")
+            ResultActions resultSubscriptions = mockMvc.perform(get("/api/topics/subscribed")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
             // THEN
@@ -264,7 +264,7 @@ class TopicControllerIntegrationTest {
             ResultActions result = mockMvc.perform(post("/api/topics/{topicId}/subscribe", topicA.getId())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
-            ResultActions resultSubscriptions = mockMvc.perform(get("/api/topics/subscriptions")
+            ResultActions resultSubscriptions = mockMvc.perform(get("/api/topics/subscribed")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
             // THEN
@@ -291,7 +291,7 @@ class TopicControllerIntegrationTest {
             ResultActions result = mockMvc.perform(delete("/api/topics/{topicId}/subscribe", topicA.getId())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
-            ResultActions resultSubscriptions = mockMvc.perform(get("/api/topics/subscriptions")
+            ResultActions resultSubscriptions = mockMvc.perform(get("/api/topics/subscribed")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
             // THEN

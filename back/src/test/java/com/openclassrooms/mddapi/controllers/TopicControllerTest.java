@@ -124,7 +124,7 @@ class TopicControllerTest {
 
     @Nested
     @Tag("getSubscribedTopics")
-    @DisplayName("GET /api/topics/subscriptions")
+    @DisplayName("GET /api/topics/subscribed")
     class GetSubscribedTopicsTests {
 
         @Test
@@ -140,7 +140,7 @@ class TopicControllerTest {
             when(topicService.findAllSubscribedByUser(userId)).thenReturn(subscribed);
 
             // WHEN
-            ResultActions result = mockMvc.perform(get("/api/topics/subscriptions")
+            ResultActions result = mockMvc.perform(get("/api/topics/subscribed")
                     .principal(authentication));
 
             // THEN
@@ -161,7 +161,7 @@ class TopicControllerTest {
                     .thenThrow(new EntityNotFoundException("User not found with id: " + userId));
 
             // WHEN
-            ResultActions result = mockMvc.perform(get("/api/topics/subscriptions")
+            ResultActions result = mockMvc.perform(get("/api/topics/subscribed")
                     .principal(authentication));
 
             // THEN
