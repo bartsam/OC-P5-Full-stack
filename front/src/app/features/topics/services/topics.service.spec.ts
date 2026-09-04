@@ -123,7 +123,7 @@ describe('TopicsService', () => {
     it('should call POST /api/topics/{id}/subscribe', () => {
       const topicId = 1;
 
-      service.subscribe(topicId).subscribe(response => {
+      service.subscribeTopic(topicId).subscribe(response => {
         expect(response).toBeNull();
       });
 
@@ -137,7 +137,7 @@ describe('TopicsService', () => {
     it('should propagate error when subscribe returns 404', () => {
       const topicId = 999;
 
-      service.subscribe(topicId).subscribe({
+      service.subscribeTopic(topicId).subscribe({
         next: () => fail('expected error'),
         error: error => {
           expect(error.status).toBe(404);
@@ -153,7 +153,7 @@ describe('TopicsService', () => {
     it('should call DELETE /api/topics/{id}/subscribe', () => {
       const topicId = 1;
 
-      service.unsubscribe(topicId).subscribe(response => {
+      service.unSubscribeTopic(topicId).subscribe(response => {
         expect(response).toBeNull();
       });
 
@@ -166,7 +166,7 @@ describe('TopicsService', () => {
     it('should propagate error when unsubscribe returns 404', () => {
       const topicId = 999;
 
-      service.unsubscribe(topicId).subscribe({
+      service.unSubscribeTopic(topicId).subscribe({
         next: () => fail('expected error'),
         error: error => {
           expect(error.status).toBe(404);

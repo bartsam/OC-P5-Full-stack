@@ -38,7 +38,7 @@ export class TopicsService {
    * @param topicId - ID of the topic to subscribe to.
    * @returns An Observable emitting void when the subscription is complete.
    */
-  subscribe(topicId: number): Observable<void> {
+  subscribeTopic(topicId: number): Observable<void> {
     return this.httpClient.post<void>(`${this.apiUrl}/${topicId}/subscribe`, {});
   }
 
@@ -47,7 +47,7 @@ export class TopicsService {
    * @param topicId - ID of the topic to unsubscribe from.
    * @returns An Observable emitting void when the unsubscription is complete.
    */
-  unsubscribe(topicId: number): Observable<void> {
+  unSubscribeTopic(topicId: number): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiUrl}/${topicId}/subscribe`);
   }
 }
