@@ -1,42 +1,87 @@
 @if (!hideHeader()) {
-  <header class="header">
+  <header class="header" [class.header--menu-open]="isMenuOpen()">
     <div class="header__wrapper">
       <img src="/assets/logo_p6.png" alt="logo" class="logo" />
+
       @if (isLoggedIn()) {
-        <nav>
-          <button matButton="text" color="warn" (click)="logout()" data-testid="logout-button">
-            Se déconnecter
-          </button>
-          <a
-            matButton="text"
-            routerLink="/"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            #rlaHome="routerLinkActive"
-            [color]="rlaHome.isActive ? 'primary' : undefined"
-            >Articles</a
-          >
-          <a
-            matButton="text"
-            routerLink="/topics"
-            routerLinkActive="active"
-            #rlaTopics="routerLinkActive"
-            [color]="rlaTopics.isActive ? 'primary' : undefined"
-            >Thèmes</a
-          >
+        <nav
+          id="menu"
+          class="nav"
+          data-testid="nav"
+          [class.nav--open]="isMenuOpen()"
+          aria-label="Navigation principale"
+        >
+          <div class="nav__wrapper">
+            <button
+              matButton="text"
+              data-testid="logout-button"
+              color="warn"
+              (click)="logout(); closeMenu()"
+            >
+              Se déconnecter
+            </button>
+            <a
+              matButton="text"
+              class="nav__link"
+              routerLink="/"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+              #rlaHome="routerLinkActive"
+              [color]="rlaHome.isActive ? 'primary' : undefined"
+              (click)="closeMenu()"
+            >
+              Articles
+            </a>
+            <a
+              matButton="text"
+              class="nav__link"
+              routerLink="/topics"
+              routerLinkActive="active"
+              #rlaTopics="routerLinkActive"
+              [color]="rlaTopics.isActive ? 'primary' : undefined"
+              (click)="closeMenu()"
+            >
+              Thèmes
+            </a>
+          </div>
           <a
             matIconButton
             routerLink="/profile"
             routerLinkActive
             #rlaProfile="routerLinkActive"
             [color]="rlaProfile.isActive ? 'primary' : undefined"
+            (click)="closeMenu()"
           >
             <mat-icon>account_circle</mat-icon>
           </a>
         </nav>
+
+        <button
+          matIconButton
+          class="nav__burger"
+          data-testid="burger-button"
+          (click)="toggleMenu()"
+          (keydown.enter)="toggleMenu()"
+          (keydown.space)="toggleMenu(); $event.preventDefault()"
+          aria-label="Menu"
+          [attr.aria-expanded]="isMenuOpen()"
+          [attr.aria-controls]="isMenuOpen() ? 'menu' : null"
+        >
+          <mat-icon>{{ isMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+        </button>
       }
     </div>
   </header>
+  @if (isLoggedIn()) {
+    @if (isMenuOpen()) {
+      <button
+        class="nav__backdrop"
+        data-testid="backdrop-button"
+        aria-label="Fermer le menu"
+        (click)="closeMenu()"
+      ></button>
+    }
+  }
 }
 
 <main class="main">
@@ -45,7 +90,7 @@
       <mat-icon>arrow_back</mat-icon>
     </a>
   }
-  <div class="wrapper">
+  <div class="main__wrapper">
     <ng-content></ng-content>
   </div>
 </main>
