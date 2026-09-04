@@ -1,0 +1,9 @@
+<div class="grid" data-testid="topics-list">
+  @for (topic of topics(); track topic.id) {
+    <app-topics-item
+      [topic]="topic"
+      [isSubscribable]="isSubscribable()"
+      (handleSubscribe)="handleSubscribe.emit($event)"
+    />
+  }
+</div>
