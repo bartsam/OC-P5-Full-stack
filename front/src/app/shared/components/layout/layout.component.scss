@@ -38,6 +38,9 @@
   max-width: 825px;
   margin: 0 auto;
   padding: 48px;
+  @media (max-width: 768px) {
+    padding: 24px;
+  }
 }
 
 .wrapper {

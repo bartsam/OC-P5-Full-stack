@@ -11,6 +11,9 @@ body {
 
 .mat-typography {
   h1 {
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1;
     text-align: center;
   }
   h3 {
@@ -29,18 +32,25 @@ body {
       filled-label-text-size: 16px,
       filled-label-text-weight: 600,
 
-      protected-container-height: 40px,
-      protected-horizontal-padding: 16px,
-      protected-container-shape: 8px,
-      protected-label-text-size: 16px,
-      protected-label-text-weight: 600,
-
       outlined-container-height: 40px,
       outlined-horizontal-padding: 16px,
       outlined-container-shape: 8px,
+      outlined-label-text-size: 16px,
+      outlined-label-text-weight: 600,
 
       text-label-text-size: 14px,
       text-label-text-weight: 700,
+    )
+  );
+}
+
+.mdd-button.mat-mdc-button-base {
+  @include mat.button-overrides(
+    (
+      filled-container-color: #7763c5,
+      filled-label-text-color: #ffffff,
+      filled-disabled-container-color: #939393,
+      filled-disabled-label-text-color: #ffffff,
     )
   );
 }
