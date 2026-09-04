@@ -57,7 +57,7 @@ public class UserServiceTest {
             // GIVEN
             UserEntity user = new UserEntity("john.doe@example.com", "jeanbiche", "encodedPassword123!");
             user.setId(1L);
-            when(userRepository.findWithTopicsById(1L)).thenReturn(Optional.of(user));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
             // WHEN
             UserEntity result = userService.findById(1L);
@@ -71,7 +71,7 @@ public class UserServiceTest {
         @DisplayName("should throw EntityNotFoundException when id does not exist")
         void findById_shouldThrowException_whenIdDoesNotExist() {
             // GIVEN
-            when(userRepository.findWithTopicsById(99L)).thenReturn(Optional.empty());
+            when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
             // THEN
             assertThatThrownBy(() -> userService.findById(99L))
@@ -95,7 +95,7 @@ public class UserServiceTest {
             UserUpdateRequest request = new UserUpdateRequest("new.email@example.com", "newUsername",
                     "NewPassword123!");
 
-            when(userRepository.findWithTopicsById(1L)).thenReturn(Optional.of(existingUser));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
             when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(false);
             when(userRepository.existsByUsernameAndIdNot(request.username(), 1L)).thenReturn(false);
             when(passwordEncoder.encode(request.password())).thenReturn("newEncodedPassword");
@@ -121,7 +121,7 @@ public class UserServiceTest {
             // GIVEN
             UserUpdateRequest request = new UserUpdateRequest("new.email@example.com", "newUsername",
                     "NewPassword123!");
-            when(userRepository.findWithTopicsById(99L)).thenReturn(Optional.empty());
+            when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
             // THEN
             assertThatThrownBy(() -> userService.updateUser(99L, request))
@@ -141,7 +141,7 @@ public class UserServiceTest {
             UserUpdateRequest request = new UserUpdateRequest("taken.email@example.com", "newUsername",
                     "NewPassword123!");
 
-            when(userRepository.findWithTopicsById(1L)).thenReturn(Optional.of(existingUser));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
             when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(true);
 
             // THEN
@@ -163,7 +163,7 @@ public class UserServiceTest {
             UserUpdateRequest request = new UserUpdateRequest("new.email@example.com", "takenUsername",
                     "NewPassword123!");
 
-            when(userRepository.findWithTopicsById(1L)).thenReturn(Optional.of(existingUser));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
             when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(false);
             when(userRepository.existsByUsernameAndIdNot(request.username(), 1L)).thenReturn(true);
 
@@ -185,7 +185,7 @@ public class UserServiceTest {
             UserUpdateRequest request = new UserUpdateRequest("john.doe@example.com", "jeanbiche",
                     "NewPassword123!");
 
-            when(userRepository.findWithTopicsById(1L)).thenReturn(Optional.of(existingUser));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
             when(userRepository.existsByEmailAndIdNot(request.email(), 1L)).thenReturn(false);
             when(userRepository.existsByUsernameAndIdNot(request.username(), 1L)).thenReturn(false);
             when(passwordEncoder.encode(request.password())).thenReturn("newEncodedPassword");
