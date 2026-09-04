@@ -1,10 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { of, throwError } from 'rxjs';
+import { By } from '@angular/platform-browser';
+import { of, Subject, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { DebugElement } from '@angular/core';
 import { MaterialComponents } from '../../../../shared/material';
 import { NotificationService } from '../../../../shared/services/notification.service';
+import { TopicsListComponent } from '../../../topics/components/list/topics-list.component';
 import { TopicItem } from '../../../topics/models';
 import { TopicsService } from '../../../topics/services/topics.service';
 import { User } from '../../models';
@@ -14,6 +17,7 @@ import { ProfileComponent } from './profile.component';
 describe('ProfileComponent', () => {
   let component: ProfileComponent;
   let fixture: ComponentFixture<ProfileComponent>;
+  let debugElement: DebugElement;
   let mockUserService: {
     getUser: ReturnType<typeof vi.fn>;
     updateUser: ReturnType<typeof vi.fn>;
@@ -67,69 +71,75 @@ describe('ProfileComponent', () => {
 
     fixture = TestBed.createComponent(ProfileComponent);
     component = fixture.componentInstance;
+    debugElement = fixture.debugElement;
   });
 
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('ngOnInit - getUser', () => {
-    it('should populate form and signals on getUser success', () => {
-      mockUserService.getUser.mockReturnValue(of(mockUser));
-      mockTopicsService.getSubscribedTopics.mockReturnValue(of(mockTopics));
+  describe('ngOnInit', () => {
+    it('should display the spinner, then render the profile and subscribed topics', () => {
+      const user$ = new Subject<User>();
+      const topics$ = new Subject<TopicItem[]>();
+      mockUserService.getUser.mockReturnValue(user$);
+      mockTopicsService.getSubscribedTopics.mockReturnValue(topics$);
 
-      component.ngOnInit();
       fixture.detectChanges();
 
-      expect(mockUserService.getUser).toHaveBeenCalled();
+      expect(debugElement.query(By.css('[data-testid="loading-screen"]'))).toBeTruthy();
+
+      user$.next(mockUser);
+      user$.complete();
+      topics$.next(mockTopics);
+      topics$.complete();
+      fixture.detectChanges();
+
+      const topicsList = debugElement.query(By.directive(TopicsListComponent));
+      expect(mockUserService.getUser).toHaveBeenCalledTimes(1);
+      expect(mockTopicsService.getSubscribedTopics).toHaveBeenCalledTimes(1);
       expect(component.user()).toEqual(mockUser);
+      expect(component.topics()).toEqual(mockTopics);
       expect(component.loading()).toBe(false);
       expect(component.error()).toBeNull();
-
       expect(component.form.value.email).toBe('john.doe@example.com');
       expect(component.form.value.username).toBe('jeanbiche');
+      expect(topicsList).toBeTruthy();
+      expect(debugElement.query(By.css('mat-spinner'))).toBeNull();
     });
 
-    it('should set error signal on getUser error', () => {
+    it('should display an error and hide profile content when loading the user fails', () => {
       mockUserService.getUser.mockReturnValue(
         throwError(() => ({ error: { message: 'Not found' } })),
       );
       mockTopicsService.getSubscribedTopics.mockReturnValue(of(mockTopics));
 
-      component.ngOnInit();
       fixture.detectChanges();
 
-      expect(mockUserService.getUser).toHaveBeenCalled();
+      const errorMessage = debugElement.query(By.css('[data-testid="error-screen"]'));
       expect(component.loading()).toBe(false);
-      expect(component.error()).toEqual(expect.stringMatching(/^Impossible de charger le profil/));
-    });
-  });
-
-  describe('ngOnInit - getSubscribedTopics', () => {
-    it('should populate topics signal on success', () => {
-      mockUserService.getUser.mockReturnValue(of(mockUser));
-      mockTopicsService.getSubscribedTopics.mockReturnValue(of(mockTopics));
-
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      expect(mockTopicsService.getSubscribedTopics).toHaveBeenCalled();
-      expect(component.topics()).toEqual(mockTopics);
-      expect(component.loading()).toBe(false);
+      expect(component.error()).toContain('Impossible de charger le profil');
+      expect(errorMessage.nativeElement.textContent).toContain(
+        'Impossible de charger le profil : Not found',
+      );
+      expect(debugElement.query(By.css('form'))).toBeNull();
     });
 
-    it('should set error signal on getSubscribedTopics error', () => {
+    it('should display an error and hide profile content when loading topics fails', () => {
       mockUserService.getUser.mockReturnValue(of(mockUser));
       mockTopicsService.getSubscribedTopics.mockReturnValue(
         throwError(() => ({ error: { message: 'Server error' } })),
       );
 
-      component.ngOnInit();
       fixture.detectChanges();
 
-      expect(mockTopicsService.getSubscribedTopics).toHaveBeenCalled();
+      const errorMessage = debugElement.query(By.css('[data-testid="error-screen"]'));
       expect(component.loading()).toBe(false);
-      expect(component.error()).toEqual(expect.stringMatching(/^Impossible de charger le profil/));
+      expect(component.error()).toContain('Impossible de charger le thème');
+      expect(errorMessage.nativeElement.textContent).toContain(
+        'Impossible de charger le thème : Server error',
+      );
+      expect(debugElement.query(By.css('form'))).toBeNull();
     });
   });
 

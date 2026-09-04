@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it } from 'vitest';
+
 import { MaterialComponents } from '../../../../shared/material';
 import { TopicItem } from '../../models';
 import { TopicsItemComponent } from './topics-item.component';
@@ -32,12 +34,11 @@ describe('TopicsItemComponent', () => {
     fixture.componentRef.setInput('topic', mockTopic);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[data-testid="topic-title"]').textContent).toBe(
-      'Java',
-    );
-    expect(
-      fixture.nativeElement.querySelector('[data-testid="topic-description"]').textContent,
-    ).toBe('Langage de programmation orienté objet');
+    const titleDe = fixture.debugElement.query(By.css('[data-testid="topic-title"]'));
+    const descriptionDe = fixture.debugElement.query(By.css('[data-testid="topic-description"]'));
+
+    expect(titleDe.nativeElement.textContent).toBe('Java');
+    expect(descriptionDe.nativeElement.textContent).toBe('Langage de programmation orienté objet');
   });
 
   it('should show subscribe button when isSubscribable is true and isSubscribed is false', () => {
@@ -45,10 +46,11 @@ describe('TopicsItemComponent', () => {
     fixture.componentRef.setInput('isSubscribable', true);
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector('[data-testid="subscribe-button"]');
-    expect(button).toBeTruthy();
-    expect(button.textContent).toContain("S'abonner");
-    expect(button.disabled).toBe(false);
+    const subscribeButton = fixture.debugElement.query(By.css('[data-testid="subscribe-button"]'));
+
+    expect(subscribeButton).toBeTruthy();
+    expect(subscribeButton.nativeElement.textContent).toContain("S'abonner");
+    expect(subscribeButton.nativeElement.disabled).toBe(false);
   });
 
   it('should show disabled subscribe button when isSubscribed is true', () => {
@@ -56,10 +58,11 @@ describe('TopicsItemComponent', () => {
     fixture.componentRef.setInput('isSubscribable', true);
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector('[data-testid="subscribe-button"]');
-    expect(button).toBeTruthy();
-    expect(button.textContent).toContain('Déjà abonné');
-    expect(button.disabled).toBe(true);
+    const subscribeButton = fixture.debugElement.query(By.css('[data-testid="subscribe-button"]'));
+
+    expect(subscribeButton).toBeTruthy();
+    expect(subscribeButton.nativeElement.textContent).toContain('Déjà abonné');
+    expect(subscribeButton.nativeElement.disabled).toBe(true);
   });
 
   it('should show unsubscribe button when isSubscribable is false', () => {
@@ -67,12 +70,15 @@ describe('TopicsItemComponent', () => {
     fixture.componentRef.setInput('isSubscribable', false);
     fixture.detectChanges();
 
-    const button = fixture.nativeElement.querySelector('[data-testid="unsubscribe-button"]');
-    expect(button).toBeTruthy();
-    expect(button.textContent).toContain('Se désabonner');
+    const unSubscribeButton = fixture.debugElement.query(
+      By.css('[data-testid="unsubscribe-button"]'),
+    );
+
+    expect(unSubscribeButton).toBeTruthy();
+    expect(unSubscribeButton.nativeElement.textContent).toContain('Se désabonner');
   });
 
-  it('should emit handleSubscribe with topic on button click', () => {
+  it('should emit the topic when the unsubscribe button is clicked', () => {
     fixture.componentRef.setInput('topic', mockTopic);
     fixture.componentRef.setInput('isSubscribable', false);
     fixture.detectChanges();
@@ -80,7 +86,10 @@ describe('TopicsItemComponent', () => {
     let emittedTopic: TopicItem | undefined;
     component.handleSubscribe.subscribe(topic => (emittedTopic = topic));
 
-    fixture.nativeElement.querySelector('[data-testid="unsubscribe-button"]').click();
+    const unSubscribeButton = fixture.debugElement.query(
+      By.css('[data-testid="unsubscribe-button"]'),
+    );
+    unSubscribeButton.nativeElement.click();
 
     expect(emittedTopic).toEqual(mockTopic);
   });

@@ -69,7 +69,7 @@ export class ProfileComponent implements OnInit {
           this.loading.set(false);
         },
         error: (e: HttpErrorResponse) => {
-          this.error.set(`Impossible de charger le profil : ${e.error?.message}`);
+          this.error.set(`Impossible de charger le thème : ${e.error?.message}`);
           this.loading.set(false);
         },
       });

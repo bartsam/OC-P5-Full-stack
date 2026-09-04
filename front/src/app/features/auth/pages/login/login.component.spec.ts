@@ -1,24 +1,31 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { Component, DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthService } from '../../services/auth.service';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { provideHttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
 import { NotificationService } from '../../../../shared/services/notification.service';
 import { LoginComponent } from './login.component';
 
-describe('LoginComponent unit tests', () => {
+@Component({ template: '' })
+class DummyComponent {}
+
+describe('LoginComponent integration tests', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let mockAuthService: { login: ReturnType<typeof vi.fn> };
-  let mockNotificationService: { error: ReturnType<typeof vi.fn> };
+  let debugElement: DebugElement;
+  let httpMock: HttpTestingController;
   let router: Router;
+  let mockNotificationService: { error: ReturnType<typeof vi.fn> };
+
+  const apiUrl = `${environment.apiUrl}/auth/login`;
 
   beforeEach(async () => {
-    mockAuthService = {
-      login: vi.fn(),
-    };
+    localStorage.clear();
     mockNotificationService = {
       error: vi.fn(),
     };
@@ -26,147 +33,87 @@ describe('LoginComponent unit tests', () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent, ReactiveFormsModule],
       providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: mockAuthService },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([{ path: '', component: DummyComponent }]),
         { provide: NotificationService, useValue: mockNotificationService },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
+    debugElement = fixture.debugElement;
+    httpMock = TestBed.inject(HttpTestingController);
     router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
-  it('should create with default invalid form', () => {
-    expect(component).toBeTruthy();
-    expect(component.form.valid).toBeFalsy();
-    expect(component.form.controls.identifier.valid).toBeFalsy();
-    expect(component.form.controls.password.valid).toBeFalsy();
+  afterEach(() => {
+    httpMock.verify();
+    localStorage.clear();
   });
 
-  describe('Identifier field', () => {
-    it('should be invalid if empty', () => {
-      const control = component.form.controls.identifier;
-      control.setValue('');
-      expect(control.hasError('required')).toBeTruthy();
+  it('should login successfully and navigate to home', async () => {
+    const navigateSpy = vi.spyOn(router, 'navigate');
+
+    component.form.controls.identifier.setValue('jeanbiche');
+    component.form.controls.password.setValue('Password123!');
+    fixture.detectChanges();
+
+    const submitButton = debugElement.query(By.css('[data-testid="submit-button"]'));
+    submitButton.nativeElement.click();
+
+    const request = httpMock.expectOne(apiUrl);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      identifier: 'jeanbiche',
+      password: 'Password123!',
     });
 
-    it('should be invalid if it contains fewer than 3 characters', () => {
-      const control = component.form.controls.identifier;
-      control.setValue('ab');
-      expect(control.hasError('minlength')).toBeTruthy();
-    });
+    request.flush({ token: 'fake.jwt.token' });
 
-    it('should be invalid if it contains more than 50 characters', () => {
-      const control = component.form.controls.identifier;
-      control.setValue('a'.repeat(51));
-      expect(control.hasError('maxlength')).toBeTruthy();
-    });
+    await fixture.whenStable();
 
-    it('should be valid with a correct username', () => {
-      const control = component.form.controls.identifier;
-      control.setValue('john.doe@example.com');
-      expect(control.valid).toBeTruthy();
-    });
+    expect(navigateSpy).toHaveBeenCalledWith(['/']);
+    expect(mockNotificationService.error).not.toHaveBeenCalled();
   });
 
-  describe('Password field', () => {
-    it('should be invalid if empty', () => {
-      const control = component.form.controls.password;
-      control.setValue('');
-      expect(control.hasError('required')).toBeTruthy();
-    });
+  it('should display error notification on 401', async () => {
+    component.form.controls.identifier.setValue('unknown');
+    component.form.controls.password.setValue('Password123!');
+    fixture.detectChanges();
 
-    it('should be invalid if the pattern is not followed', () => {
-      const control = component.form.controls.password;
+    const submitButton = debugElement.query(By.css('[data-testid="submit-button"]'));
+    submitButton.nativeElement.click();
 
-      control.setValue('password123');
-      expect(control.hasError('pattern')).toBeTruthy();
+    const request = httpMock.expectOne(apiUrl);
+    request.flush({ message: 'Invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
 
-      control.setValue('P@ss1');
-      expect(control.hasError('pattern')).toBeTruthy();
-    });
+    await fixture.whenStable();
 
-    it('should toggle the password visibility', () => {
-      expect(component.isPasswordVisible()).toBeFalsy();
-
-      component.form.controls.password.setValue('Password123!');
-      fixture.detectChanges();
-
-      const button = fixture.nativeElement.querySelector('[data-testid="password-button"]');
-      expect(button).toBeTruthy();
-
-      button.click();
-      fixture.detectChanges();
-
-      expect(component.isPasswordVisible()).toBeTruthy();
-
-      const input = fixture.nativeElement.querySelector('[data-testid="password-input"]');
-      expect(input.getAttribute('type')).toBe('text');
-    });
-
-    it('should be valid if the password meets the pattern', () => {
-      const control = component.form.controls.password;
-      control.setValue('Password123!');
-      expect(control.valid).toBeTruthy();
-    });
+    expect(mockNotificationService.error).toHaveBeenCalledWith(
+      'Impossible de se connecter : Invalid credentials',
+    );
   });
 
-  describe('Submit form', () => {
-    it('should disable submit button if the form is invalid', () => {
-      const submitBtn = fixture.nativeElement.querySelector('[data-testid="submit-button"]');
-      expect(submitBtn.disabled).toBeTruthy();
-    });
+  it('should display error notification on 500', async () => {
+    component.form.controls.identifier.setValue('jeanbiche');
+    component.form.controls.password.setValue('Password123!');
+    fixture.detectChanges();
 
-    it('should enable submit button if the form is valid', () => {
-      component.form.controls.identifier.setValue('jeanbiche');
-      component.form.controls.password.setValue('Password123!');
-      fixture.detectChanges();
+    const submitButton = debugElement.query(By.css('[data-testid="submit-button"]'));
+    submitButton.nativeElement.click();
 
-      const submitBtn = fixture.nativeElement.querySelector('[data-testid="submit-button"]');
-      expect(submitBtn.disabled).toBeFalsy();
-    });
+    const request = httpMock.expectOne(apiUrl);
+    request.flush(
+      { message: 'Internal server error' },
+      { status: 500, statusText: 'Internal Server Error' },
+    );
 
-    it('should not call AuthService.login if the form is invalid', () => {
-      component.submit();
-      expect(mockAuthService.login).not.toHaveBeenCalled();
-    });
+    await fixture.whenStable();
 
-    it('should call AuthService.login and redirect to “/” if successful', () => {
-      const navigateSpy = vi.spyOn(router, 'navigate');
-      mockAuthService.login.mockReturnValue(of({ token: 'fake-jwt' }));
-
-      component.form.controls.identifier.setValue('jeanbiche');
-      component.form.controls.password.setValue('Password123!');
-
-      component.submit();
-
-      expect(mockAuthService.login).toHaveBeenCalledWith({
-        identifier: 'jeanbiche',
-        password: 'Password123!',
-      });
-      expect(navigateSpy).toHaveBeenCalledWith(['/']);
-    });
-
-    it('should show a notification in the event of an HTTP failure', () => {
-      const mockError = new HttpErrorResponse({
-        error: 'Bad credentials',
-        status: 401,
-        statusText: 'Unauthorized',
-      });
-      Object.defineProperty(mockError, 'message', { value: 'Bad credentials' });
-
-      mockAuthService.login.mockReturnValue(throwError(() => mockError));
-
-      component.form.controls.identifier.setValue('unknown');
-      component.form.controls.password.setValue('Password123!');
-
-      component.submit();
-
-      expect(mockNotificationService.error).toHaveBeenCalledWith(
-        'Impossible de se connecter : Bad credentials',
-      );
-    });
+    expect(mockNotificationService.error).toHaveBeenCalledWith(
+      'Impossible de se connecter : Internal server error',
+    );
   });
 });

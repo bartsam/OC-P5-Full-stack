@@ -1,9 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { By } from '@angular/platform-browser';
+import { of, Subject, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { DebugElement } from '@angular/core';
 import { MaterialComponents } from '../../../../shared/material';
 import { NotificationService } from '../../../../shared/services/notification.service';
+import { TopicsListComponent } from '../../components/list/topics-list.component';
 import { TopicItem } from '../../models';
 import { TopicsService } from '../../services/topics.service';
 import { TopicsComponent } from './topics.component';
@@ -11,6 +14,7 @@ import { TopicsComponent } from './topics.component';
 describe('TopicsComponent', () => {
   let component: TopicsComponent;
   let fixture: ComponentFixture<TopicsComponent>;
+  let debugElement: DebugElement;
   let mockTopicsService: {
     getAllTopics: ReturnType<typeof vi.fn>;
     subscribeTopic: ReturnType<typeof vi.fn>;
@@ -44,6 +48,7 @@ describe('TopicsComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(TopicsComponent);
+    debugElement = fixture.debugElement;
     component = fixture.componentInstance;
   });
 
@@ -55,29 +60,42 @@ describe('TopicsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load topics on init and update signals', () => {
-    mockTopicsService.getAllTopics.mockReturnValue(of(mockTopics));
+  it('should display the spinner, then render topics after loading succeeds', () => {
+    const topics$ = new Subject<TopicItem[]>();
+    mockTopicsService.getAllTopics.mockReturnValue(topics$);
 
-    component.ngOnInit();
     fixture.detectChanges();
 
-    expect(mockTopicsService.getAllTopics).toHaveBeenCalled();
+    expect(debugElement.query(By.css('[data-testid="loading-screen"]'))).toBeTruthy();
+
+    topics$.next(mockTopics);
+    topics$.complete();
+    fixture.detectChanges();
+
+    const topicsList = debugElement.query(By.directive(TopicsListComponent));
+
+    expect(mockTopicsService.getAllTopics).toHaveBeenCalledTimes(1);
     expect(component.topics()).toEqual(mockTopics);
     expect(component.loading()).toBe(false);
-    expect(component.error()).toBeNull();
+    expect(topicsList).toBeTruthy();
+    expect(debugElement.query(By.css('[data-testid="loading-screen"]'))).toBeNull();
   });
 
-  it('should set error signal on getAllTopics error', () => {
+  it('should display the error and hide the topics list when loading fails', () => {
     mockTopicsService.getAllTopics.mockReturnValue(
       throwError(() => ({ error: { message: 'Server error' } })),
     );
 
-    component.ngOnInit();
     fixture.detectChanges();
 
-    expect(mockTopicsService.getAllTopics).toHaveBeenCalled();
     expect(component.loading()).toBe(false);
-    expect(component.error()).toEqual(expect.stringMatching(/^Impossible de charger les topics/));
+    expect(component.error()).toContain('Impossible de charger les topics');
+
+    const errorMessage = debugElement.query(By.css('[data-testid="error-screen"]'));
+    expect(errorMessage.nativeElement.textContent).toEqual(
+      expect.stringMatching(/^Impossible de charger les topics/),
+    );
+    expect(debugElement.query(By.directive(TopicsListComponent))).toBeNull();
   });
 
   it('should update topics signal on subscribeTopic success', () => {

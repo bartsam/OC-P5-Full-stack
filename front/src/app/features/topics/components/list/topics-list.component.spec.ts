@@ -60,8 +60,9 @@ describe('TopicsListComponent', () => {
     component.handleSubscribe.subscribe(topic => (emittedTopic = topic));
 
     const items = fixture.debugElement.queryAll(el => el.name === 'app-topics-item');
-    const firstItemComponent = items[0].componentInstance;
+    expect(items.length).toBeGreaterThan(0);
 
+    const firstItemComponent = items[0].componentInstance;
     firstItemComponent.handleSubscribe.emit(mockTopics[0]);
 
     expect(emittedTopic).toEqual(mockTopics[0]);
@@ -72,8 +73,9 @@ describe('TopicsListComponent', () => {
     fixture.detectChanges();
 
     const items = fixture.debugElement.queryAll(el => el.name === 'app-topics-item');
-    const firstItem = items[0].componentInstance;
+    expect(items.length).toBeGreaterThan(0);
 
+    const firstItem = items[0].componentInstance;
     expect(firstItem.isSubscribable()).toBe(true);
   });
 });

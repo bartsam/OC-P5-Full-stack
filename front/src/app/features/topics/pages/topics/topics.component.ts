@@ -28,12 +28,12 @@ export class TopicsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: topics => {
-          this.topics.set(topics);
           this.loading.set(false);
+          this.topics.set(topics);
         },
         error: (e: HttpErrorResponse) => {
-          this.error.set(`Impossible de charger les topics : ${e.error?.message}`);
           this.loading.set(false);
+          this.error.set(`Impossible de charger les topics : ${e.error?.message}`);
         },
       });
   }
@@ -47,8 +47,9 @@ export class TopicsComponent implements OnInit {
             [],
         );
       },
-      error: (e: HttpErrorResponse) =>
-        this.notificationService.error(`Impossible de s'abonner à ce thème : ${e.error?.message}`),
+      error: (e: HttpErrorResponse) => {
+        this.notificationService.error(`Impossible de s'abonner à ce thème : ${e.error?.message}`);
+      },
     });
   }
 }

@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { DebugElement } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '../../features/auth/services/auth.service';
@@ -7,6 +9,7 @@ import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
+  let debugElement: DebugElement;
   let fixture: ComponentFixture<HomeComponent>;
   let mockAuthService: { isLoggedIn: ReturnType<typeof vi.fn> };
 
@@ -21,6 +24,7 @@ describe('HomeComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
+    debugElement = fixture.debugElement;
     component = fixture.componentInstance;
   });
 
@@ -35,16 +39,16 @@ describe('HomeComponent', () => {
     });
 
     it('should display the landing section with the sign-in/sign-up links', () => {
-      const landing = fixture.nativeElement.querySelector('[data-testid="landing"]');
-      const feed = fixture.nativeElement.querySelector('[data-testid="feed"]');
-      const links = fixture.nativeElement.querySelectorAll('[data-testid="landing-link"]');
+      const landing = debugElement.query(By.css('[data-testid="landing"]'));
+      const feed = debugElement.query(By.css('[data-testid="feed"]'));
+      const links = debugElement.queryAll(By.css('[data-testid="link"]'));
 
       expect(landing).not.toBeNull();
       expect(feed).toBeNull();
 
       expect(links.length).toBe(2);
-      expect(links[0].getAttribute('href')).toBe('/login');
-      expect(links[1].getAttribute('href')).toBe('/register');
+      expect(links[0].nativeElement.getAttribute('href')).toBe('/login');
+      expect(links[1].nativeElement.getAttribute('href')).toBe('/register');
     });
   });
 
@@ -55,8 +59,8 @@ describe('HomeComponent', () => {
     });
 
     it('should display the feed of posts', () => {
-      const landing = fixture.nativeElement.querySelector('[data-testid="landing"]');
-      const feed = fixture.nativeElement.querySelector('[data-testid="feed"]');
+      const landing = debugElement.query(By.css('[data-testid="landing"]'));
+      const feed = debugElement.query(By.css('[data-testid="feed"]'));
 
       expect(feed).not.toBeNull();
       expect(landing).toBeNull();

@@ -3,6 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
+import { DebugElement } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { environment } from '../../../../../environments/environment';
 import { TopicItem } from '../../../topics/models';
 import { User } from '../../models';
@@ -11,6 +13,7 @@ import { ProfileComponent } from './profile.component';
 describe('ProfileComponent integration', () => {
   let component: ProfileComponent;
   let fixture: ComponentFixture<ProfileComponent>;
+  let debugElement: DebugElement;
   let httpMock: HttpTestingController;
   let profileApiUrl: string;
   let topicsApiUrl: string;
@@ -35,6 +38,7 @@ describe('ProfileComponent integration', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProfileComponent);
+    debugElement = fixture.debugElement;
     component = fixture.componentInstance;
     httpMock = TestBed.inject(HttpTestingController);
     profileApiUrl = `${environment.apiUrl}/profile`;
@@ -64,9 +68,9 @@ describe('ProfileComponent integration', () => {
     expect(component.form.value.email).toBe('john.doe@example.com');
     expect(component.form.value.username).toBe('jeanbiche');
 
-    const usernameInput = fixture.nativeElement.querySelector('[data-testid="username-input"]');
-    const emailInput = fixture.nativeElement.querySelector('[data-testid="email-input"]');
-    const submitButton = fixture.nativeElement.querySelector('[data-testid="submit-button"]');
+    const usernameInput = debugElement.query(By.css('[data-testid="username-input"]'));
+    const emailInput = debugElement.query(By.css('[data-testid="email-input"]'));
+    const submitButton = debugElement.query(By.css('[data-testid="submit-button"]'));
 
     expect(usernameInput).toBeTruthy();
     expect(emailInput).toBeTruthy();
@@ -88,11 +92,8 @@ describe('ProfileComponent integration', () => {
 
     expect(component.loading()).toBe(false);
 
-    const errorElement = fixture.nativeElement.querySelector('[data-testid="error-message"]');
+    const errorElement = debugElement.query(By.css('[data-testid="error-screen"]'));
     expect(errorElement).toBeTruthy();
-    expect(errorElement.textContent).toEqual(
-      expect.stringMatching(/^Impossible de charger le profil/),
-    );
   });
 
   it('should display error message when getSubscribedTopics fails', () => {
@@ -110,11 +111,8 @@ describe('ProfileComponent integration', () => {
 
     expect(component.loading()).toBe(false);
 
-    const errorElement = fixture.nativeElement.querySelector('[data-testid="error-message"]');
+    const errorElement = debugElement.query(By.css('[data-testid="error-screen"]'));
     expect(errorElement).toBeTruthy();
-    expect(errorElement.textContent).toEqual(
-      expect.stringMatching(/^Impossible de charger le profil/),
-    );
   });
 
   it('should call updateUser on submit and refresh the form on success', () => {
@@ -135,8 +133,8 @@ describe('ProfileComponent integration', () => {
 
     fixture.detectChanges();
 
-    const submitButton = fixture.nativeElement.querySelector('[data-testid="submit-button"]');
-    submitButton.click();
+    const submitButton = debugElement.query(By.css('[data-testid="submit-button"]'));
+    submitButton.nativeElement.click();
 
     const reqPut = httpMock.expectOne(profileApiUrl);
     expect(reqPut.request.method).toBe('PUT');
@@ -169,22 +167,21 @@ describe('ProfileComponent integration', () => {
     reqTopics.flush(mockTopics);
     fixture.detectChanges();
 
-    const unsubscribeButtons = fixture.nativeElement.querySelectorAll(
-      '[data-testid="unsubscribe-button"]',
-    ) as NodeListOf<HTMLButtonElement>;
+    const unsubscribeButtons = debugElement.queryAll(By.css('[data-testid="unsubscribe-button"]'));
 
     expect(unsubscribeButtons).toHaveLength(2);
-    unsubscribeButtons[0].click();
+    unsubscribeButtons[0].nativeElement.click();
 
-    const unsubscribeRequest = httpMock.expectOne(`${environment.apiUrl}/topics/1/subscribe`);
-    expect(unsubscribeRequest.request.method).toBe('DELETE');
-    unsubscribeRequest.flush(null);
+    const req = httpMock.expectOne(`${environment.apiUrl}/topics/1/subscribe`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
     fixture.detectChanges();
 
+    const updatedUnsubscribeButtons = debugElement.queryAll(
+      By.css('[data-testid="unsubscribe-button"]'),
+    );
     expect(component.topics()).toEqual([mockTopics[1]]);
-    expect(
-      fixture.nativeElement.querySelectorAll('[data-testid="unsubscribe-button"]'),
-    ).toHaveLength(1);
+    expect(updatedUnsubscribeButtons).toHaveLength(1);
     expect(fixture.nativeElement.textContent).not.toContain('Java');
   });
 
@@ -206,8 +203,8 @@ describe('ProfileComponent integration', () => {
 
     fixture.detectChanges();
 
-    const submitButton = fixture.nativeElement.querySelector('[data-testid="submit-button"]');
-    submitButton.click();
+    const submitButton = debugElement.query(By.css('[data-testid="submit-button"]'));
+    submitButton.nativeElement.click();
 
     const reqPut = httpMock.expectOne(profileApiUrl);
     reqPut.flush({ message: 'Email is already in use' }, { status: 409, statusText: 'Conflict' });

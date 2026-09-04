@@ -50,6 +50,12 @@ hr {
       text-label-text-weight: 700,
     )
   );
+
+  @include mat.progress-spinner-overrides(
+    (
+      active-indicator-color: #7763c5,
+    )
+  );
 }
 
 .mdd-button.mat-mdc-button-base {
