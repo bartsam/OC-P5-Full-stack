@@ -1,10 +1,10 @@
 <div class="wrapper">
   <h1>Profil utilisateur</h1>
-  @if (isLoading()) {
+  @if (loading()) {
     <p>Chargement du profil...</p>
-  } @else if (errorMessage()) {
+  } @else if (error()) {
     <mat-error>
-      <span data-testid="error-message">{{ errorMessage() }}</span>
+      <span data-testid="error-message">{{ error() }}</span>
     </mat-error>
   } @else if (user()) {
     <form class="form" [formGroup]="form" (ngSubmit)="submit()">
@@ -87,15 +87,21 @@
       </mat-form-field>
 
       <button
-        mat-raised-button
-        color="primary"
         type="submit"
-        class="form__submit"
+        matButton="filled"
+        class="mdd-button"
         [disabled]="form.invalid"
         data-testid="submit-button"
       >
         Sauvegarder
       </button>
     </form>
+    <hr />
+    <h1>Abonnements</h1>
+    <app-topics-list
+      [topics]="topics()"
+      [isSubscribable]="false"
+      (handleSubscribe)="onUnsubscribe($event)"
+    />
   }
 </div>

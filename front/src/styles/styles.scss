@@ -23,6 +23,14 @@ body {
   }
 }
 
+hr {
+  height: 1px;
+  width: 100%;
+  background-color: black;
+  border: none;
+  margin-bottom: 24px;
+}
+
 :root {
   @include mat.button-overrides(
     (
