@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Requested entity not found (e.g. user, topic, post etc): 404 NOT_FOUND
+   * Requested entity (User, Topic, etc.) was not found: 404 NOT_FOUND
    */
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<MessageResponse> handleEntityNotFound(EntityNotFoundException ex) {

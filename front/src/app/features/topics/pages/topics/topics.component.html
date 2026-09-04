@@ -1,0 +1,13 @@
+@if (loading()) {
+  <mat-spinner data-testid="loading-screen" diameter="24" strokeWidth="2"> </mat-spinner>
+} @else if (error()) {
+  <mat-error>
+    <span data-testid="error-screen">{{ error() }}</span>
+  </mat-error>
+} @else {
+  <app-topics-list
+    [topics]="topics()"
+    [isSubscribable]="true"
+    (handleSubscribe)="onSubscribe($event)"
+  />
+}

@@ -1,0 +1,32 @@
+@let title = topic().name;
+@let description = topic().description;
+@let isSubscribed = topic().isSubscribed;
+
+<mat-card class="card">
+  <h3 data-testid="topic-title">{{ title }}</h3>
+  <p data-testid="topic-description">{{ description }}</p>
+  @if (isSubscribable()) {
+    <button
+      matButton="filled"
+      class="mdd-button"
+      [disabled]="isSubscribed"
+      data-testid="subscribe-button"
+      (click)="onClick()"
+    >
+      @if (isSubscribed) {
+        <span>Déjà abonné</span>
+      } @else {
+        <span>S'abonner</span>
+      }
+    </button>
+  } @else {
+    <button
+      matButton="filled"
+      class="mdd-button"
+      data-testid="unsubscribe-button"
+      (click)="onClick()"
+    >
+      <span>Se désabonner</span>
+    </button>
+  }
+</mat-card>

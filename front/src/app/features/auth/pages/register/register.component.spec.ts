@@ -1,6 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,6 +13,7 @@ import { RegisterComponent } from './register.component';
 describe('RegisterComponent unit tests', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
+  let debugElement: DebugElement;
   let mockAuthService: { register: ReturnType<typeof vi.fn> };
   let mockNotificationService: { error: ReturnType<typeof vi.fn> };
   let router: Router;
@@ -33,6 +36,7 @@ describe('RegisterComponent unit tests', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterComponent);
+    debugElement = fixture.debugElement;
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     fixture.detectChanges();
@@ -121,16 +125,16 @@ describe('RegisterComponent unit tests', () => {
       component.form.controls.password.setValue('Password123!');
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector('[data-testid="password-button"]');
+      const button = debugElement.query(By.css('[data-testid="password-button"]'));
       expect(button).toBeTruthy();
 
-      button.click();
+      button.nativeElement.click();
       fixture.detectChanges();
 
       expect(component.isPasswordVisible()).toBeTruthy();
 
-      const input = fixture.nativeElement.querySelector('[data-testid="password-input"]');
-      expect(input.getAttribute('type')).toBe('text');
+      const input = debugElement.query(By.css('[data-testid="password-input"]'));
+      expect(input.nativeElement.getAttribute('type')).toBe('text');
     });
 
     it('should be valid if the password meets the pattern', () => {
@@ -142,8 +146,8 @@ describe('RegisterComponent unit tests', () => {
 
   describe('Submit form', () => {
     it('should disable submit button if the form is invalid', () => {
-      const submitBtn = fixture.nativeElement.querySelector('[data-testid="submit-button"]');
-      expect(submitBtn.disabled).toBeTruthy();
+      const button = debugElement.query(By.css('[data-testid="submit-button"]'));
+      expect(button.nativeElement.disabled).toBeTruthy();
     });
 
     it('should enable submit button if the form is valid', () => {
@@ -152,8 +156,8 @@ describe('RegisterComponent unit tests', () => {
       component.form.controls.password.setValue('Password123!');
       fixture.detectChanges();
 
-      const submitBtn = fixture.nativeElement.querySelector('[data-testid="submit-button"]');
-      expect(submitBtn.disabled).toBeFalsy();
+      const button = debugElement.query(By.css('[data-testid="submit-button"]'));
+      expect(button.nativeElement.disabled).toBeFalsy();
     });
 
     it('should not call AuthService.register if the form is invalid', () => {
@@ -163,7 +167,7 @@ describe('RegisterComponent unit tests', () => {
 
     it('should call AuthService.register and redirect to “/” if successful', () => {
       const navigateSpy = vi.spyOn(router, 'navigate');
-      mockAuthService.register.mockReturnValue(of({ token: 'fake-jwt' }));
+      mockAuthService.register.mockReturnValue(of({ token: 'fake.jwt.token' }));
 
       component.form.controls.username.setValue('jeanbiche');
       component.form.controls.email.setValue('jean.biche@example.com');

@@ -1,0 +1,13 @@
+.card {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: none;
+}
+
+.button {
+  align-self: center;
+  &:not(.mat-primary) {
+    background-color: #939393;
+  }
+}

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 
 // @formatter:off
 @Schema(description = "Profile update details")
-public record UpdateUserRequest(
+public record UserUpdateRequest(
 
     @Schema(description = "New email address", example = "john.doe@example.com")
     @NotBlank(message = "Email is required")
