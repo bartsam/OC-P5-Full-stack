@@ -20,13 +20,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@RequiredArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "posts")
@@ -51,13 +49,26 @@ public class PostEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @NonNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "author_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "author_id", nullable = true)
     private UserEntity author;
 
-    @NonNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "topic_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "topic_id", nullable = true)
     private TopicEntity topic;
+
+    /**
+     * Constructs a new PostEntity.
+     *
+     * @param title   the post title
+     * @param content the post content
+     * @param author  the post author (may be null if user is deleted)
+     * @param topic   the post topic (may be null if topic is deleted)
+     */
+    public PostEntity(String title, String content, UserEntity author, TopicEntity topic) {
+        this.title = title;
+        this.content = content;
+        this.author = author;
+        this.topic = topic;
+    }
 }

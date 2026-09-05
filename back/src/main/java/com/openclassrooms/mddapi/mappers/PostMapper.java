@@ -14,8 +14,8 @@ public interface PostMapper {
     @Mapping(target = "content", source = "content", qualifiedByName = "truncateContent")
     PostItemResponse toItemResponse(PostEntity post);
 
-    @Mapping(source = "author.username", target = "author")
-    @Mapping(source = "topic.name", target = "topic")
+    @Mapping(source = "author.username", target = "author", defaultValue = "anonymous")
+    @Mapping(source = "topic.name", target = "topic", defaultValue = "unknown")
     PostDetailResponse toDetailResponse(PostEntity post);
 
     @Named("truncateContent")
