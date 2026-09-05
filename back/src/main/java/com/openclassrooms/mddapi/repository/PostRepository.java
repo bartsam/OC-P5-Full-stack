@@ -9,6 +9,6 @@ import com.openclassrooms.mddapi.models.PostEntity;
 
 public interface PostRepository extends JpaRepository<PostEntity, Long> {
 
-    List<PostEntity> findAllByOrderByCreatedAt(Sort sort);
+    List<PostEntity> findAllBy(Sort sort);
 
 }

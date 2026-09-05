@@ -80,7 +80,7 @@ public class PostService {
                 ? Sort.by(PostEntity::getCreatedAt).ascending()
                 : Sort.by(PostEntity::getCreatedAt).descending();
 
-        return postRepository.findAllByOrderByCreatedAt(sort)
+        return postRepository.findAllBy(sort)
                 .stream()
                 .map(postMapper::toItemResponse)
                 .toList();

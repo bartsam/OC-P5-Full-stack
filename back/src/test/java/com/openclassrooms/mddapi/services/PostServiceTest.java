@@ -207,7 +207,7 @@ public class PostServiceTest {
                     "New content",
                     newer);
 
-            when(postRepository.findAllByOrderByCreatedAt(
+            when(postRepository.findAllBy(
                     Sort.by(PostEntity::getCreatedAt).descending()))
                     .thenReturn(List.of(post2, post1));
 
@@ -271,7 +271,7 @@ public class PostServiceTest {
                     "New content",
                     newer);
 
-            when(postRepository.findAllByOrderByCreatedAt(
+            when(postRepository.findAllBy(
                     org.springframework.data.domain.Sort.by(PostEntity::getCreatedAt).ascending()))
                     .thenReturn(List.of(post1, post2));
 
