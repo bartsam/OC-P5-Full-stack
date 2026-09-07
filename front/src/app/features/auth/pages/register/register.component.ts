@@ -50,7 +50,7 @@ export class RegisterComponent {
       .register(registerRequest)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigate(['/']),
+        next: () => this.router.navigate(['/feed']),
         error: (e: HttpErrorResponse) =>
           this.notificationService.error(`Impossible de s'enregistrer : ${e.message}`),
       });

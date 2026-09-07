@@ -165,7 +165,7 @@ describe('RegisterComponent unit tests', () => {
       expect(mockAuthService.register).not.toHaveBeenCalled();
     });
 
-    it('should call AuthService.register and redirect to “/” if successful', () => {
+    it('should call AuthService.register and redirect to “/feed if successful', () => {
       const navigateSpy = vi.spyOn(router, 'navigate');
       mockAuthService.register.mockReturnValue(of({ token: 'fake.jwt.token' }));
 
@@ -180,7 +180,7 @@ describe('RegisterComponent unit tests', () => {
         email: 'jean.biche@example.com',
         password: 'Password123!',
       });
-      expect(navigateSpy).toHaveBeenCalledWith(['/']);
+      expect(navigateSpy).toHaveBeenCalledWith(['/feed']);
     });
 
     it('should show a notification in the event of an HTTP failure', () => {

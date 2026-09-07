@@ -93,12 +93,14 @@ describe('PostsService', () => {
           id: 2,
           title: 'New post',
           content: 'New content…',
+          author: 'john-doe',
           createdAt: '2025-01-02T10:00:00',
         },
         {
           id: 1,
           title: 'Old post',
           content: 'Old content…',
+          author: 'john-doe',
           createdAt: '2025-01-01T10:00:00',
         },
       ];

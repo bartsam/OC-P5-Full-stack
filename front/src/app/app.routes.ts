@@ -4,6 +4,7 @@ import { RegisterComponent } from './features/auth/pages/register/register.compo
 import { HomeComponent } from './pages/home/home.component';
 
 import { authGuard } from './core/auth/auth.guard';
+import { FeedComponent } from './features/posts/pages/feed/feed.component';
 import { TopicsComponent } from './features/topics/pages/topics/topics.component';
 import { ProfileComponent } from './features/user/pages/profile/profile.component';
 
@@ -19,6 +20,11 @@ export const routes: Routes = [
   {
     path: 'topics',
     component: TopicsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'feed',
+    component: FeedComponent,
     canActivate: [authGuard],
   },
 ];
