@@ -11,6 +11,7 @@ import com.openclassrooms.mddapi.models.PostEntity;
 @Mapper(componentModel = "spring")
 public interface PostMapper {
 
+    @Mapping(source = "author.username", target = "author", defaultValue = "anonymous")
     @Mapping(target = "content", source = "content", qualifiedByName = "truncateContent")
     PostItemResponse toItemResponse(PostEntity post);
 
@@ -23,7 +24,7 @@ public interface PostMapper {
         if (content == null) {
             return null;
         }
-        int max = 150;
+        int max = 120;
         return content.length() <= max ? content : content.substring(0, max) + "…";
     }
 }

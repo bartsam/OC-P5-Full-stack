@@ -147,12 +147,14 @@ class PostControllerTest {
                     1L,
                     "Old post",
                     "Old content",
+                    post1.getAuthor().getUsername(),
                     post1.getCreatedAt());
 
             PostItemResponse item2 = new PostItemResponse(
                     2L,
                     "New post",
                     "New content",
+                    post1.getAuthor().getUsername(),
                     post2.getCreatedAt());
 
             when(postService.findAllFeed("desc"))

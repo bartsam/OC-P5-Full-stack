@@ -13,6 +13,8 @@ public record PostItemResponse(
 
         @Schema(description = "Truncated content preview", example = "Spring, Jakarta EE, etc.") String content,
 
+        @Schema(description = "Username of the author", example = "johndoe") String author,
+
         @Schema(description = "Post creation date") LocalDateTime createdAt
 
 ) {

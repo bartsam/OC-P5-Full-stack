@@ -199,12 +199,14 @@ public class PostServiceTest {
                     1L,
                     "Old post",
                     "Old content",
+                    post1.getAuthor().getUsername(),
                     older);
 
             PostItemResponse item2 = new PostItemResponse(
                     2L,
                     "New post",
                     "New content",
+                    post2.getAuthor().getUsername(),
                     newer);
 
             when(postRepository.findAllBy(
@@ -263,12 +265,14 @@ public class PostServiceTest {
                     1L,
                     "Old post",
                     "Old content",
+                    post1.getAuthor().getUsername(),
                     older);
 
             PostItemResponse item2 = new PostItemResponse(
                     2L,
                     "New post",
                     "New content",
+                    post2.getAuthor().getUsername(),
                     newer);
 
             when(postRepository.findAllBy(
