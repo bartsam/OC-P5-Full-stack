@@ -11,12 +11,12 @@ import com.openclassrooms.mddapi.models.PostEntity;
 @Mapper(componentModel = "spring")
 public interface PostMapper {
 
-    @Mapping(source = "author.username", target = "author", defaultValue = "anonymous")
+    @Mapping(source = "author.username", target = "author")
     @Mapping(target = "content", source = "content", qualifiedByName = "truncateContent")
     PostItemResponse toItemResponse(PostEntity post);
 
-    @Mapping(source = "author.username", target = "author", defaultValue = "anonymous")
-    @Mapping(source = "topic.name", target = "topic", defaultValue = "unknown")
+    @Mapping(source = "author.username", target = "author")
+    @Mapping(source = "topic.name", target = "topic")
     PostDetailResponse toDetailResponse(PostEntity post);
 
     @Named("truncateContent")

@@ -45,6 +45,16 @@ public class PostService {
         this.postMapper = postMapper;
     }
 
+    /**
+     * Creates and saves a new post entity attached to an existing user and topic.
+     *
+     * @param userId  the ID of the author creating the post
+     * @param title   the title of the post
+     * @param content the text content of the post
+     * @param topicId the ID of the associated topic
+     * @return the saved {@link PostEntity}
+     * @throws EntityNotFoundException if the user or the topic is not found
+     */
     @Transactional
     public PostEntity create(
             Long userId,
