@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -102,7 +103,7 @@ class PostControllerIntegrationTest {
 
             ResultActions result = mockMvc.perform(post("/api/posts")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                    .contentType("application/json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
 
             // THEN
@@ -122,7 +123,7 @@ class PostControllerIntegrationTest {
             PostCreateRequest request = new PostCreateRequest("Spring Boot", "Java framework", topicA.getId());
 
             ResultActions result = mockMvc.perform(post("/api/posts")
-                    .contentType("application/json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
 
             // THEN
@@ -137,7 +138,7 @@ class PostControllerIntegrationTest {
 
             ResultActions result = mockMvc.perform(post("/api/posts")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                    .contentType("application/json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
 
             // THEN
@@ -153,7 +154,7 @@ class PostControllerIntegrationTest {
             // WHEN
             ResultActions result = mockMvc.perform(post("/api/posts")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                    .contentType("application/json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
 
             // THEN
