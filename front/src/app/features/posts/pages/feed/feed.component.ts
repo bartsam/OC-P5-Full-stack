@@ -8,9 +8,10 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { Sort } from '@shared/models/sort.type';
 import { MaterialComponents } from '@shared/ui/material';
-import { PostsItemComponent } from '../../components/posts-item/posts-item.component';
+import { PostsItemComponent } from '../../components/item/item.component';
 import { PostItem } from '../../models';
 import { PostsService } from '../../services/posts.service';
 
@@ -18,7 +19,7 @@ import { PostsService } from '../../services/posts.service';
   selector: 'app-feed',
   templateUrl: './feed.component.html',
   styleUrls: ['./feed.component.scss'],
-  imports: [MaterialComponents, PostsItemComponent],
+  imports: [MaterialComponents, RouterLink, PostsItemComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeedComponent implements OnInit {
