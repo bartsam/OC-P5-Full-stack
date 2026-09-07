@@ -78,7 +78,7 @@ describe('ProfileComponent', () => {
     vi.clearAllMocks();
   });
 
-  describe('ngOnInit', () => {
+  describe('On init', () => {
     it('should display the spinner, then render the profile and subscribed topics', () => {
       const user$ = new Subject<User>();
       const topics$ = new Subject<TopicItem[]>();
