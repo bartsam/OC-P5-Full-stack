@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Sort } from '@shared/models/sort.type';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PostCreateRequest, PostDetail, PostItem } from '../models';
@@ -32,9 +33,14 @@ export class PostsService {
   /**
    * Fetches the list of posts for the feed.
    *
+   * @param sort - The sort direction: 'asc' or 'desc'. Defaults to 'desc' on the backend.
    * @returns An `Observable` emitting an array of post items representing the feed.
    */
-  getFeed(): Observable<PostItem[]> {
-    return this.httpClient.get<PostItem[]>(this.apiUrl);
+  getFeed(sort?: Sort): Observable<PostItem[]> {
+    return this.httpClient.get<PostItem[]>(this.apiUrl, {
+      params: {
+        ...(sort ? { sort } : {}),
+      },
+    });
   }
 }
