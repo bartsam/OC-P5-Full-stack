@@ -5,8 +5,8 @@ import { of, Subject, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DebugElement } from '@angular/core';
-import { MaterialComponents } from '../../../../shared/material';
-import { NotificationService } from '../../../../shared/services/notification.service';
+import { NotificationService } from '@shared/services/notification.service';
+import { MaterialComponents } from '@shared/ui/material';
 import { TopicsListComponent } from '../../../topics/components/list/topics-list.component';
 import { TopicItem } from '../../../topics/models';
 import { TopicsService } from '../../../topics/services/topics.service';

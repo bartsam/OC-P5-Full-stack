@@ -10,7 +10,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../../../features/auth/services/auth.service';
-import { MaterialComponents } from '../../material';
+import { MaterialComponents } from '../../ui/material';
 
 @Component({
   imports: [MaterialComponents, RouterLink, RouterLinkActive],

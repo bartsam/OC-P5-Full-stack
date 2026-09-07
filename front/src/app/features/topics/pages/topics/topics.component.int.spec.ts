@@ -3,9 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { NotificationService } from '@shared/services/notification.service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { environment } from '../../../../../environments/environment';
-import { NotificationService } from '../../../../shared/services/notification.service';
 import { TopicItem } from '../../models';
 import { TopicsComponent } from './topics.component';
 

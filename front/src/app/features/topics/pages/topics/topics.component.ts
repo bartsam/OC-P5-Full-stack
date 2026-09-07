@@ -1,8 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MaterialComponents } from '../../../../shared/material';
-import { NotificationService } from '../../../../shared/services/notification.service';
+import { NotificationService } from '@shared/services/notification.service';
+import { MaterialComponents } from '@shared/ui/material';
 import { TopicsListComponent } from '../../components/list/topics-list.component';
 import { TopicItem } from '../../models';
 import { TopicsService } from '../../services/topics.service';

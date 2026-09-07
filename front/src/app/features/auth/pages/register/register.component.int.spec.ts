@@ -4,9 +4,9 @@ import { Component, DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
+import { NotificationService } from '@shared/services/notification.service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { environment } from '../../../../../environments/environment';
-import { NotificationService } from '../../../../shared/services/notification.service';
 import { RegisterComponent } from './register.component';
 
 @Component({ template: '' })

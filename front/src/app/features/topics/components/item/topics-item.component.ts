@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { MaterialComponents } from '../../../../shared/material';
+import { MaterialComponents } from '@shared/ui/material';
 import { TopicItem } from '../../models';
 
 @Component({
