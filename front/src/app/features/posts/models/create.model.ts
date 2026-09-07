@@ -1,7 +1,7 @@
 import { FormControl } from '@angular/forms';
 
 export interface PostCreateRequest {
-  topicId: number;
+  topicId: number | null;
   title: string;
   content: string;
 }
