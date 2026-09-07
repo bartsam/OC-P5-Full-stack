@@ -4,6 +4,7 @@ import { of, Subject, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DebugElement } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { MaterialComponents } from '@shared/ui/material';
 import { PostItem } from '../../models';
 import { PostsService } from '../../services/posts.service';
@@ -42,7 +43,7 @@ describe('FeedComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [MaterialComponents, FeedComponent],
-      providers: [{ provide: PostsService, useValue: mockPostsService }],
+      providers: [{ provide: PostsService, useValue: mockPostsService }, provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FeedComponent);

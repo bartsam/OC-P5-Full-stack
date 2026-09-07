@@ -26,7 +26,7 @@ export class PostsService {
    * @param postId - The unique identifier of the post to retrieve.
    * @returns An `Observable` emitting the details of the requested post.
    */
-  getPost(postId: number): Observable<PostDetail> {
+  getPost(postId: string): Observable<PostDetail> {
     return this.httpClient.get<PostDetail>(`${this.apiUrl}/${postId}`);
   }
 

@@ -61,10 +61,8 @@ describe('PostsService', () => {
   describe('getPost', () => {
     it('should call GET /posts/:id and return post detail', () => {
       // GIVEN
-      const postId = 10;
-
       const expectedResponse: PostDetail = {
-        id: postId,
+        id: 1,
         author: 'john',
         topic: 'Java',
         title: 'Découvrir Spring Boot',
@@ -73,12 +71,12 @@ describe('PostsService', () => {
       };
 
       // WHEN
-      service.getPost(postId).subscribe(response => {
+      service.getPost('1').subscribe(response => {
         expect(response).toEqual(expectedResponse);
       });
 
       // THEN
-      const req = httpMock.expectOne(`${apiUrl}/${postId}`);
+      const req = httpMock.expectOne(`${apiUrl}/${1}`);
       expect(req.request.method).toBe('GET');
 
       req.flush(expectedResponse);
