@@ -71,7 +71,7 @@ describe('LoginComponent integration tests', () => {
     req.flush({ token: 'fake.jwt.token' });
     await fixture.whenStable();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/feed']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/posts/feed']);
     expect(localStorage.getItem('auth_token')).toBe('fake.jwt.token');
     expect(mockNotificationService.error).not.toHaveBeenCalled();
   });

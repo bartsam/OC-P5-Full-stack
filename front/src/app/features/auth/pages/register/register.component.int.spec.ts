@@ -55,7 +55,7 @@ describe('RegisterComponent integration tests', () => {
     httpMock.verify();
   });
 
-  it('should register successfully, persist the token, and navigate /feed', async () => {
+  it('should register successfully, persist the token, and navigate /posts/feed', async () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
 
     component.form.setValue(registerRequest);
@@ -71,7 +71,7 @@ describe('RegisterComponent integration tests', () => {
     req.flush({ token: 'fake.jwt.token' });
     await fixture.whenStable();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/feed']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/posts/feed']);
     expect(localStorage.getItem('auth_token')).toBe('fake.jwt.token');
     expect(mockNotificationService.error).not.toHaveBeenCalled();
   });

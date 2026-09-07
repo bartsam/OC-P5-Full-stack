@@ -53,7 +53,7 @@ describe('LoginComponent integration tests', () => {
     localStorage.clear();
   });
 
-  it('should login successfully and navigate to /feed', async () => {
+  it('should login successfully and navigate to /posts/feed', async () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
 
     component.form.controls.identifier.setValue('jeanbiche');
@@ -74,7 +74,7 @@ describe('LoginComponent integration tests', () => {
 
     await fixture.whenStable();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/feed']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/posts/feed']);
     expect(mockNotificationService.error).not.toHaveBeenCalled();
   });
 

@@ -49,7 +49,7 @@ export class LoginComponent {
       .login(loginRequest)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigate(['/feed']),
+        next: () => this.router.navigate(['/posts/feed']),
         error: (e: HttpErrorResponse) =>
           this.notificationService.error(`Impossible de se connecter : ${e.message}`),
       });
