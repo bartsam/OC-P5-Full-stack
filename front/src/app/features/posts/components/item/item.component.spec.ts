@@ -4,9 +4,10 @@ import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DatePipe } from '@angular/common';
+import { provideRouter } from '@angular/router';
 import { MaterialComponents } from '@shared/ui/material';
 import { PostItem } from '../../models';
-import { PostsItemComponent } from './posts-item.component';
+import { PostsItemComponent } from './item.component';
 
 describe('PostsItemComponent', () => {
   let component: PostsItemComponent;
@@ -24,6 +25,7 @@ describe('PostsItemComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MaterialComponents, PostsItemComponent, DatePipe],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PostsItemComponent);

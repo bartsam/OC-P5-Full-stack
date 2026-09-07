@@ -1,0 +1,13 @@
+@let title = post().title;
+@let content = post().content;
+@let author = post().author;
+@let createdAt = post().createdAt;
+
+<a [routerLink]="['/posts', post().id]" class="card__link">
+  <mat-card class="card">
+    <h3 data-testid="post-title">{{ title }}</h3>
+    <p data-testid="post-author">{{ author }}</p>
+    <p data-testid="post-date">{{ createdAt | date: "dd/MM/yyyy 'à' HH'h'mm" }}</p>
+    <p data-testid="post-content">{{ content }}</p>
+  </mat-card>
+</a>
