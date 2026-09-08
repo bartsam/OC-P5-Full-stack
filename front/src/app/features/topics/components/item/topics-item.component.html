@@ -2,7 +2,7 @@
 @let description = topic().description;
 @let isSubscribed = topic().isSubscribed;
 
-<mat-card class="card">
+<mat-card class="mdd-card">
   <h3 data-testid="topic-title">{{ title }}</h3>
   <p data-testid="topic-description">{{ description }}</p>
   @if (isSubscribable()) {

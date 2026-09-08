@@ -5,6 +5,10 @@
 .form {
   width: 100%;
   flex-direction: row;
+  margin-bottom: 0;
+  @media (min-width: 768px) {
+    padding: 0 44px;
+  }
   textarea {
     border-color: black;
   }

@@ -1,0 +1,9 @@
+@let content = comment().content;
+@let author = comment().author;
+
+<div class="wrapper">
+  <p data-testid="post-author">{{ author }}</p>
+  <mat-card class="mdd-card">
+    <p data-testid="post-content">{{ content }}</p>
+  </mat-card>
+</div>

@@ -93,6 +93,17 @@ mat-form-field:has(textarea) {
   );
 }
 
+.mdd-card {
+  padding: 20px;
+  @include mat.card-overrides(
+    (
+      elevated-container-color: #f5f5f5,
+      elevated-container-shape: 8px,
+      elevated-container-elevation: none,
+    )
+  );
+}
+
 .snackbar-success {
   @include mat.snack-bar-overrides(
     (
