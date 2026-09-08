@@ -1,0 +1,30 @@
+<form class="form" [formGroup]="form" (ngSubmit)="submit()">
+  <mat-form-field appearance="outline" floatLabel="auto" class="form__field">
+    <textarea
+      matInput
+      formControlName="content"
+      placeholder="Écrivez ici votre commentaire"
+      data-testid="content-input"
+      rows="6"
+    ></textarea>
+    @if (form.controls.content.invalid && form.controls.content.touched) {
+      <mat-error class="form__message">
+        @if (form.controls.content.errors?.['required']) {
+          <span>Un contenu est requis</span>
+        }
+      </mat-error>
+    }
+  </mat-form-field>
+
+  <button
+    type="submit"
+    matIconButton
+    matSuffix
+    color="primary"
+    [disabled]="form.invalid || loading()"
+    data-testid="submit-button"
+    class="form__submit"
+  >
+    <mat-icon>send</mat-icon>
+  </button>
+</form>

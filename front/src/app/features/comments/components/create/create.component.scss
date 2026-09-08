@@ -1,0 +1,27 @@
+@use 'form' as styles;
+
+@include styles.form;
+
+.form {
+  width: 100%;
+  flex-direction: row;
+  margin-bottom: 0;
+  @media (min-width: 768px) {
+    padding: 0 44px;
+  }
+  textarea {
+    border-color: black;
+  }
+  &__submit {
+    width: 96px;
+    height: 96px;
+    transform: translateY(-12px);
+    .mat-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 48px;
+      line-height: 48px;
+      transform: rotate(-45deg);
+    }
+  }
+}

@@ -104,13 +104,25 @@
   max-width: 825px;
   margin: 0 auto;
   padding: 48px;
+  display: flex;
+  align-items: start;
+  gap: 24px;
+  overflow: hidden;
   @media (max-width: 768px) {
+    flex-direction: column;
     padding: 24px;
+    gap: 12px;
+  }
+  &__back {
+    @media (max-width: 768px) {
+      margin-left: -12px;
+    }
   }
   &__wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    flex: 1;
   }
 }

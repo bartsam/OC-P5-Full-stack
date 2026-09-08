@@ -28,7 +28,11 @@ describe('LayoutComponent Unit tests', () => {
         provideRouter([
           { path: '', component: DummyComponent },
           { path: 'dummy-route', component: DummyComponent },
-          { path: 'login', component: DummyComponent },
+          {
+            path: 'dummy-flagged-route',
+            component: DummyComponent,
+            data: { showBackButton: true },
+          },
         ]),
         { provide: AuthService, useValue: mockAuthService },
       ],
@@ -168,9 +172,9 @@ describe('LayoutComponent Unit tests', () => {
   });
 
   describe('Back button', () => {
-    it('should show the back button on the login page', async () => {
+    it('should show the back button on a route with showBackButton data flag', async () => {
       mockAuthService.isLoggedIn.mockReturnValue(false);
-      await router.navigateByUrl('/login');
+      await router.navigateByUrl('/dummy-flagged-route');
       fixture.detectChanges();
 
       const backButton = debugElement.query(By.css('[data-testid="back-button"]'));
@@ -179,7 +183,7 @@ describe('LayoutComponent Unit tests', () => {
       expect(backButton).toBeTruthy();
     });
 
-    it('should hide the back button outside authentication pages', async () => {
+    it('should hide the back button on a route without showBackButton data flag', async () => {
       mockAuthService.isLoggedIn.mockReturnValue(false);
       await router.navigateByUrl('/dummy-route');
       fixture.detectChanges();

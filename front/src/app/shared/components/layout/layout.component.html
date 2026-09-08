@@ -23,7 +23,7 @@
             <a
               matButton="text"
               class="nav__link"
-              routerLink="/"
+              routerLink="/posts/feed"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }"
               #rlaHome="routerLinkActive"
@@ -86,9 +86,15 @@
 
 <main class="main">
   @if (showBackButton()) {
-    <a matIconButton routerLink="/" data-testid="back-button" aria-label="Retour à l'accueil">
+    <button
+      matIconButton
+      (click)="goBack()"
+      class="main__back"
+      data-testid="back-button"
+      aria-label="Retour à l'accueil"
+    >
       <mat-icon>arrow_back</mat-icon>
-    </a>
+    </button>
   }
   <div class="main__wrapper">
     <ng-content></ng-content>

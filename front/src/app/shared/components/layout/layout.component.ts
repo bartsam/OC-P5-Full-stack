@@ -10,7 +10,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../../../features/auth/services/auth.service';
-import { MaterialComponents } from '../../material';
+import { MaterialComponents } from '../../ui/material';
 
 @Component({
   imports: [MaterialComponents, RouterLink, RouterLinkActive],
@@ -24,6 +24,7 @@ export class LayoutComponent {
   private readonly router = inject(Router);
 
   readonly isMenuOpen = signal(false);
+  readonly showBackButton = signal(false);
 
   readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -35,10 +36,10 @@ export class LayoutComponent {
 
   readonly isHomePage = computed(() => this.currentUrl() === '/');
   readonly isLoggedIn = this.authService.isLoggedIn;
-  readonly showBackButton = computed(() => ['/login', '/register'].includes(this.currentUrl()));
   readonly hideHeader = computed(() => this.isHomePage() && !this.authService.isLoggedIn());
 
   constructor() {
+    // Handle mobile enu
     effect(() => {
       const isOpen = this.isMenuOpen();
 
@@ -48,6 +49,18 @@ export class LayoutComponent {
         document.body.style.removeProperty('overflow');
       }
     });
+
+    // Handle back button
+    effect(() => {
+      this.currentUrl();
+
+      let route = this.router.routerState.root.snapshot;
+      while (route.firstChild) {
+        route = route.firstChild;
+      }
+
+      this.showBackButton.set(!!route.data['showBackButton']);
+    });
   }
 
   toggleMenu(): void {
@@ -56,6 +69,10 @@ export class LayoutComponent {
 
   closeMenu(): void {
     this.isMenuOpen.set(false);
+  }
+
+  goBack(): void {
+    window.history.back();
   }
 
   logout(): void {

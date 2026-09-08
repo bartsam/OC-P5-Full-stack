@@ -1,0 +1,78 @@
+package com.openclassrooms.mddapi.models;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(of = "id")
+@Entity
+@Table(name = "posts")
+public class PostEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank
+    @Size(max = 150)
+    @Column(nullable = false, length = 150)
+    private String title;
+
+    @NotBlank
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "author_id", nullable = true)
+    private UserEntity author;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "topic_id", nullable = true)
+    private TopicEntity topic;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CommentEntity> comments;
+
+    /**
+     * Constructs a new PostEntity.
+     *
+     * @param title   the post title
+     * @param content the post content
+     * @param author  the post author, required at creation and nullable later
+     * @param topic   the post topic, required at creation and nullable later
+     */
+    public PostEntity(String title, String content, UserEntity author, TopicEntity topic) {
+        this.title = Objects.requireNonNull(title, "title must not be null");
+        this.content = Objects.requireNonNull(content, "content must not be null");
+        this.author = Objects.requireNonNull(author, "author must not be null");
+        this.topic = Objects.requireNonNull(topic, "topic must not be null");
+    }
+}

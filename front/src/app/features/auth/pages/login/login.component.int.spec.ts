@@ -6,8 +6,8 @@ import { provideRouter, Router } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
+import { NotificationService } from '@shared/services/notification.service';
 import { environment } from '../../../../../environments/environment';
-import { NotificationService } from '../../../../shared/services/notification.service';
 import { LoginComponent } from './login.component';
 
 @Component({ template: '' })
@@ -71,7 +71,7 @@ describe('LoginComponent integration tests', () => {
     req.flush({ token: 'fake.jwt.token' });
     await fixture.whenStable();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/posts/feed']);
     expect(localStorage.getItem('auth_token')).toBe('fake.jwt.token');
     expect(mockNotificationService.error).not.toHaveBeenCalled();
   });

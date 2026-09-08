@@ -4,9 +4,9 @@ import { Component, DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
+import { NotificationService } from '@shared/services/notification.service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { environment } from '../../../../../environments/environment';
-import { NotificationService } from '../../../../shared/services/notification.service';
 import { RegisterComponent } from './register.component';
 
 @Component({ template: '' })
@@ -55,7 +55,7 @@ describe('RegisterComponent integration tests', () => {
     httpMock.verify();
   });
 
-  it('should register successfully, persist the token, and navigate home', async () => {
+  it('should register successfully, persist the token, and navigate /posts/feed', async () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
 
     component.form.setValue(registerRequest);
@@ -71,7 +71,7 @@ describe('RegisterComponent integration tests', () => {
     req.flush({ token: 'fake.jwt.token' });
     await fixture.whenStable();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/posts/feed']);
     expect(localStorage.getItem('auth_token')).toBe('fake.jwt.token');
     expect(mockNotificationService.error).not.toHaveBeenCalled();
   });

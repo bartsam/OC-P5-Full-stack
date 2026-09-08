@@ -4,6 +4,7 @@ import { MatError, MatFormField, MatLabel, MatSuffix } from '@angular/material/f
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatOption, MatSelect } from '@angular/material/select';
 
 export const MaterialComponents = [
   MatError,
@@ -18,4 +19,6 @@ export const MaterialComponents = [
   MatLabel,
   MatSuffix,
   MatProgressSpinner,
+  MatSelect,
+  MatOption,
 ];

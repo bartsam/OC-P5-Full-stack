@@ -1,0 +1,46 @@
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Sort } from '@shared/models/sort.type';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { PostCreateRequest, PostDetail, PostItem } from '../models';
+
+@Injectable({ providedIn: 'root' })
+export class PostsService {
+  private readonly httpClient = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/posts`;
+
+  /**
+   * Creates a new post.
+   *
+   * @param request - The payload containing the details required to create a post.
+   * @returns An `Observable` emitting the detailed information of the newly created post.
+   */
+  createPost(request: PostCreateRequest): Observable<PostDetail> {
+    return this.httpClient.post<PostDetail>(this.apiUrl, request);
+  }
+
+  /**
+   * Retrieves the details of a specific post by its unique identifier.
+   *
+   * @param postId - The unique identifier of the post to retrieve.
+   * @returns An `Observable` emitting the details of the requested post.
+   */
+  getPost(postId: string): Observable<PostDetail> {
+    return this.httpClient.get<PostDetail>(`${this.apiUrl}/${postId}`);
+  }
+
+  /**
+   * Fetches the list of posts for the feed.
+   *
+   * @param sort - The sort direction: 'asc' or 'desc'. Defaults to 'desc' on the backend.
+   * @returns An `Observable` emitting an array of post items representing the feed.
+   */
+  getFeed(sort?: Sort): Observable<PostItem[]> {
+    return this.httpClient.get<PostItem[]>(this.apiUrl, {
+      params: {
+        ...(sort ? { sort } : {}),
+      },
+    });
+  }
+}

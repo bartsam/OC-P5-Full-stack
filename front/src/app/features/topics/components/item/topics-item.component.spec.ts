@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { MaterialComponents } from '../../../../shared/material';
+import { MaterialComponents } from '@shared/ui/material';
 import { TopicItem } from '../../models';
 import { TopicsItemComponent } from './topics-item.component';
 

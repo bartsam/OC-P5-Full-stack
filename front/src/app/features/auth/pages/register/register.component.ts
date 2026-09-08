@@ -3,8 +3,8 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MaterialComponents } from '../../../../shared/material';
-import { NotificationService } from '../../../../shared/services/notification.service';
+import { NotificationService } from '@shared/services/notification.service';
+import { MaterialComponents } from '@shared/ui/material';
 import { RegisterForm, RegisterRequest } from '../../models';
 import { AuthService } from '../../services/auth.service';
 
@@ -50,7 +50,7 @@ export class RegisterComponent {
       .register(registerRequest)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.router.navigate(['/']),
+        next: () => this.router.navigate(['/posts/feed']),
         error: (e: HttpErrorResponse) =>
           this.notificationService.error(`Impossible de s'enregistrer : ${e.message}`),
       });

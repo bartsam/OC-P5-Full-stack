@@ -8,13 +8,17 @@
     margin: 24px 0;
 
     &__field {
-      min-width: 100%;
+      flex: 1;
+      width: 100%;
     }
 
     &__message {
       margin: 0 -8px;
       font-size: 10px;
       line-height: 1.2;
+    }
+    .mdd-button {
+      min-width: 140px;
     }
   }
 }

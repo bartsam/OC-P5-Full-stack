@@ -4,9 +4,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
+import { NotificationService } from '@shared/services/notification.service';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { NotificationService } from '../../../../shared/services/notification.service';
 import { AuthService } from '../../services/auth.service';
 import { RegisterComponent } from './register.component';
 
@@ -165,7 +165,7 @@ describe('RegisterComponent unit tests', () => {
       expect(mockAuthService.register).not.toHaveBeenCalled();
     });
 
-    it('should call AuthService.register and redirect to “/” if successful', () => {
+    it('should call AuthService.register and redirect to “/posts/feed if successful', () => {
       const navigateSpy = vi.spyOn(router, 'navigate');
       mockAuthService.register.mockReturnValue(of({ token: 'fake.jwt.token' }));
 
@@ -180,7 +180,7 @@ describe('RegisterComponent unit tests', () => {
         email: 'jean.biche@example.com',
         password: 'Password123!',
       });
-      expect(navigateSpy).toHaveBeenCalledWith(['/']);
+      expect(navigateSpy).toHaveBeenCalledWith(['/posts/feed']);
     });
 
     it('should show a notification in the event of an HTTP failure', () => {

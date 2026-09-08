@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -127,7 +128,7 @@ public class UserControllerTest {
             // WHEN
             ResultActions result = mockMvc.perform(put("/api/profile")
                     .principal(authentication)
-                    .contentType("application/json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
 
             // THEN
@@ -148,7 +149,7 @@ public class UserControllerTest {
             // WHEN
             ResultActions result = mockMvc.perform(put("/api/profile")
                     .principal(authentication)
-                    .contentType("application/json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(invalidRequest)));
 
             // THEN
@@ -170,7 +171,7 @@ public class UserControllerTest {
             // WHEN
             ResultActions result = mockMvc.perform(put("/api/profile")
                     .principal(authentication)
-                    .contentType("application/json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
 
             // THEN
@@ -192,7 +193,7 @@ public class UserControllerTest {
             // WHEN
             ResultActions result = mockMvc.perform(put("/api/profile")
                     .principal(authentication)
-                    .contentType("application/json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
 
             // THEN

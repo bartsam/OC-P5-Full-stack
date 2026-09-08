@@ -15,6 +15,14 @@ body {
     font-weight: bold;
     line-height: 1;
     text-align: center;
+    line-height: 48px;
+    @media (max-width: 768px) {
+      line-height: 1.2;
+    }
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: bold;
   }
   h3 {
     font-size: 16px;
@@ -56,6 +64,22 @@ hr {
       active-indicator-color: #7763c5,
     )
   );
+
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: 8px,
+      filled-container-shape: 8px,
+    )
+  );
+}
+
+mat-form-field:has(textarea) {
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: 16px,
+      filled-container-shape: 16px,
+    )
+  );
 }
 
 .mdd-button.mat-mdc-button-base {
@@ -65,6 +89,17 @@ hr {
       filled-label-text-color: #ffffff,
       filled-disabled-container-color: #939393,
       filled-disabled-label-text-color: #ffffff,
+    )
+  );
+}
+
+.mdd-card {
+  padding: 20px;
+  @include mat.card-overrides(
+    (
+      elevated-container-color: #f5f5f5,
+      elevated-container-shape: 8px,
+      elevated-container-elevation: none,
     )
   );
 }

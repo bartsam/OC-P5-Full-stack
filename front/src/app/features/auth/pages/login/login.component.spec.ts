@@ -7,8 +7,8 @@ import { provideRouter, Router } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
+import { NotificationService } from '@shared/services/notification.service';
 import { environment } from '../../../../../environments/environment';
-import { NotificationService } from '../../../../shared/services/notification.service';
 import { LoginComponent } from './login.component';
 
 @Component({ template: '' })
@@ -53,7 +53,7 @@ describe('LoginComponent integration tests', () => {
     localStorage.clear();
   });
 
-  it('should login successfully and navigate to home', async () => {
+  it('should login successfully and navigate to /posts/feed', async () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
 
     component.form.controls.identifier.setValue('jeanbiche');
@@ -74,7 +74,7 @@ describe('LoginComponent integration tests', () => {
 
     await fixture.whenStable();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/posts/feed']);
     expect(mockNotificationService.error).not.toHaveBeenCalled();
   });
 

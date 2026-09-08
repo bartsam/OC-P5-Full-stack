@@ -16,6 +16,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -39,17 +40,20 @@ public class UserEntity {
     private Long id;
 
     @NonNull
+    @NotBlank
     @Size(max = 50)
     @Email
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 50)
     private String email;
 
     @NonNull
+    @NotBlank
     @Size(max = 20)
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 20)
     private String username;
 
     @NonNull
+    @NotBlank
     @Column(nullable = false)
     private String password;
 
