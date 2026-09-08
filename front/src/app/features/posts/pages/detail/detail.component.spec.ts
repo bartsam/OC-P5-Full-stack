@@ -1,15 +1,34 @@
+import { Component, DebugElement, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-
-import { DebugElement } from '@angular/core';
-import { Title } from '@angular/platform-browser';
+import { By, Title } from '@angular/platform-browser';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { MaterialComponents } from '@shared/ui/material';
 import { of } from 'rxjs';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { CommentCreateComponent } from '../../../comments/components/create/create.component';
+import { CommentsListComponent } from '../../../comments/components/list/list.component';
 import { PostDetail } from '../../models';
 import { PostsService } from '../../services/posts.service';
 import { PostDetailComponent } from './detail.component';
+
+@Component({
+  selector: 'app-comments-list',
+  standalone: true,
+  template: '',
+})
+class CommentsListStubComponent {
+  @Input() postId!: number;
+}
+
+@Component({
+  selector: 'app-create-comment',
+  standalone: true,
+  template: '',
+})
+class CommentCreateStubComponent {
+  @Input() postId!: number;
+}
 
 describe('PostDetailComponent', () => {
   let component: PostDetailComponent;
@@ -44,6 +63,11 @@ describe('PostDetailComponent', () => {
           },
         },
       ],
+    });
+
+    TestBed.overrideComponent(PostDetailComponent, {
+      remove: { imports: [CommentsListComponent, CommentCreateComponent] },
+      add: { imports: [CommentsListStubComponent, CommentCreateStubComponent] },
     });
 
     fixture = TestBed.createComponent(PostDetailComponent);
@@ -81,6 +105,40 @@ describe('PostDetailComponent', () => {
     expect(mockPostsService.getPost).not.toHaveBeenCalled();
 
     const errorMessage = debugElement.query(By.css('[data-testid="error-screen"]'));
-    expect(errorMessage.nativeElement.textContent).toContain('Identifiant de l’article invalide');
+    expect(errorMessage.nativeElement.textContent).toContain('Identifiant de l’article invalide.');
+  });
+
+  it('should render comments list and create-comment with the post id once loaded', () => {
+    setupTestBed('123');
+    mockPostsService.getPost.mockReturnValue(of(mockPost));
+
+    fixture.detectChanges();
+
+    const commentsList = debugElement.query(By.directive(CommentsListStubComponent));
+    const commentCreate = debugElement.query(By.directive(CommentCreateStubComponent));
+
+    expect(commentsList).toBeTruthy();
+    expect(commentCreate).toBeTruthy();
+    expect((commentsList.componentInstance as CommentsListStubComponent).postId).toBe(mockPost.id);
+    expect((commentCreate.componentInstance as CommentCreateStubComponent).postId).toBe(
+      mockPost.id,
+    );
+  });
+
+  it('should not render comments components while loading', () => {
+    setupTestBed('123');
+    mockPostsService.getPost.mockReturnValue(of(mockPost));
+
+    expect(debugElement.query(By.directive(CommentsListStubComponent))).toBeNull();
+    expect(debugElement.query(By.directive(CommentCreateStubComponent))).toBeNull();
+  });
+
+  it('should not render comments components on error', () => {
+    setupTestBed('');
+
+    fixture.detectChanges();
+
+    expect(debugElement.query(By.directive(CommentsListStubComponent))).toBeNull();
+    expect(debugElement.query(By.directive(CommentCreateStubComponent))).toBeNull();
   });
 });

@@ -6,11 +6,12 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { MaterialComponents } from '@shared/ui/material';
 import { CommentCreateComponent } from '../../../comments/components/create/create.component';
+import { CommentsListComponent } from '../../../comments/components/list/list.component';
 import { PostDetail } from '../../models';
 import { PostsService } from '../../services/posts.service';
 
 @Component({
-  imports: [DatePipe, MaterialComponents, CommentCreateComponent],
+  imports: [DatePipe, MaterialComponents, CommentCreateComponent, CommentsListComponent],
   selector: 'app-post-detail',
   styleUrl: './detail.component.scss',
   templateUrl: './detail.component.html',

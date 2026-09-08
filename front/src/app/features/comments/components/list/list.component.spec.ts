@@ -51,8 +51,6 @@ describe('CommentsListComponent', () => {
   });
 
   it('should create', () => {
-    mockCommentsService.getComments.mockReturnValue(of([]));
-    fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 

@@ -22,5 +22,6 @@
   </div>
   <p class="content" data-testid="post-content">{{ content }}</p>
   <h2>Commentaires</h2>
+  <app-comments-list [postId]="id" />
   <app-create-comment [postId]="id" />
 }

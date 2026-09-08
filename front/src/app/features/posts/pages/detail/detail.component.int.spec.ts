@@ -1,13 +1,25 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { DebugElement } from '@angular/core';
+import { Component, DebugElement, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By, Title } from '@angular/platform-browser';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { environment } from '../../../../../environments/environment';
+import { CommentCreateComponent } from '../../../comments/components/create/create.component';
+import { CommentsListComponent } from '../../../comments/components/list/list.component';
 import { PostDetail } from '../../models';
 import { PostDetailComponent } from './detail.component';
+
+@Component({ selector: 'app-comments-list', standalone: true, template: '' })
+class CommentsListStubComponent {
+  @Input() postId!: number;
+}
+
+@Component({ selector: 'app-create-comment', standalone: true, template: '' })
+class CommentCreateStubComponent {
+  @Input() postId!: number;
+}
 
 describe('PostDetailComponent integration', () => {
   let component: PostDetailComponent;
@@ -39,12 +51,15 @@ describe('PostDetailComponent integration', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: {
-              paramMap: convertToParamMap({ id: activatedRouteIdMock }),
-            },
+            snapshot: { paramMap: convertToParamMap({ id: activatedRouteIdMock }) },
           },
         },
       ],
+    });
+
+    TestBed.overrideComponent(PostDetailComponent, {
+      remove: { imports: [CommentsListComponent, CommentCreateComponent] },
+      add: { imports: [CommentsListStubComponent, CommentCreateStubComponent] },
     });
 
     fixture = TestBed.createComponent(PostDetailComponent);
