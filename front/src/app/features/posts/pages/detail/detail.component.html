@@ -5,6 +5,7 @@
     <span data-testid="error-screen">{{ error() }}</span>
   </mat-error>
 } @else if (post(); as currentPost) {
+  @let id = currentPost.id;
   @let title = currentPost.title;
   @let content = currentPost.content;
   @let author = currentPost.author;
@@ -20,4 +21,6 @@
     <p data-testid="post-topic">{{ topic }}</p>
   </div>
   <p class="content" data-testid="post-content">{{ content }}</p>
+  <h2>Commentaires</h2>
+  <app-create-comment [postId]="id" />
 }

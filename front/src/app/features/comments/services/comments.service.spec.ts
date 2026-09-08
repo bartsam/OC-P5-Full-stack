@@ -30,7 +30,6 @@ describe('CommentsService', () => {
     it('should call POST /comments with the correct payload and return created comment', () => {
       // GIVEN
       const request: CommentCreateRequest = {
-        userId: 1,
         postId: 1,
         content: 'Excellent article, merci pour le partage !',
       };

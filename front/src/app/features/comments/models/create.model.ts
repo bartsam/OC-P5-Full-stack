@@ -2,8 +2,7 @@ import { FormControl } from '@angular/forms';
 
 export interface CommentCreateRequest {
   content: string;
-  userId: number | null;
-  postId: number | null;
+  postId: number;
 }
 
 export type CommentCreateForm = {
