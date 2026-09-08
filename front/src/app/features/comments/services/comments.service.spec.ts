@@ -27,10 +27,11 @@ describe('CommentsService', () => {
   });
 
   describe('createComment', () => {
-    it('should call POST /comments with the correct payload and return created comment', () => {
+    it('should call POST /posts/:postId/comments with the correct payload and return created comment', () => {
       // GIVEN
+      const postId = 1;
+
       const request: CommentCreateRequest = {
-        postId: 1,
         content: 'Excellent article, merci pour le partage !',
       };
 
@@ -42,12 +43,12 @@ describe('CommentsService', () => {
       };
 
       // WHEN
-      service.createComment(request).subscribe(response => {
+      service.createComment(request, postId).subscribe(response => {
         expect(response).toEqual(result);
       });
 
       // THEN
-      const req = httpMock.expectOne(`${apiUrl}`);
+      const req = httpMock.expectOne(`${apiUrl}/${postId}/comments`);
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(request);
 
@@ -56,9 +57,9 @@ describe('CommentsService', () => {
   });
 
   describe('getComments', () => {
-    it('should call GET /comments/:postId/subscribe and return list of comments', () => {
+    it('should call GET /posts/:postId/comments and return list of comments', () => {
       // GIVEN
-      const postId = '1';
+      const postId = 1;
 
       const result: CommentItem[] = [
         {
@@ -81,7 +82,7 @@ describe('CommentsService', () => {
       });
 
       // THEN
-      const req = httpMock.expectOne(`${apiUrl}/${postId}/subscribe`);
+      const req = httpMock.expectOne(`${apiUrl}/${postId}/comments`);
       expect(req.request.method).toBe('GET');
 
       req.flush(result);

@@ -15,8 +15,8 @@ import { CommentsService } from '../../services/comments.service';
 })
 export class CommentCreateComponent implements OnInit {
   private readonly commentsService = inject(CommentsService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly notificationService = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
   private formBuilder = inject(FormBuilder);
   readonly postId = input.required<number>();
 
@@ -27,7 +27,6 @@ export class CommentCreateComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.formBuilder.nonNullable.group({
       content: ['', [Validators.required]],
-      postId: [this.postId(), [Validators.required]],
     });
   }
   submit(): void {
@@ -38,7 +37,7 @@ export class CommentCreateComponent implements OnInit {
     this.loading.set(true);
 
     this.commentsService
-      .createComment(this.form.getRawValue())
+      .createComment(this.form.getRawValue(), this.postId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

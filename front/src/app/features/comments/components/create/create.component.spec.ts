@@ -56,10 +56,9 @@ describe('CommentCreateComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize the form with empty content and postId from input', () => {
+  it('should initialize the form with empty content', () => {
     expect(component.form).toBeDefined();
     expect(component.form.controls.content.value).toBe('');
-    expect(component.form.controls.postId.value).toBe(1);
     expect(component.form.controls.content.valid).toBe(false);
   });
 
@@ -74,7 +73,7 @@ describe('CommentCreateComponent', () => {
     expect(component.form.valid).toBe(true);
   });
 
-  it('should call createComment and show success notification when submission succeeds', () => {
+  it('should call createComment with correct args and show success notification when submission succeeds', () => {
     const mockResponse: CommentItem = {
       id: 1,
       author: 'jeanbiche',
@@ -88,10 +87,10 @@ describe('CommentCreateComponent', () => {
     component.submit();
     fixture.detectChanges();
 
-    expect(mockCommentsService.createComment).toHaveBeenCalledWith({
-      postId: 1,
-      content: 'Great article !',
-    });
+    expect(mockCommentsService.createComment).toHaveBeenCalledWith(
+      { content: 'Great article !' },
+      1,
+    );
     expect(mockNotificationService.success).toHaveBeenCalledWith('Commentaire créé avec succès.');
     expect(component.loading()).toBe(false);
     expect(component.error()).toBeNull();
