@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Detailed post with comments")
+@Schema(description = "Detailed post")
 public record PostDetailResponse(
 
         @Schema(description = "Post ID", example = "1") Long id,

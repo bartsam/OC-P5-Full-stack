@@ -111,12 +111,12 @@ class CommentControllerIntegrationTest {
             CommentCreateRequest request = new CommentCreateRequest(content);
 
             // WHEN
-            ResultActions result = mockMvc.perform(post("/posts/{postId}/comments", post.getId())
+            ResultActions result = mockMvc.perform(post("/api/posts/{postId}/comments", post.getId())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
 
-            ResultActions resultComments = mockMvc.perform(get("/posts/{postId}/comments", post.getId())
+            ResultActions resultComments = mockMvc.perform(get("/api/posts/{postId}/comments", post.getId())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
             // THEN
@@ -135,7 +135,7 @@ class CommentControllerIntegrationTest {
             CommentCreateRequest request = new CommentCreateRequest("Test");
 
             // WHEN
-            ResultActions result = mockMvc.perform(post("/posts/{postId}/comments", post.getId())
+            ResultActions result = mockMvc.perform(post("/api/posts/{postId}/comments", post.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
 
@@ -151,7 +151,7 @@ class CommentControllerIntegrationTest {
             CommentCreateRequest request = new CommentCreateRequest("Test");
 
             // WHEN
-            ResultActions result = mockMvc.perform(post("/posts/{postId}/comments", unknownPostId)
+            ResultActions result = mockMvc.perform(post("/api/posts/{postId}/comments", unknownPostId)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
@@ -167,7 +167,7 @@ class CommentControllerIntegrationTest {
             CommentCreateRequest request = new CommentCreateRequest("");
 
             // WHEN
-            ResultActions result = mockMvc.perform(post("/posts/{postId}/comments", post.getId())
+            ResultActions result = mockMvc.perform(post("/api/posts/{postId}/comments", post.getId())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)));
@@ -196,7 +196,7 @@ class CommentControllerIntegrationTest {
             commentRepository.save(comment2);
 
             // WHEN
-            ResultActions result = mockMvc.perform(get("/posts/{postId}/comments", post.getId())
+            ResultActions result = mockMvc.perform(get("/api/posts/{postId}/comments", post.getId())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
             // THEN
@@ -210,7 +210,7 @@ class CommentControllerIntegrationTest {
         @DisplayName("should return 200 with empty list when post has no comments")
         void getComments_shouldReturn200WithEmptyList_whenNoComments() throws Exception {
             // WHEN
-            ResultActions result = mockMvc.perform(get("/posts/{postId}/comments", post.getId())
+            ResultActions result = mockMvc.perform(get("/api/posts/{postId}/comments", post.getId())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
             // THEN
@@ -222,7 +222,7 @@ class CommentControllerIntegrationTest {
         @DisplayName("should return 401 when no Authorization header is provided")
         void getComments_shouldReturn401_whenNoTokenProvided() throws Exception {
             // WHEN
-            ResultActions result = mockMvc.perform(get("/posts/{postId}/comments", post.getId()));
+            ResultActions result = mockMvc.perform(get("/api/posts/{postId}/comments", post.getId()));
 
             // THEN
             result.andExpect(status().isUnauthorized());
@@ -235,7 +235,7 @@ class CommentControllerIntegrationTest {
             Long unknownPostId = 99L;
 
             // WHEN
-            ResultActions result = mockMvc.perform(get("/posts/{postId}/comments", unknownPostId)
+            ResultActions result = mockMvc.perform(get("/api/posts/{postId}/comments", unknownPostId)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
 
             // THEN

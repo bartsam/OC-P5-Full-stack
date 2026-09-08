@@ -1,6 +1,7 @@
 package com.openclassrooms.mddapi.models;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -14,11 +15,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
 @Getter
@@ -33,6 +34,11 @@ public class CommentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
+    @Size(max = 2500)
+    @Column(nullable = false, length = 2500)
+    private String content;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "author_id", nullable = true)
     private UserEntity author;
@@ -41,18 +47,20 @@ public class CommentEntity {
     @JoinColumn(name = "post_id", nullable = false)
     private PostEntity post;
 
-    @NonNull
-    @NotBlank
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    /**
+     * Constructs a new CommentEntity.
+     *
+     * @param content the comment content
+     * @param author  the comment author, required at creation and nullable later
+     * @param post    the post linked to the comment
+     */
     public CommentEntity(String content, UserEntity author, PostEntity post) {
-        this.content = content;
-        this.author = author;
-        this.post = post;
+        this.content = Objects.requireNonNull(content, "content must not be null");
+        this.author = Objects.requireNonNull(author, "author must not be null");
+        this.post = Objects.requireNonNull(post, "post must not be null");
     }
 }

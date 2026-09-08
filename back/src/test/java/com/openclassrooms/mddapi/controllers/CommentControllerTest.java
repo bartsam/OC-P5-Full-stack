@@ -23,6 +23,7 @@ import com.openclassrooms.mddapi.dto.CommentResponse;
 import com.openclassrooms.mddapi.mappers.CommentMapper;
 import com.openclassrooms.mddapi.models.CommentEntity;
 import com.openclassrooms.mddapi.models.PostEntity;
+import com.openclassrooms.mddapi.models.TopicEntity;
 import com.openclassrooms.mddapi.models.UserEntity;
 import com.openclassrooms.mddapi.services.CommentService;
 
@@ -57,8 +58,9 @@ class CommentControllerTest {
 
             UserEntity author = new UserEntity("john@example.com", "john", "Password123!");
             author.setId(userId);
+            TopicEntity topic = new TopicEntity("Java", "Java ecosystem");
 
-            PostEntity post = new PostEntity("Spring Boot", "Java framework", author, null);
+            PostEntity post = new PostEntity("Spring Boot", "Java framework", author, topic);
             post.setId(postId);
 
             CommentEntity comment = new CommentEntity("Great article!", author, post);
@@ -102,8 +104,9 @@ class CommentControllerTest {
 
             UserEntity author = new UserEntity("john@example.com", "john", "Password123!");
             author.setId(1L);
+            TopicEntity topic = new TopicEntity("Java", "Java ecosystem");
 
-            PostEntity post = new PostEntity("Spring Boot", "Java framework", author, null);
+            PostEntity post = new PostEntity("Spring Boot", "Java framework", author, topic);
             post.setId(postId);
 
             CommentEntity comment1 = new CommentEntity("First", author, post);

@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -32,13 +33,15 @@ public class TopicEntity {
     private Long id;
 
     @NonNull
+    @NotBlank
     @Size(max = 50)
     @Column(unique = true, nullable = false, length = 50)
     private String name;
 
     @NonNull
+    @NotBlank
     @Size(max = 2500)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2500)
     private String description;
 
     @ManyToMany(mappedBy = "topics")

@@ -2,6 +2,7 @@ package com.openclassrooms.mddapi.models;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -22,7 +23,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
 @Getter
@@ -37,13 +37,11 @@ public class PostEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
     @NotBlank
     @Size(max = 150)
     @Column(nullable = false, length = 150)
     private String title;
 
-    @NonNull
     @NotBlank
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
@@ -68,13 +66,13 @@ public class PostEntity {
      *
      * @param title   the post title
      * @param content the post content
-     * @param author  the post author (may be null if user is deleted)
-     * @param topic   the post topic (may be null if topic is deleted)
+     * @param author  the post author, required at creation and nullable later
+     * @param topic   the post topic, required at creation and nullable later
      */
     public PostEntity(String title, String content, UserEntity author, TopicEntity topic) {
-        this.title = title;
-        this.content = content;
-        this.author = author;
-        this.topic = topic;
+        this.title = Objects.requireNonNull(title, "title must not be null");
+        this.content = Objects.requireNonNull(content, "content must not be null");
+        this.author = Objects.requireNonNull(author, "author must not be null");
+        this.topic = Objects.requireNonNull(topic, "topic must not be null");
     }
 }
