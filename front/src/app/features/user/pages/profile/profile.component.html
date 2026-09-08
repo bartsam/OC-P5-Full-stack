@@ -8,7 +8,7 @@
     </mat-error>
   } @else if (user()) {
     <form class="form" [formGroup]="form" (ngSubmit)="submit()">
-      <mat-form-field appearance="outline" floatLabel="always" class="form__field">
+      <mat-form-field appearance="outline" floatLabel="auto" class="form__field">
         <mat-label>Nom d'utilisateur</mat-label>
         <input matInput formControlName="username" data-testid="username-input" />
         @if (form.controls.username.invalid && form.controls.username.touched) {
@@ -26,7 +26,7 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline" floatLabel="always" class="form__field">
+      <mat-form-field appearance="outline" floatLabel="auto" class="form__field">
         <mat-label>Adresse e-mail</mat-label>
         <input matInput formControlName="email" data-testid="email-input" />
         @if (form.controls.email.invalid && form.controls.email.touched) {
