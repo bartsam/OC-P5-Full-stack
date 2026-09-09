@@ -109,6 +109,22 @@ cd back
 
 Les tests d'integration backend utilisent Testcontainers et necessitent Docker Desktop. Le rapport de couverture JaCoCo est genere dans `back/target/site/jacoco/`.
 
+### Tests E2E avec Cypress
+
+```bash
+npm run e2e          # exécution headless, démarre l'application automatiquement
+npm run e2e:open     # interface Cypress interactive
+```
+
+Le plugin `@cypress/code-coverage` collecte la couverture exposée par l'application
+et génère les rapports avec :
+
+```bash
+npm run e2e:coverage
+```
+
+Les rapports sont produits dans `coverage/` (HTML et LCOV).
+
 ## Structure du projet
 
 ```text
