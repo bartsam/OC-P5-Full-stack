@@ -87,6 +87,36 @@
           },
           "defaultConfiguration": "development"
         },
+        "cypress-coverage-build": {
+          "builder": "@angular-builders/custom-esbuild:application",
+          "options": {
+            "outputPath": "dist/front-e2e-coverage",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": ["src/polyfills.ts"],
+            "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": ["src/favicon.png", "src/assets"],
+            "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
+              "src/styles/styles.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["src/styles"]
+            },
+            "scripts": [],
+            "plugins": ["./cypress/coverage.esbuild.cjs"]
+          },
+          "configurations": {
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "development"
+        },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
           "options": {
@@ -97,8 +127,10 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "tsConfig": "tsconfig.spec.json",
+            "coverage": true,
             "reporters": ["default"],
             "coverageReporters": ["html", "text-summary"],
+            "runnerConfig": "vitest.config.ts",
             "setupFiles": ["src/test.ts"],
             "buildTarget": ":build:testing",
             "runner": "vitest"
@@ -110,36 +142,12 @@
             "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         },
-        "cypress-run": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "front:serve",
-            "headless": true
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "front:serve:production"
-            }
-          }
-        },
         "cypress-open": {
           "builder": "@cypress/schematic:cypress",
           "options": {
+            "devServerTarget": "front:cypress-coverage-serve",
             "watch": true,
             "headless": false
-          }
-        },
-        "e2e": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "front:serve",
-            "watch": true,
-            "headless": false
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "front:serve:production"
-            }
           }
         }
       }
