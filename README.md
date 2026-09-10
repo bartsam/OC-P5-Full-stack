@@ -67,6 +67,7 @@ Puis lancer l'API :
 Spring Boot demarre automatiquement le conteneur MySQL defini dans `back/compose.yaml` lorsque Docker Desktop est disponible. L'API est accessible sur `http://localhost:8080`.
 
 La documentation OpenAPI est disponible sur `http://localhost:8080/swagger-ui/index.html`.
+La collection Postman est disponible dans [docs/MDD.postman_collection.json](docs/MDD.postman_collection.json). Elle utilise les variables `baseUrl` et `token` pour tester les endpoints.
 
 ### 2. Demarrer le frontend
 
