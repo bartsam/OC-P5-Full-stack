@@ -61,7 +61,7 @@ describe('HomeComponent', () => {
     it('should display login and register links', () => {
       const links = debugElement.queryAll(By.css('[data-testid="link"]'));
 
-      expect(links.length).toBe(2);
+      expect(links).toHaveLength(2);
       expect(links[0].nativeElement.getAttribute('href')).toBe('/login');
       expect(links[1].nativeElement.getAttribute('href')).toBe('/register');
     });

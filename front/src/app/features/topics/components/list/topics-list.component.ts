@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { TopicItem } from '../../models';
 import { TopicsItemComponent } from '../item/topics-item.component';
 
@@ -7,6 +7,7 @@ import { TopicsItemComponent } from '../item/topics-item.component';
   imports: [TopicsItemComponent],
   styleUrl: './topics-list.component.scss',
   templateUrl: './topics-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicsListComponent {
   readonly topics = input.required<TopicItem[]>();

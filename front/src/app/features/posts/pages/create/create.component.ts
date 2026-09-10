@@ -1,5 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,6 +22,7 @@ import { PostsService } from '../../services/posts.service';
   selector: 'app-create-post',
   styleUrl: './create.component.scss',
   templateUrl: './create.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostCreateComponent implements OnInit {
   private readonly postsService = inject(PostsService);

@@ -154,3 +154,13 @@ Le fichier `back/.env` est local et ne doit pas etre versionne. Le modele `back/
 - `E2E_DB_NAME`, `E2E_DB_USER`, `E2E_DB_PASSWORD`, `E2E_DB_ROOT_PASSWORD` : base MySQL temporaire E2E
 - `E2E_JWT_SECRET` : cle JWT exclusivement utilisee par le profil E2E
 - `E2E_CORS_ALLOWED_ORIGINS` : origine du frontend E2E, `http://localhost:4201`
+
+## Axes d'amelioration
+
+Les pistes suivantes ont ete identifiees pour renforcer la qualite du projet :
+
+- ajouter la pagination et, si necessaire, un mécanisme de cache pour les articles et les commentaires ;
+- envisager le stockage du JWT dans un cookie `HttpOnly`, avec une protection CSRF adaptée ;
+- compléter les tests d’accessibilité avec un outil dédié, en particulier pour les composants Angular Material ;
+- étendre l’usage des façades aux pages qui coordonnent plusieurs services, afin de mieux isoler la logique métier ;
+- enrichir les logs pour tracer les principales actions métier pour faciliter le diagnostic en production.

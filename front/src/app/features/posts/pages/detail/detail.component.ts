@@ -1,6 +1,13 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
@@ -15,6 +22,7 @@ import { PostsService } from '../../services/posts.service';
   selector: 'app-post-detail',
   styleUrl: './detail.component.scss',
   templateUrl: './detail.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostDetailComponent implements OnInit {
   private readonly postsService = inject(PostsService);
