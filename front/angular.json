@@ -146,7 +146,7 @@
             "tsConfig": "tsconfig.spec.json",
             "coverage": true,
             "reporters": ["default"],
-            "coverageReporters": ["html", "text-summary"],
+            "coverageReporters": ["html", "text-summary", "lcov"],
             "runnerConfig": "vitest.config.ts",
             "setupFiles": ["src/test.ts"],
             "buildTarget": ":build:testing",
