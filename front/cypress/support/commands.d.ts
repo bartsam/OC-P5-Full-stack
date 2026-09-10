@@ -5,5 +5,8 @@ declare namespace Cypress {
 
     /** Intercepts a request sent to the API configured for E2E. */
     interceptApi(method: HttpMethod, path: string, alias: string): Chainable<null>;
+
+    /** Logs in with the E2E seeded user by default. */
+    login(identifier?: string, password?: string): Chainable<void>;
   }
 }
