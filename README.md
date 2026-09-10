@@ -111,19 +111,21 @@ Les tests d'integration backend utilisent Testcontainers et necessitent Docker D
 
 ### Tests E2E avec Cypress
 
-```bash
-npm run e2e          # exécution headless, démarre l'application automatiquement
-npm run e2e:open     # interface Cypress interactive
-```
-
-Le plugin `@cypress/code-coverage` collecte la couverture exposée par l'application
-et génère les rapports avec :
+Docker Desktop doit être démarré. Chaque commande utilise une base MySQL temporaire `mdd_e2e`, un back Spring en profil
+`e2e` sur le port `8081` et un front sur le port `4201`. La base de développement n’est jamais utilisée et les services
+sont arrêtés et supprimés à la fin de l'exécution ou en cas d'échec.
 
 ```bash
-npm run e2e:coverage
+npm run e2e:coverage   # execution dans Chrome avec rapport de couverture
+npm run e2e:open       # interface Cypress interactive dans Chrome
 ```
 
-Les rapports sont produits dans `coverage/` (HTML et LCOV).
+`npm run e2e:coverage` construit un front instrumenté, puis génère le rapport HTML dans
+`front/coverage/cypress/index.html`.
+
+`npm run e2e:open` lance l'environnement E2E et l'interface Cypress sur le même port
+`4201`, sans collecte de couverture. Fermer Cypress arrête ensuite le back et supprime
+la base temporaire.
 
 ## Structure du projet
 
@@ -148,3 +150,6 @@ Le fichier `back/.env` est local et ne doit pas etre versionne. Le modele `back/
 - `DB_ROOT_PASSWORD` : mot de passe administrateur MySQL pour Docker Compose
 - `JWT_SECRET` : cle secrete de signature des jetons JWT
 - `CORS_ALLOWED_ORIGINS` : origine autorisee pour le frontend, par exemple `http://localhost:4200`
+- `E2E_DB_NAME`, `E2E_DB_USER`, `E2E_DB_PASSWORD`, `E2E_DB_ROOT_PASSWORD` : base MySQL temporaire E2E
+- `E2E_JWT_SECRET` : cle JWT exclusivement utilisee par le profil E2E
+- `E2E_CORS_ALLOWED_ORIGINS` : origine du frontend E2E, `http://localhost:4201`

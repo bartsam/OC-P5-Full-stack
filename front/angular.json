@@ -63,6 +63,18 @@
               "sourceMap": true,
               "namedChunks": true
             },
+            "e2e": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.e2e.ts"
+                }
+              ]
+            },
             "testing": {
               "aot": false,
               "optimization": false,
@@ -83,6 +95,10 @@
             },
             "development": {
               "buildTarget": "front:build:development"
+            },
+            "e2e": {
+              "buildTarget": "front:build:e2e",
+              "port": 4201
             }
           },
           "defaultConfiguration": "development"
@@ -105,17 +121,18 @@
               "includePaths": ["src/styles"]
             },
             "scripts": [],
+            "optimization": false,
+            "extractLicenses": false,
+            "sourceMap": true,
+            "namedChunks": true,
+            "fileReplacements": [
+              {
+                "replace": "src/environments/environment.ts",
+                "with": "src/environments/environment.e2e.ts"
+              }
+            ],
             "plugins": ["./cypress/coverage.esbuild.cjs"]
-          },
-          "configurations": {
-            "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true
-            }
-          },
-          "defaultConfiguration": "development"
+          }
         },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
@@ -145,9 +162,13 @@
         "cypress-open": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "devServerTarget": "front:cypress-coverage-serve",
+            "devServerTarget": "front:serve:e2e",
             "watch": true,
-            "headless": false
+            "headless": false,
+            "browser": "chrome",
+            "expose": {
+              "coverage": false
+            }
           }
         }
       }

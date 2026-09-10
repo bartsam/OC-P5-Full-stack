@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["**/*.ts"],
+  "files": ["support/commands.d.ts"],
+  "include": ["**/*.ts", "**/*.d.ts"],
   "compilerOptions": {
     "rootDir": "..",
     "sourceMap": false,
