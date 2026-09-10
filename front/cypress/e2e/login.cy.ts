@@ -43,7 +43,7 @@ describe('Login page', () => {
     cy.getByTestId('password-input').should('have.attr', 'type', 'text');
   });
 
-  it('authenticates the user with valid credentials', () => {
+  it('authenticates the user and logs out', () => {
     cy.interceptApi('POST', '/auth/login', 'login');
 
     cy.getByTestId('identifier-input').focus().type(credentials.identifier);
@@ -56,5 +56,11 @@ describe('Login page', () => {
     });
     cy.location('pathname').should('eq', '/posts/feed');
     cy.window().its('localStorage').invoke('getItem', 'auth_token').should('be.a', 'string');
+
+    cy.getByTestId('logout-button').click();
+
+    cy.location('pathname').should('eq', '/');
+    cy.window().its('localStorage').invoke('getItem', 'auth_token').should('be.null');
+    cy.getByTestId('logout-button').should('not.exist');
   });
 });
