@@ -1,10 +1,25 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormGroupDirective,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { NotificationService } from '@shared/services/notification.service';
 import { MaterialComponents } from '@shared/ui/material';
-import { CommentCreateForm } from '../../models';
+import { CommentCreateForm, CommentItem } from '../../models';
 import { CommentsService } from '../../services/comments.service';
 
 @Component({
@@ -19,6 +34,7 @@ export class CommentCreateComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
   readonly postId = input.required<number>();
+  readonly commentCreated = output<CommentItem>();
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -29,6 +45,8 @@ export class CommentCreateComponent implements OnInit {
       content: ['', [Validators.required]],
     });
   }
+
+  @ViewChild(FormGroupDirective) formDirective!: FormGroupDirective;
   submit(): void {
     if (this.form.invalid) {
       return;
@@ -40,9 +58,11 @@ export class CommentCreateComponent implements OnInit {
       .createComment(this.form.getRawValue(), this.postId())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
+        next: comment => {
           this.notificationService.success('Commentaire créé avec succès.');
           this.loading.set(false);
+          this.formDirective.resetForm();
+          this.commentCreated.emit(comment);
         },
         error: (e: HttpErrorResponse) => {
           this.notificationService.error(
