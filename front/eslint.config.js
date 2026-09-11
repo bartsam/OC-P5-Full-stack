@@ -7,6 +7,9 @@ const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommen
 
 module.exports = defineConfig([
   {
+    ignores: ['cypress/**/*.d.ts'],
+  },
+  {
     files: ['**/*.ts'],
     extends: [
       eslint.configs.recommended,

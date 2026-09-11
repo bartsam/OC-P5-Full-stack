@@ -2,7 +2,13 @@
 <form class="form" [formGroup]="form" (ngSubmit)="submit()">
   <mat-form-field appearance="outline" floatLabel="auto" class="form__field">
     <mat-label>E-mail ou nom d’utilisateur</mat-label>
-    <input matInput formControlName="identifier" data-testid="identifier-input" />
+    <input
+      matInput
+      id="login-identifier"
+      formControlName="identifier"
+      data-testid="identifier-input"
+      aria-label="E-mail ou nom d’utilisateur"
+    />
     @if (form.controls.identifier.invalid && form.controls.identifier.touched) {
       <mat-error class="form__message">
         @if (form.controls.identifier.errors?.['required']) {
@@ -30,6 +36,7 @@
       [type]="isPasswordVisible() ? 'text' : 'password'"
       formControlName="password"
       data-testid="password-input"
+      aria-label="Mot de passe"
     />
     @if (form.controls.password.value.length > 1) {
       <button

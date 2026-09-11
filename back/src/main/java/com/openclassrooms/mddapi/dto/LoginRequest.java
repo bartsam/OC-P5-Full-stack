@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 @Schema(description = "Login credentials")
 public record LoginRequest(
 
-  @Schema(description = "Email address or username used to sign in", example = "john.doe@example.com or jeanbiche")
+  @Schema(description = "Email address or username used to sign in", example = "john.doe@example.com")
   @NotBlank(message = "Email or username is required")
   @Size(min = 3, max = 50, message = "Email or username must not exceed 50 characters")
   String identifier,

@@ -25,7 +25,12 @@
 
     <mat-form-field appearance="outline" floatLabel="auto" class="form__field">
       <mat-label>Titre de l’article</mat-label>
-      <input matInput formControlName="title" data-testid="title-input" />
+      <input
+        matInput
+        formControlName="title"
+        data-testid="title-input"
+        aria-label="Titre de l’article"
+      />
       @if (form.controls.title.invalid && form.controls.title.touched) {
         <mat-error class="form__message">
           @if (form.controls.title.errors?.['required']) {
@@ -37,7 +42,13 @@
 
     <mat-form-field appearance="outline" floatLabel="auto" class="form__field">
       <mat-label>Contenu de l’article</mat-label>
-      <textarea matInput formControlName="content" data-testid="content-input" rows="6"></textarea>
+      <textarea
+        matInput
+        formControlName="content"
+        data-testid="content-input"
+        rows="6"
+        aria-label="Contenu de l’article"
+      ></textarea>
       @if (form.controls.content.invalid && form.controls.content.touched) {
         <mat-error class="form__message">
           @if (form.controls.content.errors?.['required']) {

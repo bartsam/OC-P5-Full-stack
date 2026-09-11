@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "files": ["support/commands.d.ts"],
+  "include": ["**/*.ts", "**/*.d.ts"],
+  "compilerOptions": {
+    "rootDir": "..",
+    "sourceMap": false,
+    "types": ["cypress", "node"]
+  }
+}

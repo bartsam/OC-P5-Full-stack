@@ -1,69 +1,89 @@
+import { Component, DebugElement, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { provideRouter, Router } from '@angular/router';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { AuthService } from '../../features/auth/services/auth.service';
 import { HomeComponent } from './home.component';
 
+@Component({ template: '' })
+class DummyComponent {}
+
 describe('HomeComponent', () => {
+  let fixture: ComponentFixture<HomeComponent>;
   let component: HomeComponent;
   let debugElement: DebugElement;
-  let fixture: ComponentFixture<HomeComponent>;
-  let mockAuthService: { isLoggedIn: ReturnType<typeof vi.fn> };
+  let router: Router;
+
+  let isLoggedIn: WritableSignal<boolean>;
+  let mockAuthService: { isLoggedIn: WritableSignal<boolean> };
 
   beforeEach(async () => {
-    mockAuthService = {
-      isLoggedIn: vi.fn(),
-    };
+    isLoggedIn = signal(false);
+    mockAuthService = { isLoggedIn };
 
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [{ provide: AuthService, useValue: mockAuthService }, provideRouter([])],
+      providers: [
+        provideRouter([
+          { path: 'login', component: DummyComponent },
+          { path: 'register', component: DummyComponent },
+          { path: 'posts/feed', component: DummyComponent },
+        ]),
+        { provide: AuthService, useValue: mockAuthService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
-    debugElement = fixture.debugElement;
     component = fixture.componentInstance;
+    debugElement = fixture.debugElement;
+    router = TestBed.inject(Router);
   });
 
   it('should create', () => {
+    isLoggedIn.set(false);
+    fixture.detectChanges();
+
     expect(component).toBeTruthy();
   });
 
-  describe('when the user is not logged in', () => {
+  describe('when logged out', () => {
     beforeEach(() => {
-      mockAuthService.isLoggedIn.mockReturnValue(false);
+      isLoggedIn.set(false);
       fixture.detectChanges();
     });
 
-    it('should display the landing section with the sign-in/sign-up links', () => {
-      const landing = debugElement.query(By.css('[data-testid="landing"]'));
-      const feed = debugElement.query(By.css('[data-testid="feed"]'));
+    it('should not navigate away', () => {
+      expect(router.url).toBe('/');
+    });
+
+    it('should display login and register links', () => {
       const links = debugElement.queryAll(By.css('[data-testid="link"]'));
 
-      expect(landing).not.toBeNull();
-      expect(feed).toBeNull();
-
-      expect(links.length).toBe(2);
+      expect(links).toHaveLength(2);
       expect(links[0].nativeElement.getAttribute('href')).toBe('/login');
       expect(links[1].nativeElement.getAttribute('href')).toBe('/register');
     });
   });
 
-  describe('when the user is logged in', () => {
-    beforeEach(() => {
-      mockAuthService.isLoggedIn.mockReturnValue(true);
+  describe('when logged in', () => {
+    beforeEach(async () => {
+      isLoggedIn.set(true);
       fixture.detectChanges();
+      await fixture.whenStable();
     });
 
-    it('should display the feed of posts', () => {
-      const landing = debugElement.query(By.css('[data-testid="landing"]'));
-      const feed = debugElement.query(By.css('[data-testid="feed"]'));
+    it('should navigate to /posts/feed', () => {
+      expect(router.url).toBe('/posts/feed');
+    });
 
-      expect(feed).not.toBeNull();
-      expect(landing).toBeNull();
+    it('should display the loading screen instead of the landing actions', () => {
+      const landing = debugElement.query(By.css('[data-testid="landing"]'));
+      const loading = debugElement.query(By.css('[data-testid="loading-screen"]'));
+
+      expect(loading).toBeTruthy();
+      expect(landing).toBeFalsy();
     });
   });
 });

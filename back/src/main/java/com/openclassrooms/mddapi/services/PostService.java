@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.openclassrooms.mddapi.dto.PostDetailResponse;
 import com.openclassrooms.mddapi.dto.PostItemResponse;
@@ -16,7 +17,6 @@ import com.openclassrooms.mddapi.repository.TopicRepository;
 import com.openclassrooms.mddapi.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 
 @Service
 public class PostService {
@@ -80,17 +80,20 @@ public class PostService {
     }
 
     /**
-     * Retrieves all posts as light item responses, sorted by creation date.
+     * Retrieves posts from the topics the user is subscribed to,
+     * as light item responses, sorted by creation date.
      *
+     * @param userId        the ID of the user whose subscriptions are used
      * @param sortDirection "asc" or "desc"
      * @return a list of PostItemResponse
      */
-    public List<PostItemResponse> findAllFeed(String sortDirection) {
+    @Transactional(readOnly = true)
+    public List<PostItemResponse> findFeedForUser(Long userId, String sortDirection) {
         Sort sort = "asc".equalsIgnoreCase(sortDirection)
                 ? Sort.by(PostEntity::getCreatedAt).ascending()
                 : Sort.by(PostEntity::getCreatedAt).descending();
 
-        return postRepository.findAllBy(sort)
+        return postRepository.findDistinctByTopic_Subscribers_Id(userId, sort)
                 .stream()
                 .map(postMapper::toItemResponse)
                 .toList();

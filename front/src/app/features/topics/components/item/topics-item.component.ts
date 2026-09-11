@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MaterialComponents } from '@shared/ui/material';
 import { TopicItem } from '../../models';
 
@@ -7,6 +7,7 @@ import { TopicItem } from '../../models';
   selector: 'app-topics-item',
   styleUrl: './topics-item.component.scss',
   templateUrl: './topics-item.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicsItemComponent {
   readonly topic = input.required<TopicItem>();
