@@ -3,6 +3,7 @@ package com.openclassrooms.mddapi.controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -109,65 +110,61 @@ class PostControllerTest {
 
     @Nested
     @Tag("getFeed")
-    @DisplayName("GET /api/posts/")
+    @DisplayName("GET /api/posts")
     class GetFeedTests {
 
         @Test
-        @DisplayName("should return 200 with list of post items")
-        void getFeed_shouldReturn200WithPostItems() {
+        @DisplayName("should return posts from the authenticated user's subscriptions sorted descending")
+        void getFeed_shouldReturnSubscribedPostsSortedDescending() {
             // GIVEN
-            UserEntity author = new UserEntity(
-                    "john.doe@example.com",
-                    "john",
-                    "Password123!");
-            author.setId(1L);
-
-            TopicEntity topic = new TopicEntity(
-                    "Java",
-                    "Java ecosystem");
-            topic.setId(2L);
-
-            PostEntity post1 = new PostEntity(
-                    "Old post",
-                    "Old content",
-                    author,
-                    topic);
-            post1.setId(1L);
-            post1.setCreatedAt(LocalDateTime.of(2025, 1, 1, 10, 0));
-
-            PostEntity post2 = new PostEntity(
-                    "New post",
-                    "New content",
-                    author,
-                    topic);
-            post2.setId(2L);
-            post2.setCreatedAt(LocalDateTime.of(2025, 1, 2, 10, 0));
-
             PostItemResponse item1 = new PostItemResponse(
                     1L,
                     "Old post",
                     "Old content",
-                    post1.getAuthor().getUsername(),
-                    post1.getCreatedAt());
+                    "john",
+                    LocalDateTime.of(2025, 1, 1, 10, 0));
 
             PostItemResponse item2 = new PostItemResponse(
                     2L,
                     "New post",
                     "New content",
-                    post1.getAuthor().getUsername(),
-                    post2.getCreatedAt());
+                    "john",
+                    LocalDateTime.of(2025, 1, 2, 10, 0));
 
-            when(postService.findAllFeed("desc"))
+            when(authentication.getName()).thenReturn("1");
+            when(postService.findFeedForUser(1L, "desc"))
                     .thenReturn(List.of(item2, item1));
 
             // WHEN
-            ResponseEntity<List<PostItemResponse>> response = postController.getFeed("desc");
+            ResponseEntity<List<PostItemResponse>> response = postController.getFeed(
+                    authentication,
+                    "desc");
 
             // THEN
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).hasSize(2);
             assertThat(response.getBody()).extracting(PostItemResponse::id)
                     .containsExactly(2L, 1L);
+            verify(postService).findFeedForUser(1L, "desc");
+        }
+
+        @Test
+        @DisplayName("should pass ascending sort to the service")
+        void getFeed_shouldPassAscendingSortToService() {
+            // GIVEN
+            when(authentication.getName()).thenReturn("42");
+            when(postService.findFeedForUser(42L, "asc"))
+                    .thenReturn(List.of());
+
+            // WHEN
+            ResponseEntity<List<PostItemResponse>> response = postController.getFeed(
+                    authentication,
+                    "asc");
+
+            // THEN
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody()).isEmpty();
+            verify(postService).findFeedForUser(42L, "asc");
         }
     }
 
