@@ -111,7 +111,7 @@ describe('CommentsListComponent', () => {
     fixture.detectChanges();
 
     expect(component.loading()).toBe(false);
-    expect(component.error()).toBe('Impossible de charger les commentaire : Post introuvable');
+    expect(component.error()).toBe('Impossible de charger les commentaires : Post introuvable');
 
     const errorEl = debugElement.query(By.css('[data-testid="error-screen"]'));
     expect(errorEl).toBeTruthy();
@@ -126,6 +126,6 @@ describe('CommentsListComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.error()).toBe('Impossible de charger les commentaire : undefined');
+    expect(component.error()).toBe('Impossible de charger les commentaires : undefined');
   });
 });
