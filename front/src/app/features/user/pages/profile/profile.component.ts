@@ -29,7 +29,7 @@ export class ProfileComponent implements OnInit {
   private readonly topicsService = inject(TopicsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly notificationService = inject(NotificationService);
-  private formBuilder = inject(FormBuilder);
+  private readonly formBuilder = inject(FormBuilder);
 
   isPasswordVisible = false;
   readonly user = signal<User | null>(null);

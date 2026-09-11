@@ -27,12 +27,11 @@ import { PostsService } from '../../services/posts.service';
 export class PostDetailComponent implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly destroyRef = inject(DestroyRef);
-  private route = inject(ActivatedRoute);
+  private readonly route = inject(ActivatedRoute);
   private readonly titleService = inject(Title);
 
   readonly postId = signal<string | null>(null);
   readonly post = signal<PostDetail | null>(null);
-
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 

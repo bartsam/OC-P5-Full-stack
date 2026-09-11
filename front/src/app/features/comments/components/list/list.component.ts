@@ -15,8 +15,8 @@ import { CommentsItemComponent } from '../item/item.component';
 export class CommentsListComponent implements OnInit {
   private readonly commentsService = inject(CommentsService);
   private readonly destroyRef = inject(DestroyRef);
-  readonly postId = input.required<number>();
 
+  readonly postId = input.required<number>();
   readonly comments = signal<CommentItem[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);

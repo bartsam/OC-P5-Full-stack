@@ -17,7 +17,7 @@ export class CommentCreateComponent implements OnInit {
   private readonly commentsService = inject(CommentsService);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
-  private formBuilder = inject(FormBuilder);
+  private readonly formBuilder = inject(FormBuilder);
   readonly postId = input.required<number>();
 
   readonly loading = signal(false);

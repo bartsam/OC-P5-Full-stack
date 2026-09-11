@@ -27,10 +27,10 @@ import { PostsService } from '../../services/posts.service';
 export class PostCreateComponent implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly topicsService = inject(TopicsService);
-  private router = inject(Router);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly notificationService = inject(NotificationService);
-  private formBuilder = inject(FormBuilder);
+  private readonly formBuilder = inject(FormBuilder);
 
   readonly topics = signal<TopicOption[] | null>(null);
   readonly loading = signal(true);
