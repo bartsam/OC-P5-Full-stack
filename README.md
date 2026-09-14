@@ -1,51 +1,78 @@
-# MDD - Monde de Dev
+# MDD — Monde du Dév
 
-Application MVP permettant aux utilisateurs de créer un compte, de gérer leur profil et de s’abonner à des thèmes liés au monde du développement afin de consulter, commenter ou publier des articles sur ces sujets.
+MDD est une application web responsive de type réseau social destinée aux développeurs. Elle permet de suivre des thèmes techniques, de consulter un fil d'articles personnalisé, de publier, commenter et gérer son profil.
 
-Le projet est compose de deux applications :
+Le projet est organisé sous la forme d'un mono-repository contenant une application Angular et une API REST Spring Boot.
 
-- `front/` : application cliente Angular.
-- `back/` : API REST Spring Boot securisée par JWT.
+## Fonctionnalités
 
-## Technologies
+- Création de compte, connexion et déconnexion locale ;
+- authentification par jeton JWT ;
+- consultation et mise à jour du profil ;
+- consultation des thèmes, abonnement et désabonnement ;
+- fil d'actualité des articles liés aux thèmes suivis, avec tri chronologique ;
+- création et consultation d'articles ;
+- ajout et consultation de commentaires ;
+- interface adaptée aux écrans desktop et mobile.
 
-### Frontend
+## Architecture
 
-- Angular 22
-- Angular Material
-- TypeScript et SCSS
-- Vitest
+```mermaid
+flowchart TB
+    client[Navigateur\nClient desktop / mobile]
+    front[Front-end\nAngular 22]
+    back[Back-end\nSpring Boot 4.1]
+    database[(MySQL 8.4\nDocker Compose)]
+    swagger[Swagger / OpenAPI]
+    github[GitHub\nCI + SonarCloud]
 
-### Backend
+    client --> front
+    front -->|HTTP / JSON\nBearer JWT| back
+    back -->|JPA / JDBC| database
+    swagger -. documente .-> back
+    github -. versionne et analyse .-> front
+    github -. versionne et analyse .-> back
+```
 
-- Java 21
-- Spring Boot 4
-- Spring Security et JWT
-- Spring Data JPA
-- MySQL 8.4
-- Maven
-- Testcontainers
+| Répertoire | Rôle                                                                         |
+| ---------- | ---------------------------------------------------------------------------- |
+| `front/`   | Application Angular, composants, services, tests Vitest et scénarios Cypress |
+| `back/`    | API REST Spring Boot, sécurité JWT, persistance JPA et tests JUnit           |
+| `docs/`    | Collection Postman et documentation complémentaire                           |
 
-## Prerequis
+Le front-end est organisé par fonctionnalités, avec `core` pour les éléments transverses, notamment l'intercepteur JWT et les guards, et `shared` pour les éléments réutilisables. Le back-end suit une architecture en couches : contrôleurs REST, services métier, repositories JPA, DTO, mappers et sécurité.
 
-- Node.js dans une version compatible avec Angular 22 et npm
-- JDK 21
-- Docker Desktop, lance pour la base MySQL et les tests d'integration
+## Stack technique
 
-## Demarrer le projet en developpement
+| Domaine           | Technologies                                                               |
+| ----------------- | -------------------------------------------------------------------------- |
+| Front-end         | Angular 22, TypeScript, Angular Material, SCSS, Signals, Vitest, Cypress   |
+| Back-end          | Java 21, Spring Boot 4.1, Spring Security, JWT, Spring Data JPA, MapStruct |
+| Base de données   | MySQL 8.4, Docker Compose, Testcontainers                                  |
+| Documentation API | OpenAPI / Swagger UI, Postman                                              |
+| Qualité           | ESLint, Prettier, JaCoCo, SonarCloud, GitHub Actions                       |
 
-Les deux applications doivent etre lancees dans deux terminaux distincts.
+## Prérequis
 
-### 1. Demarrer le backend
+- Node.js 22 ou version compatible avec Angular 22 ;
+- JDK 21 ;
+- Docker Desktop démarré : requis pour MySQL local, Testcontainers et les tests E2E ;
+- Git.
 
-Depuis le dossier `back`, creer le fichier d'environnement local :
+## Installation et démarrage
+
+Les applications front-end et back-end doivent être lancées dans deux terminaux distincts.
+
+### 1. Configurer et démarrer l'API
+
+Créer le fichier d'environnement local depuis le modèle fourni :
 
 ```bash
 cd back
 cp .env.example .env
 ```
 
-Renseigner les valeurs de `back/.env` :
+Renseigner ensuite les valeurs locales dans `back/.env` :
 
 ```properties
 DB_HOST=localhost
@@ -58,20 +85,15 @@ JWT_SECRET=change_this_to_a_long_random_secret
 CORS_ALLOWED_ORIGINS=http://localhost:4200
 ```
 
-Puis lancer l'API :
+Puis démarrer l'API :
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Spring Boot demarre automatiquement le conteneur MySQL defini dans `back/compose.yaml` lorsque Docker Desktop est disponible. L'API est accessible sur `http://localhost:8080`.
+Lorsque Docker Desktop est disponible, Spring Boot démarre automatiquement le conteneur MySQL déclaré dans `back/compose.yaml`.
 
-La documentation OpenAPI est disponible sur `http://localhost:8080/swagger-ui/index.html`.
-La collection Postman est disponible dans [docs/MDD.postman_collection.json](docs/MDD.postman_collection.json). Elle utilise les variables `baseUrl` et `token` pour tester les endpoints.
-
-### 2. Demarrer le frontend
-
-Depuis le dossier `front` :
+### 2. Démarrer l'application Angular
 
 ```bash
 cd front
@@ -79,88 +101,89 @@ npm install
 npm start
 ```
 
-L'application est accessible sur `http://localhost:4200`.
+## Services locaux
 
-En developpement, le proxy Angular redirige les requetes vers `http://localhost:8080/api`.
+| Service               | Adresse                                       |
+| --------------------- | --------------------------------------------- |
+| Application Angular   | <http://localhost:4200>                       |
+| API REST              | <http://localhost:8080/api>                   |
+| Swagger UI            | <http://localhost:8080/swagger-ui/index.html> |
+| Spécification OpenAPI | <http://localhost:8080/v3/api-docs>           |
 
-## Fonctionnalites actuelles
+En développement, le proxy Angular redirige les requêtes `/api` vers l'API Spring Boot.
 
-- Inscription d'un utilisateur
-- Connexion par email ou nom d'utilisateur
-- Authentification par jeton JWT
-- Consultation et modification du profil utilisateur
-- Protection des routes necessitant une authentification
+## Documentation de l'API
 
-## Tests et qualite
+Swagger UI fournit la documentation interactive des endpoints, paramètres, schémas et réponses HTTP.
 
-### Frontend
+Une collection Postman est également disponible dans [docs/MDD.postman_collection.json](docs/MDD.postman_collection.json). Elle utilise les variables `baseUrl` et `token`.
+
+## Sécurité
+
+Les mots de passe sont hachés avec BCrypt et ne sont jamais retournés par l'API. Les endpoints protégés nécessitent un jeton JWT valide, transmis dans l'en-tête `Authorization: Bearer <token>`. Les DTO limitent les données échangées entre le client et les entités de persistance.
+
+Le fichier `back/.env` contient les secrets locaux et est ignoré par Git. Ne le versionnez jamais ; utilisez uniquement le modèle [back/.env.example](back/.env.example).
+
+## Tests et qualité
+
+### Front-end
 
 ```bash
 cd front
-npm test
-npm run lint
+npm test                 # Tests Vitest
+npm run lint             # Analyse ESLint
+npm run e2e:coverage     # Scénarios Cypress et rapport de couverture E2E
+npm run e2e:open         # Interface Cypress interactive
 ```
 
-### Backend
+### Back-end
 
 ```bash
 cd back
-./mvnw test
+./mvnw test              # Tests unitaires
+./mvnw verify            # Tests et rapport JaCoCo
 ```
 
-Les tests d'integration backend utilisent Testcontainers et necessitent Docker Desktop. Le rapport de couverture JaCoCo est genere dans `back/target/site/jacoco/`.
+Les tests d'intégration back-end utilisent Testcontainers avec une instance MySQL isolée. Le rapport JaCoCo est généré dans `back/target/site/jacoco/`.
 
-### Tests E2E avec Cypress
+Les tests E2E utilisent une base `mdd_e2e`, un back-end exécuté avec le profil `e2e` sur le port `8081` et un front-end sur le port `4201`. Cet environnement est supprimé à la fin de l'exécution ; il ne modifie pas la base de développement. Le rapport Cypress est généré dans `front/coverage/cypress/index.html`.
 
-Docker Desktop doit être démarré. Chaque commande utilise une base MySQL temporaire `mdd_e2e`, un back Spring en profil
-`e2e` sur le port `8081` et un front sur le port `4201`. La base de développement n’est jamais utilisée et les services
-sont arrêtés et supprimés à la fin de l'exécution ou en cas d'échec.
-
-```bash
-npm run e2e:coverage   # execution dans Chrome avec rapport de couverture
-npm run e2e:open       # interface Cypress interactive dans Chrome
-```
-
-`npm run e2e:coverage` construit un front instrumenté, puis génère le rapport HTML dans
-`front/coverage/cypress/index.html`.
-
-`npm run e2e:open` lance l'environnement E2E et l'interface Cypress sur le même port
-`4201`, sans collecte de couverture. Fermer Cypress arrête ensuite le back et supprime
-la base temporaire.
+GitHub Actions exécute les tests front-end et back-end à chaque pull request et à chaque push sur `main`, avant l'analyse SonarCloud.
 
 ## Structure du projet
 
 ```text
 .
-|- front/                 # Application Angular
-|  |- src/app/core/       # Authentification, gardes et interceptors
-|  |- src/app/features/   # Fonctionnalites metier
-|  |- src/app/shared/     # Composants et services partages
-|
-|- back/                  # API Spring Boot
-   |- src/main/java/      # Controllers, services, DTO, securite et persistance
-   |- src/test/java/      # Tests unitaires et d'integration
-   |- compose.yaml        # Service MySQL pour le developpement
+├── front/
+│   ├── src/app/core/        # Authentification, guards et intercepteur JWT
+│   ├── src/app/features/    # Fonctionnalités métier : auth, posts, topics, user...
+│   ├── src/app/shared/      # Composants, services et modèles réutilisables
+│   └── cypress/             # Scénarios end-to-end
+├── back/
+│   ├── src/main/java/       # API, services, DTO, sécurité et persistance
+│   ├── src/main/resources/  # Configuration et données initiales
+│   ├── src/test/java/       # Tests unitaires et d'intégration
+│   └── compose.yaml         # MySQL pour le développement local
+├── docs/                    # Collection Postman
+└── .github/workflows/       # Intégration continue
 ```
 
-## Variables d'environnement backend
+## Variables d'environnement
 
-Le fichier `back/.env` est local et ne doit pas etre versionne. Le modele `back/.env.example` liste les variables attendues :
+| Variable                                                                | Description                                                         |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`               | Paramètres de connexion MySQL                                       |
+| `DB_ROOT_PASSWORD`                                                      | Mot de passe administrateur MySQL du conteneur local                |
+| `JWT_SECRET`                                                            | Clé de signature des jetons JWT                                     |
+| `CORS_ALLOWED_ORIGINS`                                                  | Origine autorisée du front-end, par exemple `http://localhost:4200` |
+| `E2E_DB_NAME`, `E2E_DB_USER`, `E2E_DB_PASSWORD`, `E2E_DB_ROOT_PASSWORD` | Configuration de la base dédiée aux tests E2E                       |
+| `E2E_JWT_SECRET`, `E2E_CORS_ALLOWED_ORIGINS`                            | Configuration JWT et CORS du profil E2E                             |
 
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` : connexion MySQL
-- `DB_ROOT_PASSWORD` : mot de passe administrateur MySQL pour Docker Compose
-- `JWT_SECRET` : cle secrete de signature des jetons JWT
-- `CORS_ALLOWED_ORIGINS` : origine autorisee pour le frontend, par exemple `http://localhost:4200`
-- `E2E_DB_NAME`, `E2E_DB_USER`, `E2E_DB_PASSWORD`, `E2E_DB_ROOT_PASSWORD` : base MySQL temporaire E2E
-- `E2E_JWT_SECRET` : cle JWT exclusivement utilisee par le profil E2E
-- `E2E_CORS_ALLOWED_ORIGINS` : origine du frontend E2E, `http://localhost:4201`
+## Axes d'amélioration
 
-## Axes d'amelioration
-
-Les pistes suivantes ont ete identifiees pour renforcer la qualite du projet :
-
-- ajouter la pagination et, si necessaire, un mécanisme de cache pour les articles et les commentaires ;
-- envisager le stockage du JWT dans un cookie `HttpOnly`, avec une protection CSRF adaptée ;
-- compléter les tests d’accessibilité avec un outil dédié, en particulier pour les composants Angular Material ;
-- étendre l’usage des façades aux pages qui coordonnent plusieurs services, afin de mieux isoler la logique métier ;
-- enrichir les logs pour tracer les principales actions métier pour faciliter le diagnostic en production.
+- Ajouter une pagination et, si nécessaire, un mécanisme de cache pour les articles et commentaires ;
+- envisager le stockage du JWT dans un cookie `HttpOnly`, associé à une protection CSRF ;
+- charger les routes Angular à la demande afin de réduire le JavaScript initial ;
+- compléter les tests d'accessibilité, notamment sur les composants Angular Material ;
+- étendre l'usage des façades pour les pages coordonnant plusieurs services ;
+- enrichir les logs applicatifs pour faciliter le diagnostic en production.
