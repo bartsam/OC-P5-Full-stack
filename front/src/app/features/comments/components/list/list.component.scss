@@ -1,6 +1,9 @@
-.wrapper {
-  padding: 10px 0;
+.grid {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   @media (min-width: 768px) {
-    padding: 30px 64px 30px 44px;
+    margin: 30px 64px 30px 44px;
   }
 }

@@ -9,6 +9,6 @@ import com.openclassrooms.mddapi.models.PostEntity;
 
 public interface PostRepository extends JpaRepository<PostEntity, Long> {
 
-    List<PostEntity> findAllBy(Sort sort);
+    List<PostEntity> findDistinctByTopic_Subscribers_Id(Long userId, Sort sort);
 
 }

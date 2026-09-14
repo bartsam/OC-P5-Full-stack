@@ -15,13 +15,17 @@ import { CommentsItemComponent } from '../item/item.component';
 export class CommentsListComponent implements OnInit {
   private readonly commentsService = inject(CommentsService);
   private readonly destroyRef = inject(DestroyRef);
-  readonly postId = input.required<number>();
 
+  readonly postId = input.required<number>();
   readonly comments = signal<CommentItem[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
   ngOnInit(): void {
+    this.loadComments();
+  }
+
+  loadComments(): void {
     this.loading.set(true);
     this.error.set(null);
 
@@ -35,8 +39,12 @@ export class CommentsListComponent implements OnInit {
         },
         error: (e: HttpErrorResponse) => {
           this.loading.set(false);
-          this.error.set(`Impossible de charger les commentaire : ${e.error?.message}`);
+          this.error.set(`Impossible de charger les commentaires : ${e.error?.message}`);
         },
       });
+  }
+
+  addComment(comment: CommentItem): void {
+    this.comments.update(current => [comment, ...current]);
   }
 }

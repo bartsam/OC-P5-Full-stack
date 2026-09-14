@@ -1,12 +1,9 @@
-<div class="home">
+<div class="wrapper">
   @if (isLoggedIn()) {
-    <div class="home__feed" data-testid="feed">
-      <h1>Vous êtes connecté·e</h1>
-      <p>Contenu réservé aux utilisateurs connectés (fil d’articles, etc.).</p>
-    </div>
+    <mat-spinner data-testid="loading-screen" diameter="24" strokeWidth="2"> </mat-spinner>
   } @else {
     <img src="/assets/logo_p6.png" alt="MDD logo" />
-    <div class="home__actions" data-testid="landing">
+    <div class="actions" data-testid="landing">
       <a matButton="outlined" class="mdd-button" routerLink="/login" data-testid="link">
         Se connecter
       </a>

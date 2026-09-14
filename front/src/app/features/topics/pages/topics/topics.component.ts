@@ -1,5 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotificationService } from '@shared/services/notification.service';
 import { MaterialComponents } from '@shared/ui/material';
@@ -12,6 +19,7 @@ import { TopicsService } from '../../services/topics.service';
   selector: 'app-topics',
   styleUrl: './topics.component.scss',
   templateUrl: './topics.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TopicsComponent implements OnInit {
   private readonly topicsService = inject(TopicsService);

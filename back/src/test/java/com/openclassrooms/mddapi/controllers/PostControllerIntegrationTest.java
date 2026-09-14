@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -78,8 +79,8 @@ class PostControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         postRepository.deleteAll();
-        topicRepository.deleteAll();
         userRepository.deleteAll();
+        topicRepository.deleteAll();
 
         existingUser = userRepository.save(
                 new UserEntity("john.doe@example.com", "john", passwordEncoder.encode("Password123!")));
@@ -168,9 +169,11 @@ class PostControllerIntegrationTest {
     class GetFeedTests {
 
         @Test
-        @DisplayName("should return 200 with list of posts sorted desc by default")
-        void getFeed_shouldReturn200WithPostsSortedDesc() throws Exception {
+        @DisplayName("should return subscribed topic posts sorted desc by default")
+        void getFeed_shouldReturnSubscribedPostsSortedDesc() throws Exception {
             // GIVEN
+            existingUser.setTopics(List.of(topicA));
+            userRepository.saveAndFlush(existingUser);
             PostEntity post1 = new PostEntity(
                     "Old post",
                     "Old content",
@@ -182,11 +185,17 @@ class PostControllerIntegrationTest {
                     "New post",
                     "New content",
                     existingUser,
-                    topicB);
+                    topicA);
             post2.setCreatedAt(LocalDateTime.of(2026, 1, 1, 1, 0));
 
-            postRepository.save(post1);
-            postRepository.save(post2);
+            PostEntity excludedPost = new PostEntity(
+                    "Excluded post",
+                    "Excluded content",
+                    existingUser,
+                    topicB);
+            excludedPost.setCreatedAt(LocalDateTime.of(2027, 1, 1, 1, 0));
+
+            postRepository.saveAll(List.of(post1, post2, excludedPost));
 
             // WHEN
             ResultActions result = mockMvc.perform(get("/api/posts")
@@ -200,9 +209,12 @@ class PostControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("should return 200 with list of posts sorted asc when sort=asc")
-        void getFeed_shouldReturn200WithPostsSortedAsc() throws Exception {
+        @DisplayName("should return subscribed topic posts sorted asc when sort=asc")
+        void getFeed_shouldReturnSubscribedPostsSortedAsc() throws Exception {
             // GIVEN
+            existingUser.setTopics(List.of(topicA));
+            userRepository.saveAndFlush(existingUser);
+
             PostEntity post1 = new PostEntity(
                     "Old post",
                     "Old content",
@@ -214,11 +226,17 @@ class PostControllerIntegrationTest {
                     "New post",
                     "New content",
                     existingUser,
-                    topicB);
+                    topicA);
             post2.setCreatedAt(LocalDateTime.of(2025, 1, 2, 10, 0));
 
-            postRepository.save(post1);
-            postRepository.save(post2);
+            PostEntity excludedPost = new PostEntity(
+                    "Excluded post",
+                    "Excluded content",
+                    existingUser,
+                    topicB);
+            excludedPost.setCreatedAt(LocalDateTime.of(2024, 1, 1, 10, 0));
+
+            postRepository.saveAll(List.of(post1, post2, excludedPost));
 
             // WHEN
             ResultActions result = mockMvc.perform(get("/api/posts")
@@ -230,6 +248,25 @@ class PostControllerIntegrationTest {
                     .andExpect(jsonPath("$.length()").value(2))
                     .andExpect(jsonPath("$[0].title").value("Old post"))
                     .andExpect(jsonPath("$[1].title").value("New post"));
+        }
+
+        @Test
+        @DisplayName("should return an empty list when the user has no subscription")
+        void getFeed_shouldReturnEmptyList_whenUserHasNoSubscription() throws Exception {
+            // GIVEN
+            postRepository.save(new PostEntity(
+                    "Post outside the feed",
+                    "Content",
+                    existingUser,
+                    topicA));
+
+            // WHEN
+            ResultActions result = mockMvc.perform(get("/api/posts")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken));
+
+            // THEN
+            result.andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(0));
         }
 
         @Test

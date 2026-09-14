@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -157,14 +158,15 @@ public class PostServiceTest {
     }
 
     @Nested
-    @Tag("findAllFeed")
-    @DisplayName("Find all feed")
-    class FindAllFeedTests {
+    @Tag("findFeedForUser")
+    @DisplayName("Find subscribed feed")
+    class FindFeedForUserTests {
 
         @Test
-        @DisplayName("should return all posts as item responses sorted descending by default")
-        void findAllFeed_shouldReturnAllPostItemsSortedDesc() {
+        @DisplayName("should map subscription-filtered posts sorted descending")
+        void findFeedForUser_shouldMapSubscribedTopicPostsSortedDesc() {
             // GIVEN
+            Long userId = 1L;
             LocalDateTime older = LocalDateTime.of(2025, 1, 1, 10, 0);
             LocalDateTime newer = LocalDateTime.of(2025, 1, 2, 10, 0);
 
@@ -174,16 +176,21 @@ public class PostServiceTest {
                     "Password123!");
             author.setId(1L);
 
-            TopicEntity topic = new TopicEntity(
+            TopicEntity topic1 = new TopicEntity(
                     "Java",
                     "Java ecosystem");
-            topic.setId(2L);
+            topic1.setId(1L);
+
+            TopicEntity topic2 = new TopicEntity(
+                    "Angular",
+                    "Angular framework");
+            topic2.setId(2L);
 
             PostEntity post1 = new PostEntity(
                     "Old post",
                     "Old content",
                     author,
-                    topic);
+                    topic1);
             post1.setId(1L);
             post1.setCreatedAt(older);
 
@@ -191,7 +198,7 @@ public class PostServiceTest {
                     "New post",
                     "New content",
                     author,
-                    topic);
+                    topic2);
             post2.setId(2L);
             post2.setCreatedAt(newer);
 
@@ -209,7 +216,7 @@ public class PostServiceTest {
                     post2.getAuthor().getUsername(),
                     newer);
 
-            when(postRepository.findAllBy(
+            when(postRepository.findDistinctByTopic_Subscribers_Id(userId,
                     Sort.by(PostEntity::getCreatedAt).descending()))
                     .thenReturn(List.of(post2, post1));
 
@@ -217,7 +224,7 @@ public class PostServiceTest {
             when(postMapper.toItemResponse(post2)).thenReturn(item2);
 
             // WHEN
-            List<PostItemResponse> result = postService.findAllFeed("desc");
+            List<PostItemResponse> result = postService.findFeedForUser(userId, "desc");
 
             // THEN
             assertThat(result).hasSize(2);
@@ -225,12 +232,16 @@ public class PostServiceTest {
                     .containsExactly(2L, 1L);
             assertThat(result).extracting(PostItemResponse::createdAt)
                     .containsExactly(newer, older);
+            verify(postRepository).findDistinctByTopic_Subscribers_Id(
+                    userId,
+                    Sort.by(PostEntity::getCreatedAt).descending());
         }
 
         @Test
-        @DisplayName("should return all posts as item responses sorted ascending")
-        void findAllFeed_shouldReturnAllPostItemsSortedAsc() {
+        @DisplayName("should map subscription-filtered posts sorted ascending")
+        void findFeedForUser_shouldMapSubscribedTopicPostsSortedAsc() {
             // GIVEN
+            Long userId = 1L;
             LocalDateTime older = LocalDateTime.of(2025, 1, 1, 10, 0);
             LocalDateTime newer = LocalDateTime.of(2025, 1, 2, 10, 0);
 
@@ -240,16 +251,21 @@ public class PostServiceTest {
                     "Password123!");
             author.setId(1L);
 
-            TopicEntity topic = new TopicEntity(
+            TopicEntity topic1 = new TopicEntity(
                     "Java",
                     "Java ecosystem");
-            topic.setId(2L);
+            topic1.setId(1L);
+
+            TopicEntity topic2 = new TopicEntity(
+                    "Angular",
+                    "Angular framework");
+            topic2.setId(2L);
 
             PostEntity post1 = new PostEntity(
                     "Old post",
                     "Old content",
                     author,
-                    topic);
+                    topic1);
             post1.setId(1L);
             post1.setCreatedAt(older);
 
@@ -257,7 +273,7 @@ public class PostServiceTest {
                     "New post",
                     "New content",
                     author,
-                    topic);
+                    topic2);
             post2.setId(2L);
             post2.setCreatedAt(newer);
 
@@ -275,15 +291,15 @@ public class PostServiceTest {
                     post2.getAuthor().getUsername(),
                     newer);
 
-            when(postRepository.findAllBy(
-                    org.springframework.data.domain.Sort.by(PostEntity::getCreatedAt).ascending()))
+            when(postRepository.findDistinctByTopic_Subscribers_Id(userId,
+                    Sort.by(PostEntity::getCreatedAt).ascending()))
                     .thenReturn(List.of(post1, post2));
 
             when(postMapper.toItemResponse(post1)).thenReturn(item1);
             when(postMapper.toItemResponse(post2)).thenReturn(item2);
 
             // WHEN
-            List<PostItemResponse> result = postService.findAllFeed("asc");
+            List<PostItemResponse> result = postService.findFeedForUser(userId, "asc");
 
             // THEN
             assertThat(result).hasSize(2);
@@ -291,6 +307,28 @@ public class PostServiceTest {
                     .containsExactly(1L, 2L);
             assertThat(result).extracting(PostItemResponse::createdAt)
                     .containsExactly(older, newer);
+            verify(postRepository).findDistinctByTopic_Subscribers_Id(
+                    userId,
+                    Sort.by(PostEntity::getCreatedAt).ascending());
+        }
+
+        @Test
+        @DisplayName("should return an empty feed when the user has no subscribed topic")
+        void findFeedForUser_shouldReturnEmptyList_whenUserHasNoSubscribedTopic() {
+            // GIVEN
+            Long userId = 1L;
+            Sort sort = Sort.by(PostEntity::getCreatedAt).descending();
+
+            when(postRepository.findDistinctByTopic_Subscribers_Id(userId, sort))
+                    .thenReturn(List.of());
+
+            // WHEN
+            List<PostItemResponse> result = postService.findFeedForUser(userId, null);
+
+            // THEN
+            assertThat(result).isEmpty();
+            verify(postRepository).findDistinctByTopic_Subscribers_Id(userId, sort);
+            verifyNoInteractions(postMapper);
         }
     }
 

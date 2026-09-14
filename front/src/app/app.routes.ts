@@ -9,9 +9,15 @@ import { PostDetailComponent } from './features/posts/pages/detail/detail.compon
 import { FeedComponent } from './features/posts/pages/feed/feed.component';
 import { TopicsComponent } from './features/topics/pages/topics/topics.component';
 import { ProfileComponent } from './features/user/pages/profile/profile.component';
+import { NotFoundComponent } from './pages/not-found/not-found.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent, title: 'Accueil - MDD' },
+  {
+    path: '',
+    component: HomeComponent,
+    title: 'Accueil - MDD',
+  },
+
   {
     path: 'register',
     component: RegisterComponent,
@@ -60,5 +66,10 @@ export const routes: Routes = [
         canActivate: [authGuard],
       },
     ],
+  },
+  {
+    path: '**',
+    component: NotFoundComponent,
+    title: 'Page introuvable - MDD',
   },
 ];

@@ -67,6 +67,7 @@ Puis lancer l'API :
 Spring Boot demarre automatiquement le conteneur MySQL defini dans `back/compose.yaml` lorsque Docker Desktop est disponible. L'API est accessible sur `http://localhost:8080`.
 
 La documentation OpenAPI est disponible sur `http://localhost:8080/swagger-ui/index.html`.
+La collection Postman est disponible dans [docs/MDD.postman_collection.json](docs/MDD.postman_collection.json). Elle utilise les variables `baseUrl` et `token` pour tester les endpoints.
 
 ### 2. Demarrer le frontend
 
@@ -109,6 +110,24 @@ cd back
 
 Les tests d'integration backend utilisent Testcontainers et necessitent Docker Desktop. Le rapport de couverture JaCoCo est genere dans `back/target/site/jacoco/`.
 
+### Tests E2E avec Cypress
+
+Docker Desktop doit être démarré. Chaque commande utilise une base MySQL temporaire `mdd_e2e`, un back Spring en profil
+`e2e` sur le port `8081` et un front sur le port `4201`. La base de développement n’est jamais utilisée et les services
+sont arrêtés et supprimés à la fin de l'exécution ou en cas d'échec.
+
+```bash
+npm run e2e:coverage   # execution dans Chrome avec rapport de couverture
+npm run e2e:open       # interface Cypress interactive dans Chrome
+```
+
+`npm run e2e:coverage` construit un front instrumenté, puis génère le rapport HTML dans
+`front/coverage/cypress/index.html`.
+
+`npm run e2e:open` lance l'environnement E2E et l'interface Cypress sur le même port
+`4201`, sans collecte de couverture. Fermer Cypress arrête ensuite le back et supprime
+la base temporaire.
+
 ## Structure du projet
 
 ```text
@@ -132,3 +151,16 @@ Le fichier `back/.env` est local et ne doit pas etre versionne. Le modele `back/
 - `DB_ROOT_PASSWORD` : mot de passe administrateur MySQL pour Docker Compose
 - `JWT_SECRET` : cle secrete de signature des jetons JWT
 - `CORS_ALLOWED_ORIGINS` : origine autorisee pour le frontend, par exemple `http://localhost:4200`
+- `E2E_DB_NAME`, `E2E_DB_USER`, `E2E_DB_PASSWORD`, `E2E_DB_ROOT_PASSWORD` : base MySQL temporaire E2E
+- `E2E_JWT_SECRET` : cle JWT exclusivement utilisee par le profil E2E
+- `E2E_CORS_ALLOWED_ORIGINS` : origine du frontend E2E, `http://localhost:4201`
+
+## Axes d'amelioration
+
+Les pistes suivantes ont ete identifiees pour renforcer la qualite du projet :
+
+- ajouter la pagination et, si necessaire, un mécanisme de cache pour les articles et les commentaires ;
+- envisager le stockage du JWT dans un cookie `HttpOnly`, avec une protection CSRF adaptée ;
+- compléter les tests d’accessibilité avec un outil dédié, en particulier pour les composants Angular Material ;
+- étendre l’usage des façades aux pages qui coordonnent plusieurs services, afin de mieux isoler la logique métier ;
+- enrichir les logs pour tracer les principales actions métier pour faciliter le diagnostic en production.

@@ -1,0 +1,33 @@
+app:
+  jwt:
+    secret: ${E2E_JWT_SECRET}
+  cors:
+    allowed-origins: ${E2E_CORS_ALLOWED_ORIGINS}
+
+debug: false
+
+server:
+  port: 8081
+
+spring:
+  docker:
+    compose:
+      enabled: false
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/${E2E_DB_NAME}
+    username: ${E2E_DB_USER}
+    password: ${E2E_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql,classpath:data-e2e.sql
+
+logging:
+  level:
+    root: INFO

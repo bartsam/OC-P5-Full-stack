@@ -7,25 +7,24 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
+import { MaterialComponents } from '@shared/ui/material';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../../../features/auth/services/auth.service';
-import { MaterialComponents } from '../../ui/material';
+import { HeaderComponent } from '../header/header.component';
 
 @Component({
-  imports: [MaterialComponents, RouterLink, RouterLinkActive],
+  imports: [MaterialComponents, HeaderComponent],
   selector: 'app-layout',
   styleUrl: './layout.component.scss',
   templateUrl: './layout.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LayoutComponent {
-  protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  protected readonly authService = inject(AuthService);
 
-  readonly isMenuOpen = signal(false);
   readonly showBackButton = signal(false);
-
   readonly currentUrl = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -34,23 +33,9 @@ export class LayoutComponent {
     { initialValue: this.router.url },
   );
 
-  readonly isHomePage = computed(() => this.currentUrl() === '/');
-  readonly isLoggedIn = this.authService.isLoggedIn;
-  readonly hideHeader = computed(() => this.isHomePage() && !this.authService.isLoggedIn());
+  readonly hideHeader = computed(() => this.currentUrl() === '/' && !this.authService.isLoggedIn());
 
   constructor() {
-    // Handle mobile enu
-    effect(() => {
-      const isOpen = this.isMenuOpen();
-
-      if (isOpen) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.removeProperty('overflow');
-      }
-    });
-
-    // Handle back button
     effect(() => {
       this.currentUrl();
 
@@ -63,20 +48,7 @@ export class LayoutComponent {
     });
   }
 
-  toggleMenu(): void {
-    this.isMenuOpen.update(open => !open);
-  }
-
-  closeMenu(): void {
-    this.isMenuOpen.set(false);
-  }
-
   goBack(): void {
     window.history.back();
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/']);
   }
 }

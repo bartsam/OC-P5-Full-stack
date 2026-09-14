@@ -6,6 +6,7 @@
       placeholder="Écrivez ici votre commentaire"
       data-testid="content-input"
       rows="6"
+      aria-label="Commentaire"
     ></textarea>
     @if (form.controls.content.invalid && form.controls.content.touched) {
       <mat-error class="form__message">

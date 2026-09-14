@@ -1,5 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,14 +22,15 @@ import { PostsService } from '../../services/posts.service';
   selector: 'app-create-post',
   styleUrl: './create.component.scss',
   templateUrl: './create.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostCreateComponent implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly topicsService = inject(TopicsService);
-  private router = inject(Router);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly notificationService = inject(NotificationService);
-  private formBuilder = inject(FormBuilder);
+  private readonly formBuilder = inject(FormBuilder);
 
   readonly topics = signal<TopicOption[] | null>(null);
   readonly loading = signal(true);

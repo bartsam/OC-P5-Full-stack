@@ -73,12 +73,12 @@ public class PostController {
     }
 
     /**
-     * Retrieves all posts as light item responses, sorted by creation date.
+     * Retrieves posts of the user's subscribed topics sorted by creation date.
      *
-     * @param sort the sort direction: defaults to "desc" if not provided.
+     * @param sort the sort direction: defaults to "desc" if not provided
      * @return a {@link ResponseEntity} of a list of {@link PostItemResponse}
      */
-    @Operation(summary = "Get posts feed", description = "Returns all posts as light items, sorted by creation date")
+    @Operation(summary = "Get posts feed", description = "Returns posts from subscribed topics, sorted by creation date")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Posts retrieved successfully"),
             @ApiResponse(responseCode = "401", description = "User not authenticated")
@@ -86,8 +86,11 @@ public class PostController {
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping
     public ResponseEntity<List<PostItemResponse>> getFeed(
+            Authentication authentication,
             @RequestParam(defaultValue = "desc") String sort) {
-        List<PostItemResponse> posts = postService.findAllFeed(sort);
+        Long userId = Long.parseLong(authentication.getName());
+
+        List<PostItemResponse> posts = postService.findFeedForUser(userId, sort);
         return ResponseEntity.ok(posts);
     }
 

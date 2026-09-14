@@ -89,7 +89,7 @@ describe('CommentsListComponent', () => {
     expect(debugElement.query(By.css('[data-testid="loading-screen"]'))).toBeFalsy();
 
     const items = debugElement.queryAll(By.css('app-comments-item'));
-    expect(items.length).toBe(mockComments.length);
+    expect(items).toHaveLength(mockComments.length);
   });
 
   it('should display an empty list container when there are no comments', () => {
@@ -98,7 +98,7 @@ describe('CommentsListComponent', () => {
     fixture.detectChanges();
 
     expect(debugElement.query(By.css('[data-testid="posts-list"]'))).toBeTruthy();
-    expect(debugElement.queryAll(By.css('app-comments-item')).length).toBe(0);
+    expect(debugElement.queryAll(By.css('app-comments-item'))).toHaveLength(0);
   });
 
   it('should display an error message and hide the spinner on failure', () => {
@@ -111,7 +111,7 @@ describe('CommentsListComponent', () => {
     fixture.detectChanges();
 
     expect(component.loading()).toBe(false);
-    expect(component.error()).toBe('Impossible de charger les commentaire : Post introuvable');
+    expect(component.error()).toBe('Impossible de charger les commentaires : Post introuvable');
 
     const errorEl = debugElement.query(By.css('[data-testid="error-screen"]'));
     expect(errorEl).toBeTruthy();
@@ -126,6 +126,6 @@ describe('CommentsListComponent', () => {
 
     fixture.detectChanges();
 
-    expect(component.error()).toBe('Impossible de charger les commentaire : undefined');
+    expect(component.error()).toBe('Impossible de charger les commentaires : undefined');
   });
 });
