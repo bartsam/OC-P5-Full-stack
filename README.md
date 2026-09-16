@@ -116,6 +116,25 @@ En développement, le proxy Angular redirige les requêtes `/api` vers l'API Spr
 
 Swagger UI fournit la documentation interactive des endpoints, paramètres, schémas et réponses HTTP.
 
+| Méthode | Endpoint | Description | Accès |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Créer un compte et obtenir un JWT | Public |
+| `POST` | `/api/auth/login` | Se connecter avec un e-mail ou un nom d'utilisateur et obtenir un JWT | Public |
+| `GET` | `/api/profile` | Consulter le profil de l'utilisateur connecté | JWT requis |
+| `PUT` | `/api/profile` | Mettre à jour le profil de l'utilisateur connecté | JWT requis |
+| `GET` | `/api/topics` | Lister les thèmes et l'état d'abonnement de l'utilisateur | JWT requis |
+| `GET` | `/api/topics/options` | Lister les thèmes au format simplifié pour les champs de sélection | JWT requis |
+| `GET` | `/api/topics/subscribed` | Lister les thèmes suivis par l'utilisateur | JWT requis |
+| `POST` | `/api/topics/{topicId}/subscribe` | S'abonner à un thème | JWT requis |
+| `DELETE` | `/api/topics/{topicId}/subscribe` | Se désabonner d'un thème | JWT requis |
+| `GET` | `/api/posts` | Consulter le fil des articles des thèmes suivis ; paramètre `sort` optionnel : `asc` ou `desc` | JWT requis |
+| `POST` | `/api/posts` | Créer un article lié à un thème | JWT requis |
+| `GET` | `/api/posts/{postId}` | Consulter le détail d'un article | JWT requis |
+| `GET` | `/api/posts/{postId}/comments` | Lister les commentaires d'un article | JWT requis |
+| `POST` | `/api/posts/{postId}/comments` | Ajouter un commentaire à un article | JWT requis |
+
+> La déconnexion est gérée côté client par suppression du JWT du stockage local ; l'API ne possède donc pas d'endpoint de déconnexion.
+
 Une collection Postman est également disponible dans [docs/MDD.postman_collection.json](docs/MDD.postman_collection.json). Elle utilise les variables `baseUrl` et `token`.
 
 ## Sécurité
