@@ -39,15 +39,26 @@ flowchart TB
 ```text
 .
 ├── front/
-│   ├── src/app/core/        # Authentification, guards et intercepteur JWT
-│   ├── src/app/features/    # Fonctionnalités métier : auth, posts, topics, user...
-│   ├── src/app/shared/      # Composants, services et modèles réutilisables
-│   └── cypress/             # Scénarios end-to-end
+│   ├── src/app/
+│   │   ├── core/             # Authentification, guards et intercepteur JWT
+│   │   ├── features/         # Fonctionnalités métier : auth, posts, topics, user...
+│   │   ├── shared/           # Composants, services et modèles réutilisables
+│   │   └── pages/            # Pages transverses : accueil et 404
+│   └── cypress/              # Scénarios end-to-end
 ├── back/
-│   ├── src/main/java/       # API, services, DTO, sécurité et persistance
-│   ├── src/main/resources/  # Configuration et données initiales
-│   ├── src/test/java/       # Tests unitaires et d'intégration
-│   └── compose.yaml         # MySQL pour le développement local
+│   ├── src/main/java/
+│   │   ├── config/           # Configuration CORS et Spring Security
+│   │   ├── controllers/      # Endpoints REST
+│   │   ├── dto/              # Contrats de requêtes et réponses API
+│   │   ├── exceptions/       # Gestion centralisée des erreurs HTTP
+│   │   ├── mappers/          # Conversion entités ↔ DTO
+│   │   ├── models/           # Entités JPA
+│   │   ├── repositories/     # Accès aux données avec Spring Data JPA
+│   │   ├── security/         # JWT, UserDetails et authentification
+│   │   └── services/         # Logique métier
+│   ├── src/main/resources/   # Configurations Spring, profils et données initiales
+│   ├── src/test/java/        # Tests unitaires et d’intégration
+│   └── compose.yaml          # MySQL pour le développement local
 ├── docs/                    # Collection Postman
 └── .github/workflows/       # Intégration continue
 ```
